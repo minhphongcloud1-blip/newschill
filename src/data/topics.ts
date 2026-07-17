@@ -1,0 +1,68 @@
+import { Topic } from '@/types';
+
+export const mockTopics: Topic[] = [
+  {
+    slug: 'cong-nghe',
+    name: 'Công nghệ',
+    icon: '💻',
+    description: 'AI, phần mềm, gadgets, startups và xu hướng công nghệ mới nhất',
+    articleCount: 42,
+    color: '#3B82F6',
+  },
+  {
+    slug: 'khoa-hoc',
+    name: 'Khoa học',
+    icon: '🔬',
+    description: 'Khám phá vũ trụ, y học, sinh học và các nghiên cứu đột phá',
+    articleCount: 28,
+    color: '#8B5CF6',
+  },
+  {
+    slug: 'kinh-doanh',
+    name: 'Kinh doanh',
+    icon: '📈',
+    description: 'Thị trường tài chính, startup, đầu tư và chiến lược kinh doanh',
+    articleCount: 35,
+    color: '#10B981',
+  },
+  {
+    slug: 'the-thao',
+    name: 'Thể thao',
+    icon: '⚽',
+    description: 'Bóng đá, bóng rổ, tennis và các sự kiện thể thao quốc tế',
+    articleCount: 31,
+    color: '#F59E0B',
+  },
+  {
+    slug: 'giai-tri',
+    name: 'Giải trí',
+    icon: '🎬',
+    description: 'Phim ảnh, âm nhạc, gaming và văn hóa đại chúng',
+    articleCount: 25,
+    color: '#EF4444',
+  },
+  {
+    slug: 'suc-khoe',
+    name: 'Sức khỏe',
+    icon: '🏥',
+    description: 'Y tế, dinh dưỡng, thể dục và lối sống lành mạnh',
+    articleCount: 19,
+    color: '#06B6D4',
+  },
+  {
+    slug: 'the-gioi',
+    name: 'Thế giới',
+    icon: '🌍',
+    description: 'Tin tức quốc tế, chính trị, xã hội và sự kiện toàn cầu',
+    articleCount: 38,
+    color: '#F97316',
+  },
+  {
+    slug: 'giao-duc',
+    name: 'Giáo dục',
+    icon: '📚',
+    description: 'Học tập, du học, kỹ năng và phát triển bản thân',
+    articleCount: 15,
+    color: '#EC4899',
+  },
+];
