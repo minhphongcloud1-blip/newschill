@@ -30,7 +30,7 @@ export default function RightPanel() {
   };
 
   return (
-    <aside className="w-[320px] shrink-0 max-xl:hidden sticky top-[49px] self-start h-[calc(100vh-49px)] overflow-y-auto py-4 pl-2 pr-4 space-y-4">
+    <aside className="w-[320px] shrink-0 max-xl:hidden sticky top-[49px] self-start h-[calc(100vh-49px)] overflow-y-auto pl-4 space-y-4">
         {/* Search */}
         <form onSubmit={handleSearch} className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: 'var(--text-secondary)' }} />
@@ -50,9 +50,12 @@ export default function RightPanel() {
         <div className="rounded-2xl overflow-hidden"
           style={{ background: 'transparent', border: '1px solid var(--border-primary)' }}
         >
-          <div className="px-4 py-3 flex items-center gap-2">
-            <TrendingUp className="w-5 h-5" style={{ color: '#F97316' }} />
-            <h2 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>Xu hướng</h2>
+          <div className="px-4 py-3 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <TrendingUp className="w-5 h-5" style={{ color: '#F97316' }} />
+              <h2 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>Xu hướng</h2>
+            </div>
+            <Link href="/trending" className="text-xs font-medium" style={{ color: '#F97316' }}>Xem thêm</Link>
           </div>
           {trending.map((article, i) => (
             <Link key={article.id} href={`/article/${article.id}`}>
@@ -80,11 +83,7 @@ export default function RightPanel() {
               </motion.div>
             </Link>
           ))}
-          <Link href="/trending">
-            <div className="px-4 py-3 border-t text-sm font-medium" style={{ borderColor: 'var(--border-primary)', color: '#F97316' }}>
-              Xem thêm
-            </div>
-          </Link>
+
         </div>
 
         {/* Advertisements */}

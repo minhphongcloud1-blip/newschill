@@ -9,10 +9,52 @@ const inter = Inter({
   variable: "--font-inter",
 });
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://newsx.vn';
+const SITE_NAME = 'NewsX';
+const DEFAULT_DESCRIPTION = 'Đọc tin tức, bình luận và chia sẻ trên nền tảng kiểu X. Cập nhật tin tức công nghệ, khoa học, kinh doanh, thể thao nhanh nhất Việt Nam.';
+const DEFAULT_OG_IMAGE = `${SITE_URL}/og-image.png`;
+
 export const metadata: Metadata = {
-  title: "NewsX - Nền tảng tin tức thế hệ mới",
-  description: "Đọc tin tức, bình luận và chia sẻ trên nền tảng kiểu X (Twitter). Cập nhật tin tức công nghệ, khoa học, kinh doanh, thể thao và nhiều hơn nữa.",
-  keywords: ["tin tức", "blog", "công nghệ", "khoa học", "Việt Nam", "newsX"],
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: `${SITE_NAME} – Tin tức thế hệ mới`,
+    template: `%s | ${SITE_NAME}`,
+  },
+  description: DEFAULT_DESCRIPTION,
+  keywords: ['tin tức', 'blog', 'công nghệ', 'khoa học', 'kinh doanh', 'thể thao', 'Việt Nam', 'NewsX', 'tin tức mới nhất', 'tin công nghệ'],
+  authors: [{ name: 'NewsX', url: SITE_URL }],
+  creator: 'NewsX',
+  publisher: 'NewsX',
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true, 'max-image-preview': 'large', 'max-snippet': -1 },
+  },
+  openGraph: {
+    type: 'website',
+    locale: 'vi_VN',
+    url: SITE_URL,
+    siteName: SITE_NAME,
+    title: `${SITE_NAME} – Tin tức thế hệ mới`,
+    description: DEFAULT_DESCRIPTION,
+    images: [{ url: DEFAULT_OG_IMAGE, width: 1200, height: 630, alt: `${SITE_NAME} – Tin tức thế hệ mới` }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: `${SITE_NAME} – Tin tức thế hệ mới`,
+    description: DEFAULT_DESCRIPTION,
+    images: [DEFAULT_OG_IMAGE],
+    creator: '@newsxvn',
+    site: '@newsxvn',
+  },
+  alternates: { canonical: SITE_URL },
+  other: { 'google-site-verification': 'YOUR_GOOGLE_VERIFICATION_TOKEN' },
+};
+
+export const viewport = {
+  themeColor: [{ media: '(prefers-color-scheme: dark)', color: '#0F0F0F' }, { media: '(prefers-color-scheme: light)', color: '#FFFFFF' }],
+  width: 'device-width',
+  initialScale: 1,
 };
 
 export default function RootLayout({

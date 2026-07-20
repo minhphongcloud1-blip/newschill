@@ -4,6 +4,7 @@
 
 export type UserRole = 'admin' | 'editor' | 'reader';
 export type UserStatus = 'active' | 'pending' | 'blocked';
+export type UserPlan = 'free' | 'pending_pro' | 'pro';
 
 export interface User {
   id: string;
@@ -15,6 +16,8 @@ export interface User {
   role: UserRole;
   status: UserStatus;
   createdAt: string;
+  coverImage?: string;
+  plan?: UserPlan;
 }
 
 export interface Article {

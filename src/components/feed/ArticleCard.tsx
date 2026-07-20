@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Heart, MessageCircle, Share2, Check, X } from 'lucide-react';
 import { Article } from '@/types';
-import { formatDate, formatNumber } from '@/lib/utils';
+import { formatNumber } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 
@@ -15,9 +15,9 @@ interface ArticleCardProps {
 }
 
 export default function ArticleCard({ article, index = 0 }: ArticleCardProps) {
-  const { isLiked, toggleLike, isShared, toggleShare, isAuthenticated } = useAuth();
+  const { isLiked, toggleLike, hasShared, recordShare, isAuthenticated } = useAuth();
   const liked = isLiked(article.id);
-  const shared = isShared(article.id);
+  const shared = hasShared(article.id);
   const router = useRouter();
   const [showSharePopup, setShowSharePopup] = useState(false);
   const [showToast, setShowToast] = useState(false);
@@ -36,10 +36,7 @@ export default function ArticleCard({ article, index = 0 }: ArticleCardProps) {
   const handleShareClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (!isAuthenticated) {
-      router.push('/login');
-      return;
-    }
+    // Share works for guests too — no login required
     setShowSharePopup(true);
   };
 
@@ -54,9 +51,13 @@ export default function ArticleCard({ article, index = 0 }: ArticleCardProps) {
   };
 
   const handleConfirmShare = () => {
-    toggleShare(article.id);
+    // Copy article link to clipboard
+    if (typeof window !== 'undefined') {
+      navigator.clipboard.writeText(`${window.location.origin}/article/${article.id}`).catch(() => {});
+    }
+    recordShare(article.id);
     setShowSharePopup(false);
-    setToastMsg(!shared ? '✅ Đã chia sẻ lên trang cá nhân' : '❌ Đã bỏ chia sẻ');
+    setToastMsg('✅ Đã sao chép link và ghi nhận lượt chia sẻ');
     setShowToast(true);
     setTimeout(() => setShowToast(false), 2500);
   };
@@ -81,17 +82,13 @@ export default function ArticleCard({ article, index = 0 }: ArticleCardProps) {
               className="w-10 h-10 rounded-full shrink-0"
               style={{ background: 'var(--border-primary)' }}
             />
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-2">
-                <span className="text-[15px] font-bold truncate" style={{ color: 'var(--text-primary)' }}>
-                  {article.author.name}
-                </span>
-                <span className="text-sm shrink-0" style={{ color: 'var(--text-secondary)' }}>
-                  · {formatDate(article.createdAt)}
-                </span>
-              </div>
+            <div className="min-w-0 flex-1 flex items-center gap-2 flex-wrap">
+              <span className="text-[15px] font-bold truncate" style={{ color: 'var(--text-primary)' }}>
+                {article.author.name}
+              </span>
+              <span style={{ color: 'var(--text-tertiary)', fontSize: 13 }}>·</span>
               <span
-                className="text-xs px-2 py-0.5 rounded-full"
+                className="text-xs px-2 py-0.5 rounded-full shrink-0"
                 style={{
                   background: `${article.topic.color}20`,
                   color: article.topic.color,

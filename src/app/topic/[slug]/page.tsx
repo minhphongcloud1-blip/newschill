@@ -1,63 +1,50 @@
-'use client';
-
-import { useMemo } from 'react';
-import { useParams, useRouter } from 'next/navigation';
-import { motion } from 'framer-motion';
-import { ArrowLeft } from 'lucide-react';
-import Sidebar from '@/components/layout/Sidebar';
-import RightPanel from '@/components/layout/RightPanel';
-import MobileNav from '@/components/layout/MobileNav';
-import ArticleFeed from '@/components/feed/ArticleFeed';
-import { mockArticles } from '@/data/articles';
+import { Metadata } from 'next';
 import { mockTopics } from '@/data/topics';
-import HeaderActions from '@/components/layout/HeaderActions';
+import { JsonLd, buildCollectionSchema, buildBreadcrumbSchema } from '@/components/seo/JsonLd';
+import TopicPageClient from './TopicPageClient';
 
-export default function TopicPage() {
-  const params = useParams();
-  const router = useRouter();
-  const slug = params.slug as string;
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://newsx.vn';
+
+interface Props {
+  params: Promise<{ slug: string }>;
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
   const topic = mockTopics.find((t) => t.slug === slug);
-  const articles = useMemo(() => mockArticles.filter((a) => a.topic.slug === slug), [slug]);
+  if (!topic) return { title: 'Không tìm thấy chủ đề' };
+  const url = `${SITE_URL}/topic/${slug}`;
+  const description = `${topic.description} Xem ${topic.articleCount} bài viết về chủ đề ${topic.name} trên NewsX.`;
+  return {
+    title: `${topic.icon} ${topic.name}`,
+    description,
+    openGraph: { title: `${topic.name} | NewsX`, description, url, siteName: 'NewsX', locale: 'vi_VN' },
+    twitter: { card: 'summary', title: `${topic.name} | NewsX`, description },
+    alternates: { canonical: url },
+  };
+}
 
-  if (!topic) {
-    return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--bg-primary)' }}>
-        <p style={{ color: 'var(--text-secondary)' }}>Không tìm thấy chủ đề</p>
-      </div>
-    );
-  }
+export async function generateStaticParams() {
+  return mockTopics.map((t) => ({ slug: t.slug }));
+}
 
+export default async function TopicPage({ params }: Props) {
+  const { slug } = await params;
+  const topic = mockTopics.find((t) => t.slug === slug);
+  const url = `${SITE_URL}/topic/${slug}`;
+  const collectionSchema = topic
+    ? buildCollectionSchema(`${topic.icon} ${topic.name}`, topic.description, url)
+    : null;
+  const breadcrumbSchema = buildBreadcrumbSchema([
+    { name: 'Trang chủ', url: SITE_URL },
+    { name: 'Chủ đề', url: `${SITE_URL}/topics` },
+    { name: topic?.name ?? slug, url },
+  ]);
   return (
-    <div className="min-h-screen lg:pl-[275px]" style={{ background: 'var(--bg-primary)' }}>
-      <Sidebar />
-      {/* Header - full width */}
-      <div className="sticky top-0 z-30 flex items-center gap-4 px-4 py-3 border-b"
-        style={{ background: 'var(--bg-glass)', backdropFilter: 'var(--glass-blur)', WebkitBackdropFilter: 'var(--glass-blur)', borderColor: 'var(--border-glass)' }}
-      >
-        <button onClick={() => router.back()} className="p-2 rounded-full hover:bg-[var(--bg-hover-md)]" style={{ color: 'var(--text-primary)' }}>
-          <ArrowLeft className="w-5 h-5" />
-        </button>
-        <h1 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>{topic.icon} {topic.name}</h1>
-        <HeaderActions />
-      </div>
-      {/* Content */}
-      <div className="flex justify-center">
-        <main className="flex-1 min-h-screen max-w-[760px]">
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="px-4 py-6 border-b"
-            style={{ borderColor: 'var(--border-primary)', background: `linear-gradient(135deg, ${topic.color}15, transparent)` }}
-          >
-            <div className="text-4xl mb-2">{topic.icon}</div>
-            <h2 className="text-xl font-bold mb-1" style={{ color: 'var(--text-primary)' }}>{topic.name}</h2>
-            <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>{topic.description}</p>
-            <p className="text-sm mt-2" style={{ color: 'var(--text-secondary)' }}>
-              <strong style={{ color: 'var(--text-primary)' }}>{articles.length}</strong> bài viết
-            </p>
-          </motion.div>
-          <ArticleFeed articles={articles} />
-        </main>
-        <RightPanel />
-      </div>
-      <MobileNav />
-    </div>
+    <>
+      {collectionSchema && <JsonLd data={collectionSchema} />}
+      <JsonLd data={breadcrumbSchema} />
+      <TopicPageClient slug={slug} />
+    </>
   );
 }

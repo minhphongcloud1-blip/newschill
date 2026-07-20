@@ -208,22 +208,19 @@ export default function AdminTopicsPage() {
               {formName && (
                 <div className="mt-4 pt-4 border-t" style={{ borderColor: 'var(--border-primary)' }}>
                   <label className="text-xs font-medium mb-2 block" style={{ color: 'var(--text-secondary)' }}>XEM TRƯỚC</label>
-                  <div className="flex items-center gap-3">
-                    <div
-                      className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl"
-                      style={{ background: `${formColor}20` }}
-                    >
-                      {formIcon}
-                    </div>
-                    <div>
-                      <p className="font-bold" style={{ color: 'var(--text-primary)' }}>{formName}</p>
-                      <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>{formDescription || 'Chưa có mô tả'}</p>
-                    </div>
-                    <span className="ml-auto px-3 py-1 rounded-full text-xs font-medium"
-                      style={{ background: `${formColor}20`, color: formColor }}
-                    >
-                      {formIcon} {formName}
-                    </span>
+                  <div
+                    className="p-4 rounded-2xl border"
+                    style={{
+                      background: `linear-gradient(135deg, ${formColor}10, var(--bg-glass-strong))`,
+                      borderColor: 'var(--border-primary)',
+                      maxWidth: 220,
+                    }}
+                  >
+                    <div className="w-8 h-1 rounded-full mb-3" style={{ background: formColor }} />
+                    <div className="text-3xl mb-2">{formIcon}</div>
+                    <p className="font-bold mb-1 text-sm" style={{ color: 'var(--text-primary)' }}>{formName}</p>
+                    <p className="text-xs mb-2 line-clamp-2" style={{ color: 'var(--text-secondary)' }}>{formDescription || 'Chưa có mô tả'}</p>
+                    <p className="text-xs font-medium" style={{ color: formColor }}>0 bài viết</p>
                   </div>
                 </div>
               )}
@@ -263,56 +260,50 @@ export default function AdminTopicsPage() {
             transition={{ delay: i * 0.05 }}
             className="p-4 rounded-2xl border group relative overflow-hidden"
             style={{
-              background: `linear-gradient(135deg, ${topic.color}08, #16181C)`,
+              background: `linear-gradient(135deg, ${topic.color}10, var(--bg-glass-strong))`,
               borderColor: 'var(--border-primary)',
             }}
           >
-            {/* Color accent line */}
-            <div className="absolute top-0 left-0 right-0 h-1 rounded-t-2xl" style={{ background: topic.color }} />
+            {/* Color accent bar — top left, same as user topics page */}
+            <div className="w-8 h-1 rounded-full mb-3" style={{ background: topic.color }} />
 
-            <div className="flex items-start justify-between">
-              <div className="flex items-center gap-3">
-                <div
-                  className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl shrink-0"
-                  style={{ background: `${topic.color}15` }}
-                >
-                  {topic.icon}
-                </div>
-                <div className="min-w-0">
-                  <h3 className="font-bold text-sm" style={{ color: 'var(--text-primary)' }}>{topic.name}</h3>
-                  <p className="text-xs mt-0.5 line-clamp-1" style={{ color: 'var(--text-secondary)' }}>
-                    {topic.description || 'Chưa có mô tả'}
-                  </p>
-                </div>
-              </div>
-
-              {/* Actions */}
-              <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button
-                  onClick={() => openEditForm(topic)}
-                  className="p-1.5 rounded-lg transition-colors hover:bg-white/5"
-                  style={{ color: 'var(--text-secondary)' }}
-                  title="Sửa"
-                >
-                  <Pencil className="w-3.5 h-3.5" />
-                </button>
-                <button
-                  onClick={() => setDeleteConfirm(topic.slug)}
-                  className="p-1.5 rounded-lg transition-colors hover:bg-red-500/10"
-                  style={{ color: '#EF4444' }}
-                  title="Xóa"
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                </button>
-              </div>
+            {/* Action buttons — top right, visible on hover */}
+            <div className="absolute top-3 right-3 flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+              <button
+                onClick={() => openEditForm(topic)}
+                className="p-1.5 rounded-lg transition-colors hover:bg-white/5"
+                style={{ color: 'var(--text-secondary)' }}
+                title="Sửa"
+              >
+                <Pencil className="w-3.5 h-3.5" />
+              </button>
+              <button
+                onClick={() => setDeleteConfirm(topic.slug)}
+                className="p-1.5 rounded-lg transition-colors hover:bg-red-500/10"
+                style={{ color: '#EF4444' }}
+                title="Xóa"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+              </button>
             </div>
 
-            {/* Meta */}
-            <div className="flex items-center gap-3 mt-3 pt-3 border-t" style={{ borderColor: '#2F333680' }}>
-              <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: `${topic.color}20`, color: topic.color }}>
+            {/* Icon */}
+            <div className="text-3xl mb-2">{topic.icon}</div>
+
+            {/* Name */}
+            <h3 className="font-bold mb-1" style={{ color: 'var(--text-primary)' }}>{topic.name}</h3>
+
+            {/* Description */}
+            <p className="text-xs line-clamp-2 mb-2" style={{ color: 'var(--text-secondary)' }}>
+              {topic.description || 'Chưa có mô tả'}
+            </p>
+
+            {/* Count + slug */}
+            <div className="flex items-center justify-between">
+              <p className="text-xs font-medium" style={{ color: topic.color }}>
                 {topic.articleCount} bài viết
-              </span>
-              <span className="text-xs font-mono" style={{ color: 'var(--text-tertiary)' }}>
+              </p>
+              <span className="text-xs font-mono opacity-40" style={{ color: 'var(--text-secondary)' }}>
                 /{topic.slug}
               </span>
             </div>

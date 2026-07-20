@@ -86,7 +86,7 @@ export const mockUsers: User[] = [
     avatar: 'https://api.dicebear.com/9.x/avataaars/svg?seed=ngoc',
     bio: 'Mới tham gia NewsX',
     role: 'reader',
-    status: 'pending',
+    status: 'active',
     createdAt: '2024-07-10T00:00:00Z',
   },
   {

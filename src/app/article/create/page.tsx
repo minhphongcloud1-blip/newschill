@@ -6,12 +6,12 @@ import { motion } from 'framer-motion';
 import { ArrowLeft, Image as ImageIcon, Send, Eye, EyeOff } from 'lucide-react';
 import Sidebar from '@/components/layout/Sidebar';
 import MobileNav from '@/components/layout/MobileNav';
-import { mockTopics } from '@/data/topics';
 import { useAuth } from '@/contexts/AuthContext';
+import { generateId } from '@/lib/utils';
 
 export default function ArticleCreatePage() {
   const router = useRouter();
-  const { currentUser } = useAuth();
+  const { currentUser, addArticle, topics } = useAuth();
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [excerpt, setExcerpt] = useState('');
@@ -26,12 +26,27 @@ export default function ArticleCreatePage() {
   }
 
   const handlePublish = () => {
-    if (!title.trim() || !content.trim() || !topicSlug) return;
+    if (!title.trim() || !content.trim() || !topicSlug || !currentUser) return;
+    const topic = topics.find((t) => t.slug === topicSlug);
+    if (!topic) return;
+    addArticle({
+      id: generateId(),
+      title: title.trim(),
+      excerpt: excerpt.trim() || title.trim(),
+      content: content.trim(),
+      coverImage: coverUrl.trim() || 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=800',
+      author: currentUser,
+      topic,
+      createdAt: new Date().toISOString(),
+      likesCount: 0,
+      commentsCount: 0,
+      sharesCount: 0,
+    });
     setPublished(true);
     setTimeout(() => router.push('/'), 1500);
   };
 
-  const selectedTopic = mockTopics.find((t) => t.slug === topicSlug);
+  const selectedTopic = topics.find((t) => t.slug === topicSlug);
 
   if (published) {
     return (
@@ -61,9 +76,7 @@ export default function ArticleCreatePage() {
     <div className="min-h-screen lg:pl-[275px]" style={{ background: 'var(--bg-primary)' }}>
       <Sidebar />
       {/* Header - full width */}
-      <div className="sticky top-0 z-30 flex items-center justify-between px-4 py-3 border-b"
-        style={{ background: 'var(--bg-glass)', backdropFilter: 'var(--glass-blur)', WebkitBackdropFilter: 'var(--glass-blur)', borderColor: 'var(--border-glass)' }}
-      >
+      <div className="sticky top-0 z-30 flex items-center justify-between px-4 py-3">
         <div className="flex items-center gap-4">
           <button onClick={() => router.back()} className="p-2 rounded-full hover:bg-[var(--bg-hover-md)]" style={{ color: 'var(--text-primary)' }}>
             <ArrowLeft className="w-5 h-5" />
@@ -99,7 +112,7 @@ export default function ArticleCreatePage() {
             /* Preview Mode */
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
               {coverUrl && (
-                <div className="rounded-2xl overflow-hidden border">
+                <div className="rounded-2xl overflow-hidden border" style={{ borderColor: 'var(--border-primary)' }}>
                   <img src={coverUrl} alt="Cover" className="w-full h-[300px] object-cover" />
                 </div>
               )}
@@ -133,7 +146,7 @@ export default function ArticleCreatePage() {
                   onBlur={(e) => (e.target.style.borderColor = '#2F3336')}
                 />
                 {coverUrl && (
-                  <div className="mt-2 rounded-xl overflow-hidden border">
+                  <div className="mt-2 rounded-xl overflow-hidden border" style={{ borderColor: 'var(--border-primary)' }}>
                     <img src={coverUrl} alt="Preview" className="w-full h-[150px] object-cover" />
                   </div>
                 )}
@@ -143,15 +156,15 @@ export default function ArticleCreatePage() {
               <div>
                 <label className="text-sm font-medium mb-1.5 block" style={{ color: 'var(--text-secondary)' }}>Chủ đề</label>
                 <div className="flex flex-wrap gap-2">
-                  {mockTopics.map((topic) => (
+                  {topics.map((topic) => (
                     <button
                       key={topic.slug}
                       onClick={() => setTopicSlug(topic.slug)}
                       className="px-3 py-1.5 rounded-full text-sm font-medium border transition-all"
                       style={{
-                        borderColor: topicSlug === topic.slug ? topic.color : '#2F3336',
+                        borderColor: topicSlug === topic.slug ? topic.color : 'var(--border-primary)',
                         background: topicSlug === topic.slug ? `${topic.color}20` : 'transparent',
-                        color: topicSlug === topic.slug ? topic.color : '#71767B',
+                        color: topicSlug === topic.slug ? topic.color : 'var(--text-secondary)',
                       }}
                     >
                       {topic.icon} {topic.name}
@@ -199,7 +212,7 @@ export default function ArticleCreatePage() {
                   className="w-full px-4 py-3 rounded-xl border text-sm resize-none focus:outline-none font-mono"
                   style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border-primary)', color: 'var(--text-primary)', lineHeight: '1.8' }}
                   onFocus={(e) => (e.target.style.borderColor = '#F97316')}
-                  onBlur={(e) => (e.target.style.borderColor = '#2F3336')}
+                  onBlur={(e) => (e.target.style.borderColor = 'var(--border-primary)')}
                 />
               </div>
             </div>

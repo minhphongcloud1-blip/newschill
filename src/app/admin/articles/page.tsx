@@ -2,11 +2,12 @@
 
 import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Search, Trash2, Eye, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
+import { Trash2, Eye, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
 import { mockArticles } from '@/data/articles';
 import { mockTopics } from '@/data/topics';
 import { formatDate, formatNumber } from '@/lib/utils';
 import Link from 'next/link';
+import SearchInput from '@/components/ui/SearchInput';
 
 const PAGE_SIZE_OPTIONS = [5, 10, 20, 50];
 
@@ -81,19 +82,11 @@ export default function AdminArticlesPage() {
 
       {/* Filters */}
       <div className="flex flex-wrap gap-3 mb-6">
-        <div className="relative flex-1 min-w-[200px]">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: 'var(--text-secondary)' }} />
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => handleSearch(e.target.value)}
-            placeholder="Tìm bài viết hoặc tác giả..."
-            className="w-full pl-10 pr-4 py-2 rounded-xl border text-sm focus:outline-none"
-            style={{ background: 'var(--bg-glass-strong)', backdropFilter: 'var(--glass-blur)', borderColor: 'var(--border-glass)', boxShadow: 'var(--shadow-glass)', color: 'var(--text-primary)' }}
-            onFocus={(e) => (e.target.style.borderColor = '#8B5CF6')}
-            onBlur={(e) => (e.target.style.borderColor = 'var(--border-primary)')}
-          />
-        </div>
+        <SearchInput
+          value={search}
+          onChange={(v) => handleSearch(v)}
+          placeholder="Tìm bài viết hoặc tác giả..."
+        />
         <select
           value={topicFilter}
           onChange={(e) => handleTopicFilter(e.target.value)}

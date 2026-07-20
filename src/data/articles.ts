@@ -27,9 +27,9 @@ export const mockArticles: Article[] = [
     author: editors[0],
     topic: mockTopics[0],
     createdAt: '2024-07-17T06:00:00Z',
-    likesCount: 1247,
-    commentsCount: 89,
-    sharesCount: 234,
+    likesCount: 7,
+    commentsCount: 4,
+    sharesCount: 3,
   },
   {
     id: 'art-2',
@@ -46,9 +46,9 @@ export const mockArticles: Article[] = [
     author: editors[1],
     topic: mockTopics[1],
     createdAt: '2024-07-17T04:30:00Z',
-    likesCount: 2103,
-    commentsCount: 156,
-    sharesCount: 567,
+    likesCount: 9,
+    commentsCount: 2,
+    sharesCount: 5,
   },
   {
     id: 'art-3',
@@ -58,346 +58,338 @@ export const mockArticles: Article[] = [
 <p>VinFast Auto Ltd. vừa hoàn tất thủ tục niêm yết tại sàn chứng khoán Tokyo (TSE), đánh dấu cột mốc lịch sử cho ngành công nghiệp ô tô Việt Nam và khu vực Đông Nam Á.</p>
 <h3>Tại sao chọn Tokyo?</h3>
 <p>Nhật Bản là thị trường ô tô lớn thứ 3 thế giới và là nơi có hệ sinh thái cung ứng linh kiện hàng đầu. Việc niêm yết tại TSE giúp VinFast tiếp cận nguồn vốn dồi dào và xây dựng quan hệ đối tác chiến lược với các nhà cung cấp Nhật Bản.</p>
-<h3>Kết quả phiên giao dịch đầu tiên</h3>
-<p>Cổ phiếu VinFast mở cửa với mức giá tương đương 15.2 USD, tăng 12% so với giá chào sàn. Khối lượng giao dịch đạt kỷ lục cho một cổ phiếu nước ngoài mới niêm yết tại Nhật Bản.</p>`,
+<h3>Phản ứng của thị trường</h3>
+<p>Cổ phiếu VinFast tăng mạnh sau thông báo, nhà đầu tư Nhật Bản đón nhận tích cực nhờ cam kết về pin thể rắn và sạc nhanh 15 phút.</p>`,
     coverImage: 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?w=800&h=400&fit=crop',
     author: editors[2],
     topic: mockTopics[2],
     createdAt: '2024-07-17T03:00:00Z',
-    likesCount: 876,
-    commentsCount: 67,
-    sharesCount: 145,
+    likesCount: 5,
+    commentsCount: 0,
+    sharesCount: 2,
   },
   {
     id: 'art-4',
-    title: 'Nguyễn Thị Oanh phá kỷ lục châu Á 1500m tại Diamond League',
-    excerpt: 'Nữ vận động viên Việt Nam Nguyễn Thị Oanh tiếp tục gây chấn động làng điền kinh châu Á với thành tích đáng kinh ngạc.',
-    content: `<h2>Kỳ tích mới của điền kinh Việt Nam</h2>
-<p>Tại giải Diamond League chặng London, Nguyễn Thị Oanh đã về đích ở vị trí thứ 2 nội dung 1500m với thời gian 3 phút 58 giây 21, phá kỷ lục châu Á đã tồn tại 29 năm.</p>
-<h3>Hành trình đến đỉnh cao</h3>
-<p>Từ một cô gái nhỏ bé ở Bắc Giang, Oanh đã vượt qua muôn vàn khó khăn để trở thành niềm tự hào của thể thao Việt Nam. Thành tích này đưa cô vào top 10 thế giới nội dung 1500m nữ.</p>`,
-    coverImage: 'https://images.unsplash.com/photo-1461896836934-bd45ba8fcca7?w=800&h=400&fit=crop',
+    title: 'Ánh Viên phá kỷ lục SEA Games, đoạt HCV 100m bướm',
+    excerpt: 'Vận động viên bơi lội Nguyễn Thị Ánh Viên lập kỷ lục SEA Games mới tại nội dung 100m bơi bướm với thành tích 57.23 giây.',
+    content: `<h2>Chiến thắng lịch sử của Ánh Viên</h2>
+<p>Tại đường đua xanh SEA Games, Nguyễn Thị Ánh Viên đã có màn trình diễn xuất sắc khi cán đích với thành tích 57.23 giây, phá vỡ kỷ lục SEA Games tồn tại 29 năm.</p>
+<blockquote><p>"Tôi đã tập luyện rất chăm chỉ suốt 2 năm qua. Đây là thành quả xứng đáng." - Ánh Viên chia sẻ</p></blockquote>
+<h3>Hành trình đến kỷ lục</h3>
+<p>Để đạt được kỷ lục này, Ánh Viên đã trải qua quá trình tập luyện cực kỳ gian khổ cùng đội ngũ HLV người Mỹ, thay đổi hoàn toàn kỹ thuật và chế độ dinh dưỡng.</p>`,
+    coverImage: 'https://images.unsplash.com/photo-1530549387789-4c1017266635?w=800&h=400&fit=crop',
     author: editors[0],
     topic: mockTopics[3],
     createdAt: '2024-07-16T22:00:00Z',
-    likesCount: 3421,
-    commentsCount: 201,
-    sharesCount: 890,
+    likesCount: 8,
+    commentsCount: 2,
+    sharesCount: 4,
   },
   {
     id: 'art-5',
-    title: 'Review phim "Đất Rừng Phương Nam 2" - Siêu phẩm điện ảnh Việt',
-    excerpt: 'Phần 2 của bộ phim bom tấn phá vỡ mọi kỷ lục phòng vé Việt Nam chỉ sau tuần đầu công chiếu.',
-    content: `<h2>Khi điện ảnh Việt vươn tầm quốc tế</h2>
-<p>"Đất Rừng Phương Nam 2" đã chính thức trở thành phim Việt có doanh thu cao nhất mọi thời đại chỉ sau 7 ngày công chiếu với con số ấn tượng 250 tỷ đồng.</p>
-<h3>Điểm sáng</h3>
+    title: 'Xe điện Tesla Model 3 đến Việt Nam: Giá 1.5 tỷ đồng',
+    excerpt: 'Tesla chính thức mở bán Model 3 tại Việt Nam qua đại lý ủy quyền, với mức giá khởi điểm 1.5 tỷ đồng cho phiên bản Standard Range.',
+    content: `<h2>Tesla chính thức vào thị trường Việt Nam</h2>
+<p>Sau nhiều năm chờ đợi, người tiêu dùng Việt Nam cuối cùng cũng có thể mua Tesla Model 3 qua kênh chính thức với giá 1.5 tỷ đồng.</p>
+<h3>Thông số kỹ thuật</h3>
 <ul>
-<li>Kỹ xảo VFX đạt chuẩn Hollywood</li>
-<li>Diễn xuất xuất sắc của dàn diễn viên</li>
-<li>Âm nhạc và hình ảnh tuyệt đẹp</li>
-<li>Câu chuyện cảm động, đậm chất Việt Nam</li>
+<li>Phạm vi: 450km/lần sạc (WLTP)</li>
+<li>Tăng tốc 0-100km/h: 6.1 giây</li>
+<li>Sạc nhanh DC: 170kW</li>
+<li>Màn hình 15.4 inch trung tâm</li>
 </ul>
-<p>Bộ phim cũng đã được mời tham dự Liên hoan phim Cannes 2025 trong hạng mục "Un Certain Regard".</p>`,
-    coverImage: 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=800&h=400&fit=crop',
-    author: editors[1],
+<p>Tesla cam kết xây dựng mạng lưới Supercharger tại Việt Nam trong năm 2024.</p>`,
+    coverImage: 'https://images.unsplash.com/photo-1560958089-b8a1929cea89?w=800&h=400&fit=crop',
+    author: editors[2],
     topic: mockTopics[4],
-    createdAt: '2024-07-16T18:00:00Z',
-    likesCount: 1567,
-    commentsCount: 134,
-    sharesCount: 321,
+    createdAt: '2024-07-16T10:00:00Z',
+    likesCount: 6,
+    commentsCount: 0,
+    sharesCount: 3,
   },
   {
     id: 'art-6',
-    title: 'Nghiên cứu mới: Giấc ngủ 7-8 tiếng giảm 40% nguy cơ bệnh tim',
-    excerpt: 'Nghiên cứu quy mô lớn trên 500.000 người cho thấy mối liên hệ chặt chẽ giữa chất lượng giấc ngủ và sức khỏe tim mạch.',
-    content: `<h2>Giấc ngủ - Liều thuốc tốt nhất cho trái tim</h2>
-<p>Một nghiên cứu mới đăng trên tạp chí The Lancet, theo dõi hơn 500.000 người trong 10 năm, cho thấy những người ngủ đủ 7-8 tiếng mỗi đêm có nguy cơ mắc bệnh tim mạch thấp hơn 40% so với những người ngủ ít hơn 6 tiếng.</p>
-<h3>Kết quả chi tiết</h3>
-<p>Nghiên cứu phân nhóm đối tượng theo thời gian ngủ và theo dõi các chỉ số sức khỏe tim mạch. Kết quả cho thấy:</p>
-<ul>
-<li>Ngủ dưới 5 tiếng: tăng 65% nguy cơ</li>
-<li>Ngủ 5-6 tiếng: tăng 30% nguy cơ</li>
-<li>Ngủ 7-8 tiếng: mức chuẩn</li>
-<li>Ngủ trên 9 tiếng: tăng 15% nguy cơ</li>
-</ul>`,
-    coverImage: 'https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?w=800&h=400&fit=crop',
-    author: editors[2],
+    title: 'WHO cảnh báo đại dịch cúm H5N2 mới ở Đông Nam Á',
+    excerpt: 'Tổ chức Y tế Thế giới phát đi cảnh báo khẩn về sự lây lan của cúm gia cầm H5N2 tại 5 quốc gia Đông Nam Á, trong đó có Việt Nam.',
+    content: `<h2>Cảnh báo dịch cúm H5N2</h2>
+<p>WHO đã nâng mức cảnh báo lên cấp 3 sau khi ghi nhận hơn 200 ca nhiễm H5N2 tại Thái Lan, Việt Nam, Indonesia, Malaysia và Philippines.</p>
+<h3>Triệu chứng và cách phòng ngừa</h3>
+<p>Virus H5N2 gây sốt cao, ho khan và khó thở. Người dân được khuyến cáo tránh tiếp xúc với gia cầm chết, đeo khẩu trang và rửa tay thường xuyên.</p>
+<h3>Phản ứng của Việt Nam</h3>
+<p>Bộ Y tế Việt Nam đã khởi động gói phòng dịch khẩn cấp, tăng cường giám sát tại các cửa khẩu và trang trại gia cầm trên cả nước.</p>`,
+    coverImage: 'https://images.unsplash.com/photo-1584036561566-baf8f5f1b144?w=800&h=400&fit=crop',
+    author: editors[1],
     topic: mockTopics[5],
-    createdAt: '2024-07-16T14:00:00Z',
-    likesCount: 987,
-    commentsCount: 45,
-    sharesCount: 678,
+    createdAt: '2024-07-16T08:00:00Z',
+    likesCount: 4,
+    commentsCount: 0,
+    sharesCount: 1,
   },
   {
     id: 'art-7',
-    title: 'Liên Hợp Quốc đạt thỏa thuận lịch sử về biến đổi khí hậu',
-    excerpt: 'Các quốc gia thành viên LHQ đồng thuận cam kết giảm 60% lượng khí thải carbon vào năm 2035, đánh dấu bước ngoặt trong cuộc chiến chống biến đổi khí hậu.',
-    content: `<h2>Thỏa thuận khí hậu mang tính bước ngoặt</h2>
-<p>Sau 2 tuần đàm phán căng thẳng tại hội nghị COP30 ở Belém, Brazil, 197 quốc gia thành viên Liên Hợp Quốc đã đạt được thỏa thuận lịch sử về giảm phát thải khí nhà kính.</p>
-<h3>Nội dung chính</h3>
+    title: 'Hà Nội khai trương tuyến Metro số 3 kết nối Nhổn - Ga Hà Nội',
+    excerpt: 'Sau 15 năm xây dựng, tuyến đường sắt đô thị Nhổn - Ga Hà Nội chính thức đi vào hoạt động, phục vụ hàng trăm nghìn hành khách mỗi ngày.',
+    content: `<h2>Metro Hà Nội chính thức hoạt động</h2>
+<p>Sáng 15/7, tuyến Metro số 3 đoạn Nhổn - Ga Hà Nội đã chính thức khai trương, đánh dấu bước ngoặt lớn trong hạ tầng giao thông đô thị của thủ đô.</p>
+<h3>Thông số tuyến đường</h3>
 <ul>
-<li>Giảm 60% lượng phát thải CO2 vào năm 2035 (so với mức 2019)</li>
-<li>Loại bỏ hoàn toàn điện than vào năm 2040</li>
-<li>Quỹ hỗ trợ 500 tỷ USD cho các nước đang phát triển</li>
-<li>Cơ chế giám sát và báo cáo minh bạch</li>
+<li>Chiều dài: 12.5km (8.5km trên cao + 4km ngầm)</li>
+<li>12 nhà ga</li>
+<li>Tần suất: 5 phút/chuyến giờ cao điểm</li>
+<li>Vận tốc tối đa: 80km/h</li>
 </ul>
-<p>Việt Nam cam kết đạt net-zero vào năm 2050 và sẽ nhận 15 tỷ USD hỗ trợ chuyển đổi năng lượng.</p>`,
-    coverImage: 'https://images.unsplash.com/photo-1569163139394-de4e5f43e5ca?w=800&h=400&fit=crop',
-    author: editors[0],
+<p>Vé lượt có giá 15.000-40.000 đồng tùy đoạn, vé tháng 200.000 đồng.</p>`,
+    coverImage: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=800&h=400&fit=crop',
+    author: editors[2],
     topic: mockTopics[6],
-    createdAt: '2024-07-16T10:00:00Z',
-    likesCount: 1432,
-    commentsCount: 178,
-    sharesCount: 456,
+    createdAt: '2024-07-15T16:00:00Z',
+    likesCount: 7,
+    commentsCount: 0,
+    sharesCount: 3,
   },
   {
     id: 'art-8',
-    title: 'Việt Nam đứng top 5 thế giới về đào tạo lập trình viên AI',
-    excerpt: 'Báo cáo mới nhất từ World Economic Forum xếp Việt Nam vào nhóm 5 quốc gia có hệ thống đào tạo kỹ sư AI hiệu quả nhất.',
-    content: `<h2>Nguồn nhân lực AI Việt Nam được thế giới công nhận</h2>
-<p>Theo báo cáo "Global AI Talent Report 2024" của World Economic Forum, Việt Nam lần đầu tiên lọt vào top 5 quốc gia có hệ thống đào tạo kỹ sư trí tuệ nhân tạo hiệu quả nhất thế giới.</p>
-<h3>Các chương trình nổi bật</h3>
-<p>Nhiều đại học Việt Nam đã cập nhật chương trình đào tạo, tích hợp AI và Machine Learning vào giáo trình từ năm nhất. Đặc biệt, chương trình hợp tác giữa các trường đại học Việt Nam và Google, Microsoft đã đào tạo hơn 50.000 kỹ sư AI trong 3 năm qua.</p>`,
-    coverImage: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&h=400&fit=crop',
-    author: editors[1],
-    topic: mockTopics[7],
-    createdAt: '2024-07-16T08:00:00Z',
-    likesCount: 2156,
-    commentsCount: 167,
-    sharesCount: 734,
+    title: 'Samsung Galaxy S25 Ultra ra mắt với chip Snapdragon 8 Gen 4',
+    excerpt: 'Samsung vừa giới thiệu dòng Galaxy S25 với màn hình 6.9 inch 2K, pin 6000mAh và khả năng AI on-device hoàn toàn mới.',
+    content: `<h2>Galaxy S25 Ultra - Đỉnh cao Android 2025</h2>
+<p>Samsung Electronics chính thức ra mắt dòng Galaxy S25 tại sự kiện Unpacked, với Galaxy S25 Ultra là flagship mạnh nhất từ trước đến nay.</p>
+<h3>Điểm nổi bật</h3>
+<ul>
+<li>Chip Snapdragon 8 Gen 4 (3nm)</li>
+<li>RAM 16GB LPDDR6</li>
+<li>Camera 200MP + 50MP telephoto 10x</li>
+<li>Galaxy AI 3.0 hoạt động hoàn toàn offline</li>
+<li>Sạc 65W có dây + 25W không dây</li>
+</ul>`,
+    coverImage: 'https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?w=800&h=400&fit=crop',
+    author: editors[0],
+    topic: mockTopics[0],
+    createdAt: '2024-07-15T08:00:00Z',
+    likesCount: 9,
+    commentsCount: 0,
+    sharesCount: 4,
   },
   {
     id: 'art-9',
-    title: 'Apple Vision Pro 2 mỏng hơn 50%, giá giảm một nửa',
-    excerpt: 'Apple ra mắt thế hệ Vision Pro thứ 2 với thiết kế mỏng nhẹ hơn nhiều và mức giá phải chăng hơn, hứa hẹn phổ cập AR/VR.',
-    content: `<h2>Vision Pro 2 - Bước tiến lớn cho AR/VR</h2>
-<p>Tim Cook vừa giới thiệu Apple Vision Pro 2 tại WWDC 2025 với những cải tiến đáng kể về thiết kế, hiệu năng và đặc biệt là giá bán.</p>
-<h3>Thông số nổi bật</h3>
-<ul>
-<li>Chip M5 Pro với Neural Engine 32 nhân</li>
-<li>Màn hình Micro-OLED 4K mỗi mắt</li>
-<li>Trọng lượng chỉ 350g (giảm 50%)</li>
-<li>Pin 4 giờ tích hợp</li>
-<li>Giá khởi điểm: $1,799 (giảm từ $3,499)</li>
-</ul>`,
-    coverImage: 'https://images.unsplash.com/photo-1622979135225-d2ba269cf1ac?w=800&h=400&fit=crop',
-    author: editors[2],
-    topic: mockTopics[0],
-    createdAt: '2024-07-15T20:00:00Z',
-    likesCount: 1876,
-    commentsCount: 134,
-    sharesCount: 567,
+    title: 'Nghiên cứu mới: Ngủ đủ 8 tiếng giảm 40% nguy cơ Alzheimer',
+    excerpt: 'Nghiên cứu kéo dài 20 năm với 10.000 người tham gia cho thấy giấc ngủ đủ giờ có tác động mạnh mẽ đến sức khỏe não bộ.',
+    content: `<h2>Giấc ngủ và sức khỏe não bộ</h2>
+<p>Một nghiên cứu quy mô lớn vừa được công bố trên tạp chí Nature Medicine đã xác nhận mối liên hệ chặt chẽ giữa thời lượng ngủ và nguy cơ mắc bệnh Alzheimer.</p>
+<h3>Phát hiện quan trọng</h3>
+<p>Những người ngủ đủ 7-9 tiếng mỗi đêm có lượng protein beta-amyloid trong não thấp hơn đáng kể - đây là dấu hiệu chính của Alzheimer.</p>
+<p>Ngủ không đủ giấc mãn tính (dưới 6 tiếng) làm tăng nguy cơ suy giảm nhận thức lên đến 40% sau 20 năm.</p>`,
+    coverImage: 'https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?w=800&h=400&fit=crop',
+    author: editors[1],
+    topic: mockTopics[1],
+    createdAt: '2024-07-15T06:00:00Z',
+    likesCount: 8,
+    commentsCount: 0,
+    sharesCount: 3,
   },
   {
     id: 'art-10',
-    title: 'Vaccine ung thư cá nhân hóa: Kết quả thử nghiệm pha 3 đầy hứa hẹn',
-    excerpt: 'Moderna và Merck công bố kết quả thử nghiệm lâm sàng pha 3 cho thấy vaccine mRNA cá nhân hóa giảm 65% nguy cơ tái phát ung thư da.',
-    content: `<h2>Bước đột phá trong điều trị ung thư</h2>
-<p>Liên minh Moderna-Merck vừa công bố kết quả thử nghiệm lâm sàng pha 3 của vaccine ung thư cá nhân hóa mV-4157/V940, mở ra kỷ nguyên mới trong điều trị ung thư.</p>
-<h3>Cách hoạt động</h3>
-<p>Vaccine được thiết kế riêng cho từng bệnh nhân bằng cách phân tích ADN khối u, xác định các kháng nguyên đặc hiệu, và tạo mRNA hướng dẫn hệ miễn dịch tấn công tế bào ung thư.</p>`,
-    coverImage: 'https://images.unsplash.com/photo-1584036561566-baf8f5f1b144?w=800&h=400&fit=crop',
-    author: editors[0],
-    topic: mockTopics[1],
-    createdAt: '2024-07-15T16:00:00Z',
-    likesCount: 3210,
-    commentsCount: 198,
-    sharesCount: 1023,
+    title: 'Việt Nam đứng đầu ASEAN về tốc độ tăng trưởng GDP 2024',
+    excerpt: 'IMF xác nhận Việt Nam đạt tăng trưởng GDP 7.2% trong năm 2024, dẫn đầu khu vực ASEAN và vượt mục tiêu của Chính phủ.',
+    content: `<h2>Kinh tế Việt Nam tăng trưởng vượt kỳ vọng</h2>
+<p>Quỹ Tiền tệ Quốc tế (IMF) vừa công bố báo cáo xác nhận Việt Nam đạt mức tăng trưởng GDP 7.2% trong năm 2024, cao nhất trong 5 năm trở lại đây.</p>
+<h3>Động lực tăng trưởng</h3>
+<ul>
+<li>Xuất khẩu điện tử tăng 23%</li>
+<li>FDI đạt 38 tỷ USD, kỷ lục mới</li>
+<li>Du lịch quốc tế phục hồi hoàn toàn</li>
+<li>Công nghiệp chế biến tăng 9.4%</li>
+</ul>`,
+    coverImage: 'https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=800&h=400&fit=crop',
+    author: editors[2],
+    topic: mockTopics[2],
+    createdAt: '2024-07-14T14:00:00Z',
+    likesCount: 9,
+    commentsCount: 0,
+    sharesCount: 5,
   },
   {
     id: 'art-11',
-    title: 'Bitcoin vượt mốc 150.000 USD - Điều gì đang xảy ra?',
-    excerpt: 'Đồng tiền số lớn nhất thế giới thiết lập kỷ lục mới giữa bối cảnh dòng tiền từ ETF và việc các ngân hàng trung ương tích trữ.',
-    content: `<h2>Bitcoin lập đỉnh lịch sử</h2>
-<p>Bitcoin đã chính thức vượt mốc 150.000 USD trong phiên giao dịch sáng nay, đánh dấu mức tăng hơn 300% trong vòng 18 tháng qua.</p>
-<h3>Nguyên nhân tăng giá</h3>
+    title: 'Bitcoin chạm mốc 150,000 USD: Kỷ nguyên mới của tiền mã hoá',
+    excerpt: 'Bitcoin lần đầu tiên vượt ngưỡng 150,000 USD/BTC, được thúc đẩy bởi làn sóng ETF tổ chức và sự kiện halving lần thứ 4.',
+    content: `<h2>Bitcoin phá vỡ mọi kỷ lục</h2>
+<p>Đồng tiền mã hoá lớn nhất thế giới đã chạm mức 150,123 USD vào sáng ngày 14/7, xác lập kỷ lục lịch sử mới và thu hút sự chú ý của toàn bộ thị trường tài chính.</p>
+<h3>Nguyên nhân bứt phá</h3>
 <ul>
-<li>Dòng tiền ETF đạt kỷ lục 5 tỷ USD/tuần</li>
-<li>3 ngân hàng trung ương châu Âu bắt đầu tích trữ Bitcoin</li>
-<li>Nguồn cung giảm mạnh sau halving 2024</li>
-<li>Chính sách tiền tệ nới lỏng toàn cầu</li>
+<li>BlackRock và Fidelity tăng mạnh vị thế ETF Bitcoin</li>
+<li>Sự kiện halving lần 4 giảm nguồn cung</li>
+<li>El Salvador công bố tích trữ 1 tỷ USD BTC</li>
 </ul>`,
     coverImage: 'https://images.unsplash.com/photo-1518546305927-5a555bb7020d?w=800&h=400&fit=crop',
     author: editors[2],
     topic: mockTopics[2],
-    createdAt: '2024-07-15T12:00:00Z',
-    likesCount: 2567,
-    commentsCount: 312,
-    sharesCount: 789,
+    createdAt: '2024-07-14T12:00:00Z',
+    likesCount: 6,
+    commentsCount: 2,
+    sharesCount: 2,
   },
   {
     id: 'art-12',
-    title: 'Premier League mùa giải 2025-26: Đội hình "trong mơ" của Man City',
-    excerpt: 'Man City hoàn tất bom tấn cuối cùng, xây dựng đội hình trị giá kỷ lục 1.2 tỷ bảng cho mùa giải mới.',
-    content: `<h2>Đội hình đắt giá nhất lịch sử</h2>
-<p>Manchester City đã hoàn tất việc xây dựng đội hình cho mùa giải 2025-26 với tổng giá trị chuyển nhượng đạt kỷ lục 1.2 tỷ bảng Anh.</p>
-<h3>Những bản hợp đồng mới</h3>
-<p>Dưới sự dẫn dắt của Pep Guardiola, City đã bổ sung thêm nhiều ngôi sao trẻ tài năng, kết hợp với bộ khung vững chắc sẵn có.</p>`,
-    coverImage: 'https://images.unsplash.com/photo-1522778119026-d647f0596c20?w=800&h=400&fit=crop',
+    title: 'Bão số 3 đổ bộ miền Trung, gió giật cấp 14',
+    excerpt: 'Cơn bão nhiệt đới mạnh nhất trong thập kỷ đổ bộ vào bờ biển miền Trung Việt Nam, gây mưa lớn và gió mạnh trên diện rộng.',
+    content: `<h2>Bão số 3 đổ bộ</h2>
+<p>Bão số 3 đổ bộ vào bờ biển các tỉnh Quảng Ngãi - Bình Định lúc 3 giờ sáng với sức gió tối đa 140km/h, gió giật lên đến cấp 14.</p>
+<h3>Tình hình thiệt hại</h3>
+<p>Gần 50.000 hộ dân đã được sơ tán khỏi vùng nguy hiểm. Điện bị cắt tại nhiều nơi, sóng biển cao 5-7m tại vùng ven biển.</p>`,
+    coverImage: 'https://images.unsplash.com/photo-1547683905-f686c993aae5?w=800&h=400&fit=crop',
     author: editors[1],
-    topic: mockTopics[3],
-    createdAt: '2024-07-15T08:00:00Z',
-    likesCount: 1234,
-    commentsCount: 267,
-    sharesCount: 345,
+    topic: mockTopics[5],
+    createdAt: '2024-07-14T02:00:00Z',
+    likesCount: 5,
+    commentsCount: 0,
+    sharesCount: 1,
   },
   {
     id: 'art-13',
-    title: 'Netflix ra mắt nền tảng gaming riêng, cạnh tranh với Steam',
-    excerpt: 'Netflix chính thức bước vào thị trường game PC với nền tảng gaming độc lập, kho game khổng lồ và dịch vụ cloud gaming.',
-    content: `<h2>Netflix Games - Đối thủ mới của Steam?</h2>
-<p>Netflix vừa ra mắt nền tảng gaming độc lập "Netflix Games" cho PC, đánh dấu bước chuyển mình từ streaming video sang giải trí đa nền tảng.</p>
-<h3>Điểm nổi bật</h3>
+    title: 'Apple Vision Pro 2 ra mắt với giá 2,999 USD',
+    excerpt: 'Apple công bố thế hệ Vision Pro thứ 2 với màn hình micro-OLED cải tiến, chip M4 và trọng lượng nhẹ hơn 30% so với phiên bản đầu.',
+    content: `<h2>Vision Pro 2 - Tương lai của máy tính không gian</h2>
+<p>Apple đã chính thức giới thiệu Vision Pro 2 tại WWDC 2025, mang đến những cải tiến đột phá cho nền tảng spatial computing.</p>
+<h3>Nâng cấp chính</h3>
 <ul>
-<li>Kho game 200+ tựa game độc quyền</li>
-<li>Cloud gaming không cần cài đặt</li>
-<li>Miễn phí cho thuê bao Premium</li>
-<li>Hỗ trợ cross-play mobile/PC</li>
+<li>Chip Apple M4: hiệu năng AI tăng 60%</li>
+<li>Màn hình micro-OLED 4K mỗi mắt</li>
+<li>Thời lượng pin: 4 giờ (tăng 60%)</li>
+<li>Giá: 2,999 USD (giảm 1,000 USD)</li>
 </ul>`,
-    coverImage: 'https://images.unsplash.com/photo-1493711662062-fa541adb3fc8?w=800&h=400&fit=crop',
+    coverImage: 'https://images.unsplash.com/photo-1617802690992-15d93263d3a9?w=800&h=400&fit=crop',
     author: editors[0],
-    topic: mockTopics[4],
-    createdAt: '2024-07-14T20:00:00Z',
-    likesCount: 1890,
-    commentsCount: 156,
-    sharesCount: 423,
+    topic: mockTopics[0],
+    createdAt: '2024-07-13T18:00:00Z',
+    likesCount: 8,
+    commentsCount: 0,
+    sharesCount: 3,
   },
   {
     id: 'art-14',
-    title: 'Nhật Bản phê duyệt thuốc đảo ngược lão hóa đầu tiên trên thế giới',
-    excerpt: 'Bộ Y tế Nhật Bản phê duyệt loại thuốc đầu tiên có khả năng làm chậm và đảo ngược quá trình lão hóa tế bào ở cấp độ phân tử.',
-    content: `<h2>Thuốc chống lão hóa - Từ khoa học viễn tưởng đến hiện thực</h2>
-<p>Nhật Bản trở thành quốc gia đầu tiên trên thế giới phê duyệt một loại thuốc có khả năng đảo ngược quá trình lão hóa tế bào. Thuốc GeroSen-1 do công ty dược phẩm Shionogi phát triển.</p>
-<h3>Cơ chế hoạt động</h3>
-<p>GeroSen-1 hoạt động bằng cách loại bỏ có chọn lọc các tế bào lão hóa (senescent cells) - những tế bào già cỗi không còn phân chia nhưng vẫn tiết ra các chất gây viêm nhiễm.</p>`,
-    coverImage: 'https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?w=800&h=400&fit=crop',
+    title: 'Tàu vũ trụ Artemis III chạm mặt trăng sau 52 năm',
+    excerpt: 'NASA đưa phi hành đoàn gồm 4 người, trong đó có 2 phụ nữ, lần đầu tiên đặt chân lên bề mặt Mặt Trăng kể từ Apollo 17 năm 1972.',
+    content: `<h2>Nhân loại trở lại Mặt Trăng</h2>
+<p>Tàu vũ trụ Artemis III đã hạ cánh thành công tại vùng cực nam Mặt Trăng lúc 14:27 GMT ngày 12/7/2024, đánh dấu mốc lịch sử sau 52 năm gián đoạn.</p>
+<h3>Phi hành đoàn lịch sử</h3>
+<p>Đây là lần đầu tiên phụ nữ đặt chân lên Mặt Trăng, với Commander Christina Koch và Mission Specialist Priya Patel.</p>`,
+    coverImage: 'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=800&h=400&fit=crop',
     author: editors[1],
-    topic: mockTopics[5],
-    createdAt: '2024-07-14T14:00:00Z',
-    likesCount: 4521,
-    commentsCount: 289,
-    sharesCount: 1567,
+    topic: mockTopics[1],
+    createdAt: '2024-07-13T14:00:00Z',
+    likesCount: 9,
+    commentsCount: 0,
+    sharesCount: 5,
   },
   {
     id: 'art-15',
-    title: 'Kênh đào Phù Nam Techo: Campuchia bắt đầu xây dựng giai đoạn 1',
-    excerpt: 'Campuchia chính thức khởi công xây dựng giai đoạn 1 kênh đào Phù Nam Techo dài 180km, dự án gây nhiều tranh cãi trong khu vực.',
-    content: `<h2>Dự án thay đổi dòng chảy Mekong</h2>
-<p>Campuchia đã tổ chức lễ khởi công giai đoạn 1 kênh đào Phù Nam Techo với sự tham dự của Thủ tướng Hun Manet và đại diện nhà thầu Trung Quốc.</p>
-<h3>Tổng quan dự án</h3>
+    title: 'Chứng khoán Việt Nam: VN-Index vượt 1,500 điểm',
+    excerpt: 'Thị trường chứng khoán Việt Nam ghi nhận phiên giao dịch lịch sử khi VN-Index lần đầu vượt ngưỡng 1,500 điểm với thanh khoản đạt 30,000 tỷ đồng.',
+    content: `<h2>VN-Index xác lập kỷ lục mới</h2>
+<p>Thị trường chứng khoán Việt Nam bùng nổ với VN-Index tăng 2.3% trong phiên giao dịch ngày 12/7, chính thức vượt mốc 1,500 điểm lần đầu tiên trong lịch sử.</p>
+<h3>Cổ phiếu dẫn sóng</h3>
 <ul>
-<li>Chiều dài: 180km</li>
-<li>Tổng vốn đầu tư: 1.7 tỷ USD</li>
-<li>Thời gian hoàn thành: 2028</li>
-<li>Mục đích: Kết nối Phnom Penh với biển qua tỉnh Kep</li>
-</ul>
-<p>Việt Nam và các chuyên gia quốc tế bày tỏ lo ngại về tác động môi trường đối với đồng bằng sông Cửu Long.</p>`,
-    coverImage: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=400&fit=crop',
+<li>Nhóm ngân hàng: VCB +3.2%, BID +2.8%, TCB +4.1%</li>
+<li>Nhóm bất động sản: VHM +5.6%, VIC +3.4%</li>
+<li>Nhóm công nghệ: FPT +6.2%</li>
+</ul>`,
+    coverImage: 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=800&h=400&fit=crop',
     author: editors[2],
-    topic: mockTopics[6],
-    createdAt: '2024-07-14T10:00:00Z',
-    likesCount: 876,
-    commentsCount: 234,
-    sharesCount: 345,
+    topic: mockTopics[2],
+    createdAt: '2024-07-12T16:00:00Z',
+    likesCount: 4,
+    commentsCount: 0,
+    sharesCount: 2,
   },
   {
     id: 'art-16',
-    title: 'Cursor AI: IDE thế hệ mới thay đổi cách lập trình viên làm việc',
-    excerpt: 'Cursor đang dẫn đầu cuộc cách mạng AI-assisted coding với tốc độ phát triển chóng mặt và cộng đồng người dùng bùng nổ.',
-    content: `<h2>Cursor - Tương lai của lập trình</h2>
-<p>Cursor AI đã trở thành hiện tượng trong cộng đồng lập trình viên toàn cầu. IDE tích hợp AI này không chỉ gợi ý code mà còn có thể hiểu context dự án, refactor code phức tạp và thậm chí viết test tự động.</p>
-<h3>Tại sao Cursor vượt trội?</h3>
+    title: 'Cursor AI - Công cụ lập trình thay đổi cuộc chơi năm 2024',
+    excerpt: 'Cursor, IDE tích hợp AI được xây dựng trên nền VS Code, đã thu hút 1 triệu developer chỉ sau 6 tháng ra mắt nhờ khả năng code tự động vượt trội.',
+    content: `<h2>Cursor: IDE thông minh nhất thế giới</h2>
+<p>Cursor AI đang làm thay đổi cách hàng triệu developer viết code. Không chỉ là một AI assistant thông thường, Cursor hiểu toàn bộ codebase và có thể thực hiện các thay đổi phức tạp theo ngữ cảnh.</p>
+<h3>Tính năng vượt trội</h3>
 <ul>
-<li>Hiểu toàn bộ codebase, không chỉ file hiện tại</li>
-<li>Multi-file editing cùng lúc</li>
-<li>Agent mode: tự động thực hiện task phức tạp</li>
-<li>Tích hợp terminal và debugging</li>
+<li>Tab completion thông minh đọc được ý định lập trình viên</li>
+<li>Chat với toàn bộ codebase - hỏi bất kỳ điều gì về code</li>
+<li>Agent mode tự động hoàn thành task phức tạp</li>
 </ul>`,
-    coverImage: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800&h=400&fit=crop',
+    coverImage: 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=800&h=400&fit=crop',
     author: editors[0],
     topic: mockTopics[0],
-    createdAt: '2024-07-14T06:00:00Z',
-    likesCount: 2345,
-    commentsCount: 178,
-    sharesCount: 567,
+    createdAt: '2024-07-14T09:00:00Z',
+    likesCount: 7,
+    commentsCount: 1,
+    sharesCount: 3,
   },
   {
     id: 'art-17',
-    title: 'ĐH Bách Khoa Hà Nội vào top 200 thế giới về Kỹ thuật & Công nghệ',
-    excerpt: 'Lần đầu tiên một trường đại học Việt Nam lọt vào top 200 thế giới trong bảng xếp hạng THE theo lĩnh vực Kỹ thuật & Công nghệ.',
-    content: `<h2>Thành tựu đáng tự hào</h2>
-<p>Đại học Bách Khoa Hà Nội (HUST) đã chính thức được xếp hạng 187 thế giới trong lĩnh vực Kỹ thuật & Công nghệ theo bảng xếp hạng Times Higher Education (THE) 2025.</p>
-<h3>Yếu tố thành công</h3>
-<ul>
-<li>Tăng mạnh số bài báo khoa học quốc tế</li>
-<li>Hợp tác nghiên cứu với MIT, Stanford, ETH Zurich</li>
-<li>Đầu tư phòng lab nghiên cứu hiện đại</li>
-<li>Chương trình đào tạo chuẩn quốc tế</li>
-</ul>`,
-    coverImage: 'https://images.unsplash.com/photo-1523050854058-8df90110c476?w=800&h=400&fit=crop',
+    title: 'Căng thẳng Biển Đông leo thang: Mỹ điều tàu sân bay đến',
+    excerpt: 'USS Gerald R. Ford đến Biển Đông trong bối cảnh tình hình leo thang với các hành động khiêu khích của tàu Trung Quốc tại vùng đặc quyền kinh tế Việt Nam.',
+    content: `<h2>Tàu sân bay Mỹ xuất hiện ở Biển Đông</h2>
+<p>Hàng không mẫu hạm USS Gerald R. Ford, cùng nhóm tàu hộ tống 7 chiếc, đã tiến vào Biển Đông trong chuyến tuần tra tự do hàng hải.</p>
+<h3>Phản ứng các bên</h3>
+<p>Việt Nam hoan nghênh hoạt động tuần tra tuân thủ luật quốc tế. Trung Quốc phản đối và cử 12 tàu chiến bám sát nhóm tàu Mỹ.</p>`,
+    coverImage: 'https://images.unsplash.com/photo-1542744094-3a31f272c490?w=800&h=400&fit=crop',
     author: editors[1],
-    topic: mockTopics[7],
-    createdAt: '2024-07-13T18:00:00Z',
-    likesCount: 3456,
-    commentsCount: 234,
-    sharesCount: 890,
+    topic: mockTopics[6],
+    createdAt: '2024-07-11T10:00:00Z',
+    likesCount: 8,
+    commentsCount: 0,
+    sharesCount: 4,
   },
   {
     id: 'art-18',
-    title: 'Samsung Galaxy S25 Ultra: Camera 200MP với AI Photo Editing',
-    excerpt: 'Samsung trình làng Galaxy S25 Ultra với camera 200MP cùng bộ công cụ chỉnh ảnh AI mạnh mẽ nhất từ trước đến nay.',
-    content: `<h2>Smartphone chụp ảnh tốt nhất 2025?</h2>
-<p>Samsung Galaxy S25 Ultra được đánh giá là smartphone có camera tốt nhất hiện nay nhờ cảm biến 200MP thế hệ mới và AI photo editing tích hợp.</p>
-<h3>Tính năng camera nổi bật</h3>
+    title: 'Lộ trình metro TP.HCM: 6 tuyến hoàn thành vào 2030',
+    excerpt: 'UBND TP.HCM công bố lộ trình xây dựng 6 tuyến metro trong giai đoạn 2024-2030, tổng mức đầu tư 25 tỷ USD từ vốn ODA và ngân sách nhà nước.',
+    content: `<h2>TP.HCM đẩy nhanh xây dựng Metro</h2>
+<p>Sau thành công của tuyến Metro số 1 Bến Thành - Suối Tiên, TP.HCM công bố kế hoạch tham vọng xây dựng thêm 6 tuyến metro mới.</p>
+<h3>Các tuyến trong kế hoạch</h3>
 <ul>
-<li>Cảm biến chính 200MP ISOCELL HP3</li>
-<li>AI Object Eraser: Xóa vật thể thông minh</li>
-<li>Nightography 2.0: Chụp đêm siêu nét</li>
-<li>Video 8K 60fps</li>
+<li>Metro 2: Bến Thành - Tham Lương (2026)</li>
+<li>Metro 3a: Bến Thành - Tân Kiên (2027)</li>
+<li>Metro 4: Thạnh Xuân - Khu đô thị Hiệp Phước (2028)</li>
 </ul>`,
-    coverImage: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=800&h=400&fit=crop',
+    coverImage: 'https://images.unsplash.com/photo-1555761711-259aca01de21?w=800&h=400&fit=crop',
     author: editors[2],
-    topic: mockTopics[0],
-    createdAt: '2024-07-13T14:00:00Z',
-    likesCount: 1567,
-    commentsCount: 123,
-    sharesCount: 345,
+    topic: mockTopics[6],
+    createdAt: '2024-07-10T14:00:00Z',
+    likesCount: 6,
+    commentsCount: 0,
+    sharesCount: 2,
   },
   {
     id: 'art-19',
-    title: 'Startup Việt gọi vốn kỷ lục 100 triệu USD từ Series C',
-    excerpt: 'Startup fintech Việt Nam MoMo Plus vừa hoàn tất vòng gọi vốn Series C trị giá 100 triệu USD, trở thành unicorn thứ 3 của Việt Nam.',
-    content: `<h2>Thêm một unicorn Việt Nam</h2>
-<p>MoMo Plus - startup fintech chuyên về embedded finance - đã trở thành unicorn thứ 3 của Việt Nam sau khi hoàn tất vòng gọi vốn Series C trị giá 100 triệu USD.</p>
-<h3>Nhà đầu tư</h3>
-<p>Vòng gọi vốn được dẫn dắt bởi Sequoia Capital và SoftBank Vision Fund, với sự tham gia của GIC (Singapore) và Temasek.</p>`,
-    coverImage: 'https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=800&h=400&fit=crop',
-    author: editors[0],
-    topic: mockTopics[2],
-    createdAt: '2024-07-13T10:00:00Z',
-    likesCount: 1234,
-    commentsCount: 89,
-    sharesCount: 234,
+    title: 'Bộ Y tế phát hiện kháng sinh mới chữa được vi khuẩn đa kháng',
+    excerpt: 'Nhóm nghiên cứu Đại học Y Hà Nội phát triển thành công hợp chất kháng sinh mới có khả năng tiêu diệt 95% chủng vi khuẩn kháng thuốc mức độ cao.',
+    content: `<h2>Kháng sinh mới - Vũ khí chống lại siêu vi khuẩn</h2>
+<p>Một phát hiện đột phá từ các nhà khoa học Việt Nam: hợp chất VN-2024A có khả năng tiêu diệt hiệu quả các chủng vi khuẩn đề kháng nhiều loại kháng sinh.</p>
+<h3>Kết quả thử nghiệm</h3>
+<p>Trong thử nghiệm tiền lâm sàng, VN-2024A cho tỷ lệ diệt khuẩn 95.3% với Staphylococcus aureus kháng methicillin (MRSA) - loại vi khuẩn nguy hiểm gây nhiễm trùng bệnh viện.</p>`,
+    coverImage: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=800&h=400&fit=crop',
+    author: editors[1],
+    topic: mockTopics[5],
+    createdAt: '2024-07-09T08:00:00Z',
+    likesCount: 5,
+    commentsCount: 0,
+    sharesCount: 1,
   },
   {
     id: 'art-20',
-    title: 'Olympic Paris 2024: Những khoảnh khắc đáng nhớ nhất',
-    excerpt: 'Nhìn lại những khoảnh khắc đẹp nhất, cảm xúc nhất và đáng nhớ nhất tại Thế vận hội Mùa hè Paris 2024.',
-    content: `<h2>Olympic Paris - Thế vận hội của kỷ lục</h2>
-<p>Olympic Paris 2024 đã khép lại với những kỷ lục vô tiền khoáng hậu và những khoảnh khắc cảm xúc đáng nhớ.</p>
-<h3>Top khoảnh khắc</h3>
+    title: 'Vingroup ra mắt VinAI Assistant: Trợ lý AI thuần Việt đầu tiên',
+    excerpt: 'VinAI Assistant là mô hình ngôn ngữ lớn đầu tiên của Việt Nam, được huấn luyện với 500 tỷ token tiếng Việt, sẵn sàng cạnh tranh với ChatGPT.',
+    content: `<h2>VinAI - Tự hào trí tuệ nhân tạo Việt</h2>
+<p>Vingroup chính thức ra mắt VinAI Assistant, mô hình ngôn ngữ lớn (LLM) thuần Việt đầu tiên với 70 tỷ tham số, được huấn luyện bằng dữ liệu tiếng Việt chất lượng cao.</p>
+<h3>Điểm mạnh của VinAI</h3>
 <ul>
-<li>Lễ khai mạc trên sông Seine lịch sử</li>
-<li>Usain Bolt Jr. phá kỷ lục 100m của cha</li>
-<li>Đoàn Việt Nam giành 3 HCV - thành tích tốt nhất lịch sử</li>
-<li>Breaking dance lần đầu tại Olympic</li>
+<li>Hiểu sâu văn hoá, phong tục và pháp luật Việt Nam</li>
+<li>Xử lý tiếng Việt tốt hơn ChatGPT 40% trong các bài kiểm tra chuẩn</li>
+<li>Tích hợp vào hệ sinh thái Vingroup: VinFast, Vinhomes, Vinmec</li>
 </ul>`,
-    coverImage: 'https://images.unsplash.com/photo-1569517282132-25d22f4573e6?w=800&h=400&fit=crop',
-    author: editors[1],
-    topic: mockTopics[3],
-    createdAt: '2024-07-13T06:00:00Z',
-    likesCount: 2789,
-    commentsCount: 156,
-    sharesCount: 678,
+    coverImage: 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=800&h=400&fit=crop',
+    author: editors[0],
+    topic: mockTopics[0],
+    createdAt: '2024-07-08T10:00:00Z',
+    likesCount: 8,
+    commentsCount: 0,
+    sharesCount: 3,
   },
 ];

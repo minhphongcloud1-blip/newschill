@@ -5,6 +5,7 @@ const readers = mockUsers.filter((u) => u.role === 'reader' && u.status === 'act
 const editors = mockUsers.filter((u) => u.role === 'editor');
 
 export const mockComments: Comment[] = [
+  // art-1: GPT-5 (4 comments: 2 root + 2 replies)
   {
     id: 'cmt-1',
     content: 'GPT-5 thực sự ấn tượng! Mình đã thử nghiệm và khả năng suy luận tốt hơn rất nhiều so với GPT-4.',
@@ -12,7 +13,7 @@ export const mockComments: Comment[] = [
     articleId: 'art-1',
     parentId: null,
     createdAt: '2024-07-17T07:00:00Z',
-    likesCount: 24,
+    likesCount: 7,
     replies: [
       {
         id: 'cmt-1-1',
@@ -21,7 +22,7 @@ export const mockComments: Comment[] = [
         articleId: 'art-1',
         parentId: 'cmt-1',
         createdAt: '2024-07-17T07:30:00Z',
-        likesCount: 12,
+        likesCount: 5,
       },
       {
         id: 'cmt-1-2',
@@ -30,7 +31,7 @@ export const mockComments: Comment[] = [
         articleId: 'art-1',
         parentId: 'cmt-1',
         createdAt: '2024-07-17T08:00:00Z',
-        likesCount: 5,
+        likesCount: 3,
       },
     ],
   },
@@ -41,9 +42,11 @@ export const mockComments: Comment[] = [
     articleId: 'art-1',
     parentId: null,
     createdAt: '2024-07-17T08:30:00Z',
-    likesCount: 31,
+    likesCount: 6,
     replies: [],
   },
+
+  // art-2: Nước lỏng (2 comments: 1 root + 1 reply)
   {
     id: 'cmt-3',
     content: 'Wow, nước lỏng trên hành tinh khác! Đây thực sự là tin tức lớn nhất năm nay.',
@@ -51,7 +54,7 @@ export const mockComments: Comment[] = [
     articleId: 'art-2',
     parentId: null,
     createdAt: '2024-07-17T05:00:00Z',
-    likesCount: 45,
+    likesCount: 8,
     replies: [
       {
         id: 'cmt-3-1',
@@ -60,18 +63,20 @@ export const mockComments: Comment[] = [
         articleId: 'art-2',
         parentId: 'cmt-3',
         createdAt: '2024-07-17T05:30:00Z',
-        likesCount: 18,
+        likesCount: 4,
       },
     ],
   },
+
+  // art-4: Ánh Viên (2 comments: 1 root + 1 reply)
   {
     id: 'cmt-4',
-    content: 'Tự hào Việt Nam! Oanh quá giỏi 🇻🇳',
+    content: 'Tự hào Việt Nam! Ánh Viên quá giỏi 🇻🇳',
     author: readers[1],
     articleId: 'art-4',
     parentId: null,
     createdAt: '2024-07-16T23:00:00Z',
-    likesCount: 156,
+    likesCount: 9,
     replies: [
       {
         id: 'cmt-4-1',
@@ -80,10 +85,12 @@ export const mockComments: Comment[] = [
         articleId: 'art-4',
         parentId: 'cmt-4',
         createdAt: '2024-07-16T23:30:00Z',
-        likesCount: 89,
+        likesCount: 7,
       },
     ],
   },
+
+  // art-16: Cursor AI (1 comment)
   {
     id: 'cmt-5',
     content: 'Cursor thay đổi cách mình code hoàn toàn. Từ khi dùng Cursor, productivity tăng gấp đôi.',
@@ -91,9 +98,11 @@ export const mockComments: Comment[] = [
     articleId: 'art-16',
     parentId: null,
     createdAt: '2024-07-14T07:00:00Z',
-    likesCount: 34,
+    likesCount: 6,
     replies: [],
   },
+
+  // art-11: Bitcoin (2 comments: 1 root + 1 reply)
   {
     id: 'cmt-6',
     content: 'Bitcoin 150K thì có nên mua vào không mọi người?',
@@ -101,7 +110,7 @@ export const mockComments: Comment[] = [
     articleId: 'art-11',
     parentId: null,
     createdAt: '2024-07-15T13:00:00Z',
-    likesCount: 8,
+    likesCount: 4,
     replies: [
       {
         id: 'cmt-6-1',
@@ -110,7 +119,7 @@ export const mockComments: Comment[] = [
         articleId: 'art-11',
         parentId: 'cmt-6',
         createdAt: '2024-07-15T13:30:00Z',
-        likesCount: 23,
+        likesCount: 5,
       },
     ],
   },
