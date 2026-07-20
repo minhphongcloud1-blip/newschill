@@ -2,49 +2,32 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { Search, TrendingUp } from 'lucide-react';
-import { mockArticles } from '@/data/articles';
+import { TrendingUp } from 'lucide-react';
+import { useArticles } from '@/hooks/useArticles';
 import { formatNumber } from '@/lib/utils';
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, useMemo } from 'react';
 import { getActiveAds, Advertisement } from '@/data/ads';
+import RightPanelSearch from '@/components/layout/RightPanelSearch';
 
 export default function RightPanel() {
-  const [searchQuery, setSearchQuery] = useState('');
-  const router = useRouter();
   const [ads, setAds] = useState<Advertisement[]>([]);
+  const { articles } = useArticles();
 
   useEffect(() => {
     setAds(getActiveAds());
   }, []);
 
-  const trending = [...mockArticles]
-    .sort((a, b) => (b.likesCount + b.commentsCount) - (a.likesCount + a.commentsCount))
-    .slice(0, 5);
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      router.push(`/?search=${encodeURIComponent(searchQuery.trim())}`);
-    }
-  };
+  const trending = useMemo(() =>
+    [...articles]
+      .sort((a, b) => (b.likesCount + b.commentsCount) - (a.likesCount + a.commentsCount))
+      .slice(0, 5),
+    [articles]
+  );
 
   return (
     <aside className="w-[320px] shrink-0 max-xl:hidden sticky top-[49px] self-start h-[calc(100vh-49px)] overflow-y-auto pl-4 space-y-4">
         {/* Search */}
-        <form onSubmit={handleSearch} className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: 'var(--text-secondary)' }} />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Tìm kiếm tin tức..."
-            className="w-full pl-10 pr-4 py-2.5 rounded-2xl border text-sm focus:outline-none"
-            style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border-primary)', color: 'var(--text-primary)' }}
-            onFocus={(e) => (e.target.style.borderColor = '#F97316')}
-            onBlur={(e) => (e.target.style.borderColor = 'var(--border-glass)')}
-          />
-        </form>
+        <RightPanelSearch />
 
         {/* Trending */}
         <div className="rounded-2xl overflow-hidden"

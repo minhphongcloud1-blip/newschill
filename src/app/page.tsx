@@ -6,7 +6,7 @@ import Sidebar from '@/components/layout/Sidebar';
 import RightPanel from '@/components/layout/RightPanel';
 import MobileNav from '@/components/layout/MobileNav';
 import ArticleFeed from '@/components/feed/ArticleFeed';
-import { mockArticles } from '@/data/articles';
+import { useArticles } from '@/hooks/useArticles';
 import { useAuth } from '@/contexts/AuthContext';
 import { Flame } from 'lucide-react';
 import HomeBanner from '@/components/banner/HomeBanner';
@@ -14,26 +14,28 @@ import { JsonLd, websiteSchema } from '@/components/seo/JsonLd';
 
 export default function HomePage() {
   const { myArticles } = useAuth();
+  const { articles: supaArticles, loading } = useArticles();
   const searchParams = useSearchParams();
   const router = useRouter();
   const searchQuery = searchParams.get('search') || '';
 
-  // Mặc định: mới nhất lên đầu, gộp cả bài viết do user tạo
+  // Merge Supabase + user-created articles, newest first
   const articles = useMemo(() => {
-    let filtered = [...myArticles, ...mockArticles].sort(
+    const ids = new Set(supaArticles.map((a) => a.id));
+    let merged = [...supaArticles, ...myArticles.filter((a) => !ids.has(a.id))].sort(
       (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     );
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
-      filtered = filtered.filter(
+      merged = merged.filter(
         (a) =>
           a.title.toLowerCase().includes(q) ||
           a.excerpt.toLowerCase().includes(q) ||
           a.topic.name.toLowerCase().includes(q)
       );
     }
-    return filtered;
-  }, [searchQuery, myArticles]);
+    return merged;
+  }, [searchQuery, myArticles, supaArticles]);
 
   return (
     <>

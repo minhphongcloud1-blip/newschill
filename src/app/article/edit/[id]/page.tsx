@@ -7,13 +7,35 @@ import { ArrowLeft, Eye, EyeOff, Image as ImageIcon, Send } from 'lucide-react';
 import Sidebar from '@/components/layout/Sidebar';
 import MobileNav from '@/components/layout/MobileNav';
 import { useAuth } from '@/contexts/AuthContext';
+import { AdminButton } from '@/components/admin/AdminUI';
+import { Article } from '@/types';
+import { mapArticle, SupaArticleRow } from '@/hooks/useArticles';
 
 export default function EditArticlePage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const { currentUser, isAuthenticated, myArticles, updateArticle, getArticle, topics } = useAuth();
 
-  const article = getArticle(id);
+  const localArticle = getArticle(id);
+  const [supaArticle, setSupaArticle] = useState<Article | null>(null);
+  const [loading, setLoading] = useState(!localArticle);
+
+  // Fetch from Supabase if not found locally
+  useEffect(() => {
+    if (localArticle) { setLoading(false); return; }
+    (async () => {
+      try {
+        const res = await fetch(`/api/articles/${id}`);
+        if (res.ok) {
+          const row: SupaArticleRow = await res.json();
+          setSupaArticle(mapArticle(row));
+        }
+      } catch { /* ignore */ }
+      setLoading(false);
+    })();
+  }, [id, localArticle]);
+
+  const article = localArticle ?? supaArticle;
 
   const [title, setTitle] = useState('');
   const [excerpt, setExcerpt] = useState('');
@@ -38,6 +60,14 @@ export default function EditArticlePage() {
   }, [article, isAuthenticated, currentUser, router]);
 
   if (!isAuthenticated || !currentUser) return null;
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--bg-primary)' }}>
+        <div className="w-6 h-6 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: '#8B5CF6', borderTopColor: 'transparent' }} />
+      </div>
+    );
+  }
 
   if (!article) {
     return (
@@ -66,16 +96,33 @@ export default function EditArticlePage() {
 
   const selectedTopic = topics.find((t) => t.slug === topicSlug);
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!title.trim() || !content.trim() || !topicSlug) return;
     const topic = topics.find((t) => t.slug === topicSlug)!;
-    updateArticle(id, {
-      title: title.trim(),
-      excerpt: excerpt.trim(),
-      content: content.trim(),
-      coverImage: coverUrl.trim() || undefined,
-      topic,
-    });
+
+    if (localArticle) {
+      // User-created article → update locally
+      updateArticle(id, {
+        title: title.trim(),
+        excerpt: excerpt.trim(),
+        content: content.trim(),
+        coverImage: coverUrl.trim() || undefined,
+        topic,
+      });
+    } else {
+      // Supabase article → update via API
+      await fetch(`/api/articles/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: title.trim(),
+          excerpt: excerpt.trim(),
+          content: content.trim(),
+          cover_image: coverUrl.trim() || '',
+        }),
+      });
+    }
+
     setShowSuccess(true);
     setTimeout(() => {
       router.push(`/article/${id}`);
@@ -100,42 +147,45 @@ export default function EditArticlePage() {
     <div className="min-h-screen lg:pl-[275px]" style={{ background: 'var(--bg-primary)' }}>
       <Sidebar />
 
-      {/* Header */}
-      <div className="sticky top-0 z-30 flex items-center justify-between px-4 py-3">
-        <div className="flex items-center gap-4">
-          <button onClick={() => router.back()} className="p-2 rounded-full hover:bg-[var(--bg-hover-md)]" style={{ color: 'var(--text-primary)' }}>
-            <ArrowLeft className="w-5 h-5" />
-          </button>
-          <h1 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>✏️ Sửa bài viết</h1>
-          {isAdmin && !isOwner && (
-            <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ background: 'rgba(139,92,246,0.1)', color: '#8B5CF6' }}>🛡️ Admin Edit</span>
-          )}
-        </div>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setIsPreview(!isPreview)}
-            className="px-3 py-1.5 rounded-lg text-sm flex items-center gap-1.5 border"
-            style={{ borderColor: 'var(--border-primary)', color: 'var(--text-secondary)' }}
-          >
-            {isPreview ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-            {isPreview ? 'Sửa' : 'Xem trước'}
-          </button>
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={handleSave}
-            disabled={!title.trim() || !content.trim() || !topicSlug}
-            className="px-4 py-1.5 rounded-full text-sm font-semibold text-white disabled:opacity-40"
-            style={{ background: '#F97316' }}
-          >
-            Lưu thay đổi
-          </motion.button>
-        </div>
-      </div>
-
-      {/* Content */}
+      {/* Content — centered, same max-w as feed */}
       <div className="flex justify-center">
-        <main className="flex-1 min-h-screen max-w-[760px]">
+        <div className="flex-1 min-w-0 max-w-[760px]">
+
+          {/* Header — same width as content */}
+          <div
+            className="sticky top-0 z-30 flex items-center justify-between px-4 py-3"
+            style={{ borderBottom: '1px solid var(--border-primary)' }}
+          >
+            <div className="flex items-center gap-4">
+              <button onClick={() => router.back()} className="p-2 rounded-full hover:bg-[var(--bg-hover-md)]" style={{ color: 'var(--text-primary)' }}>
+                <ArrowLeft className="w-5 h-5" />
+              </button>
+              <h1 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>✏️ Sửa bài viết</h1>
+              {isAdmin && !isOwner && (
+                <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ background: 'rgba(139,92,246,0.1)', color: '#8B5CF6' }}>🛡️ Admin Edit</span>
+              )}
+            </div>
+            <div className="flex items-center gap-2">
+              <AdminButton
+                variant="secondary"
+                size="sm"
+                icon={isPreview ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                onClick={() => setIsPreview(!isPreview)}
+              >
+                {isPreview ? 'Sửa' : 'Xem trước'}
+              </AdminButton>
+              <AdminButton
+                variant="primary"
+                size="sm"
+                disabled={!title.trim() || !content.trim() || !topicSlug}
+                onClick={handleSave}
+              >
+                Lưu thay đổi
+              </AdminButton>
+            </div>
+          </div>
+
+          <main className="min-h-screen">
           <div className="p-4">
             {isPreview ? (
               /* Preview */
@@ -245,7 +295,8 @@ export default function EditArticlePage() {
               </div>
             )}
           </div>
-        </main>
+          </main>
+        </div>{/* end max-w-[760px] */}
       </div>
       <MobileNav />
     </div>

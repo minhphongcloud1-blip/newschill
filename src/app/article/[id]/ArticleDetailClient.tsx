@@ -9,7 +9,8 @@ import RightPanel from '@/components/layout/RightPanel';
 import MobileNav from '@/components/layout/MobileNav';
 import { formatDate, formatNumber, generateId } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
-import { Comment } from '@/types';
+import { Article, Comment } from '@/types';
+import { mapArticle, SupaArticleRow } from '@/hooks/useArticles';
 
 interface Props {
   articleId: string;
@@ -24,7 +25,26 @@ export default function ArticleDetailClient({ articleId }: Props) {
     toggleCommentLike, isCommentLiked,
   } = useAuth();
 
-  const article = getArticle(articleId);
+  const localArticle = getArticle(articleId);
+  const [supaArticle, setSupaArticle] = useState<Article | null>(null);
+  const [loading, setLoading] = useState(!localArticle);
+
+  // Fetch from Supabase if not found locally
+  useEffect(() => {
+    if (localArticle) { setLoading(false); return; }
+    (async () => {
+      try {
+        const res = await fetch(`/api/articles/${articleId}`);
+        if (res.ok) {
+          const row: SupaArticleRow = await res.json();
+          setSupaArticle(mapArticle(row));
+        }
+      } catch { /* ignore */ }
+      setLoading(false);
+    })();
+  }, [articleId, localArticle]);
+
+  const article = localArticle ?? supaArticle;
   const comments = getComments(articleId);
   const stats = getStats(articleId);
 
@@ -33,6 +53,21 @@ export default function ArticleDetailClient({ articleId }: Props) {
   const [replyText, setReplyText] = useState('');
   const [showShareConfirm, setShowShareConfirm] = useState(false);
 
+  const liked = isLiked(article?.id ?? '');
+  const shared = hasShared(article?.id ?? '');
+
+  // Record view once per session (guest or logged in)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { if (article) recordView(article.id); }, [article?.id]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--bg-primary)' }}>
+        <div className="w-6 h-6 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: '#8B5CF6', borderTopColor: 'transparent' }} />
+      </div>
+    );
+  }
+
   if (!article) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--bg-primary)' }}>
@@ -40,13 +75,6 @@ export default function ArticleDetailClient({ articleId }: Props) {
       </div>
     );
   }
-
-  const liked = isLiked(article.id);
-  const shared = hasShared(article.id);
-
-  // Record view once per session (guest or logged in)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => { if (article) recordView(article.id); }, [article?.id]);
 
   const handleComment = () => {
     if (!newComment.trim() || !currentUser) return;
@@ -98,39 +126,59 @@ export default function ArticleDetailClient({ articleId }: Props) {
   return (
     <div className="min-h-screen lg:pl-[275px]" style={{ background: 'var(--bg-primary)' }}>
       <Sidebar />
-      {/* Header */}
-      <div className="sticky top-0 z-30 flex items-center justify-between px-4 py-3">
-        <div className="flex items-center gap-3">
-          <button onClick={() => router.back()} className="p-2 rounded-full hover:bg-[var(--bg-hover-md)]" style={{ color: 'var(--text-primary)' }}>
-            <ArrowLeft className="w-5 h-5" />
-          </button>
-          <h1 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>Bài viết</h1>
-        </div>
-        {/* Edit button - author or admin */}
-        {currentUser && article && (currentUser.id === article.author.id || currentUser.role === 'admin') && (
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => router.push(`/article/edit/${article.id}`)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium border"
-            style={{ borderColor: 'var(--border-primary)', color: 'var(--text-primary)', background: 'var(--bg-secondary)' }}
-          >
-            <Pencil className="w-3.5 h-3.5" />
-            Sửa bài
-          </motion.button>
-        )}
-      </div>
 
-      {/* Content */}
+      {/* Content — centered, same max-w as feed */}
       <div className="flex justify-center">
-        <main className="flex-1 min-h-screen max-w-[760px]">
+        <div className="flex-1 min-w-0 max-w-[760px]">
+
+          {/* Header — same width as content */}
+          <div
+            className="sticky top-0 z-30 flex items-center justify-between px-4 py-3"
+            style={{ borderBottom: '1px solid var(--border-primary)' }}
+          >
+            <div className="flex items-center gap-3">
+              <button onClick={() => router.back()} className="p-2 rounded-full hover:bg-[var(--bg-hover-md)]" style={{ color: 'var(--text-primary)' }}>
+                <ArrowLeft className="w-5 h-5" />
+              </button>
+              <h1 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>Bài viết</h1>
+            </div>
+            {/* Edit button - author or admin */}
+            {currentUser && article && (currentUser.id === article.author.id || currentUser.role === 'admin') && (
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => router.push(`/article/edit/${article.id}`)}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium border"
+                style={{ borderColor: 'var(--border-primary)', color: 'var(--text-primary)', background: 'var(--bg-secondary)' }}
+              >
+                <Pencil className="w-3.5 h-3.5" />
+                Sửa bài
+              </motion.button>
+            )}
+          </div>
+
+          <main className="min-h-screen">
           <div>
             <motion.article initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="px-4 py-4 border-b" style={{ borderColor: 'var(--border-primary)' }}>
               <div className="flex items-center gap-3 mb-4">
                 <img src={article.author.avatar} alt={article.author.name} className="w-12 h-12 rounded-full" style={{ background: 'var(--border-primary)' }} />
                 <div>
                   <p className="font-bold" style={{ color: 'var(--text-primary)' }}>{article.author.name}</p>
-                  <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>{article.author.bio}</p>
+                  {article.sourceName ? (
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ background: 'rgba(139,92,246,0.1)', color: '#8B5CF6' }}>
+                        Nguồn: {article.sourceName}
+                      </span>
+                      {article.sourceUrl && (
+                        <a href={article.sourceUrl} target="_blank" rel="noopener noreferrer"
+                          className="flex items-center gap-1 text-xs hover:underline" style={{ color: '#8B5CF6' }}>
+                          Bài gốc ↗
+                        </a>
+                      )}
+                    </div>
+                  ) : (
+                    <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>{article.author.bio}</p>
+                  )}
                 </div>
               </div>
 
@@ -281,6 +329,7 @@ export default function ArticleDetailClient({ articleId }: Props) {
             </div>
           </div>
         </main>
+        </div>{/* end max-w-[760px] */}
         <RightPanel />
       </div>
       <MobileNav />

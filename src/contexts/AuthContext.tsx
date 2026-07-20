@@ -3,7 +3,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { User, UserRole, UserStatus, Topic, Article, Comment } from '@/types';
 import { mockUsers } from '@/data/users';
-import { mockTopics } from '@/data/topics';
 import { mockArticles } from '@/data/articles';
 import { mockComments } from '@/data/comments';
 import { store } from '@/lib/store';
@@ -98,11 +97,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isHydrated, setIsHydrated] = useState(false);
 
   useEffect(() => {
-    // Version gate: bump this when mock data changes to clear stale localStorage cache
-    const DATA_VERSION = 'v2';
+    // Version gate
+    const DATA_VERSION = 'v3';
     const storedVersion = store.get<string>('dataVersion', '');
     if (storedVersion !== DATA_VERSION) {
-      // Clear only data caches — preserve user accounts & login
       store.remove('articleStats');
       store.remove('allComments');
       store.remove('articleEdits');
@@ -113,7 +111,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const savedUsers = store.get<User[]>('users', mockUsers);
     const savedLikes = store.get<string[]>('likes', []);
     const savedShares = store.get<string[]>('shares', []);
-    const savedTopics = store.get<Topic[]>('topics', mockTopics);
     const savedMyArticles = store.get<Article[]>('myArticles', []);
     const savedStats = store.get<Record<string, ArticleStat>>('articleStats', buildInitialStats());
     const savedComments = store.get<Record<string, Comment[]>>('allComments', buildInitialComments());
@@ -123,12 +120,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUsers(savedUsers.length > 0 ? savedUsers : mockUsers);
     setLikes(savedLikes);
     setShares(savedShares);
-    setTopics(savedTopics.length > 0 ? savedTopics : mockTopics);
     setMyArticles(savedMyArticles);
-    // Merge: ensure any new mockArticle IDs have stats
     const merged = { ...buildInitialStats(), ...savedStats };
     setArticleStats(merged);
-    // Merge: ensure mockComments are included
     const mergedComments = { ...buildInitialComments() };
     for (const [aid, cmts] of Object.entries(savedComments)) {
       const existing = mergedComments[aid] ?? [];
@@ -138,6 +132,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setAllComments(mergedComments);
     setArticleEdits(savedArticleEdits);
     setIsHydrated(true);
+
+    // Load topics from Supabase
+    fetch('/api/topics')
+      .then((r) => r.json())
+      .then((data: Array<{ id: string; name: string; slug: string; icon: string; color: string; description: string; article_count: number }>) => {
+        if (Array.isArray(data) && data.length > 0) {
+          setTopics(data.map((t) => ({
+            slug: t.slug,
+            name: t.name,
+            icon: t.icon,
+            color: t.color,
+            description: t.description,
+            articleCount: t.article_count ?? 0,
+          })));
+        }
+      })
+      .catch(() => {/* fallback: keep empty */});
   }, []);
 
   useEffect(() => {
@@ -146,13 +157,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       store.set('users', users);
       store.set('likes', likes);
       store.set('shares', shares);
-      store.set('topics', topics);
       store.set('myArticles', myArticles);
       store.set('articleStats', articleStats);
       store.set('allComments', allComments);
       store.set('articleEdits', articleEdits);
     }
-  }, [currentUser, users, likes, shares, topics, myArticles, articleStats, allComments, articleEdits, isHydrated]);
+  }, [currentUser, users, likes, shares, myArticles, articleStats, allComments, articleEdits, isHydrated]);
 
   const login = useCallback((email: string, password: string) => {
     const user = users.find((u) => u.email === email && u.password === password);
@@ -352,8 +362,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const isCommentLiked = useCallback((commentId: string) => !!commentLikes[commentId], [commentLikes]);
 
-  const addTopic = useCallback((topic: Topic) => {
-    setTopics((prev) => [...prev, topic]);
+  const addTopic = useCallback(async (topic: Topic) => {
+    try {
+      const res = await fetch('/api/topics', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: topic.name, slug: topic.slug, icon: topic.icon, color: topic.color, description: topic.description }),
+      });
+      if (res.ok) {
+        // Refresh topics from Supabase
+        const refreshed = await fetch('/api/topics').then(r => r.json());
+        if (Array.isArray(refreshed)) {
+          setTopics(refreshed.map((t: { slug: string; name: string; icon: string; color: string; description: string; article_count: number }) => ({
+            slug: t.slug, name: t.name, icon: t.icon, color: t.color,
+            description: t.description, articleCount: t.article_count ?? 0,
+          })));
+        }
+      }
+    } catch { setTopics((prev) => [...prev, topic]); }
   }, []);
 
   const updateTopic = useCallback((slug: string, updates: Partial<Topic>) => {
@@ -370,6 +396,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       ...stats,
       [article.id]: { likes: 0, shares: 0, comments: 0, views: 0 },
     }));
+    // Also persist to Supabase
+    fetch('/api/articles', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        title: article.title, excerpt: article.excerpt, content: article.content,
+        coverImage: article.coverImage, authorName: article.author?.name ?? 'Admin',
+        authorAvatar: article.author?.avatar ?? '',
+      }),
+    }).catch(() => {});
   }, []);
 
   const updateArticle = useCallback((id: string, updates: Partial<Article>) => {

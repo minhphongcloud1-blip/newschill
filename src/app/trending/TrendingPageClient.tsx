@@ -6,11 +6,12 @@ import Sidebar from '@/components/layout/Sidebar';
 import RightPanel from '@/components/layout/RightPanel';
 import MobileNav from '@/components/layout/MobileNav';
 import ArticleFeed from '@/components/feed/ArticleFeed';
-import { mockArticles } from '@/data/articles';
+import { useArticles } from '@/hooks/useArticles';
 import HomeBanner from '@/components/banner/HomeBanner';
 
 export default function TrendingPageClient() {
-  const trending = useMemo(() => [...mockArticles].sort((a, b) => (b.likesCount + b.commentsCount * 2 + b.sharesCount) - (a.likesCount + a.commentsCount * 2 + a.sharesCount)), []);
+  const { articles } = useArticles();
+  const trending = useMemo(() => [...articles].sort((a, b) => (b.likesCount + b.commentsCount * 2 + b.sharesCount) - (a.likesCount + a.commentsCount * 2 + a.sharesCount)), [articles]);
 
   return (
     <div className="min-h-screen lg:pl-[275px]" style={{ background: 'var(--bg-primary)' }}>

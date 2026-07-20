@@ -3,7 +3,7 @@
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { Shield, LayoutDashboard, Users, FileText, ArrowLeft, Hash, Sun, Moon, Image } from 'lucide-react';
+import { Shield, LayoutDashboard, Users, FileText, ArrowLeft, Hash, Sun, Moon, Image, Rss, ScrollText, Bot } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
 
@@ -24,6 +24,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { href: '/admin/articles', label: 'Quản lý Bài viết', icon: FileText },
     { href: '/admin/topics', label: 'Cấu hình Chủ đề', icon: Hash },
     { href: '/admin/ads', label: 'Quảng cáo', icon: Image },
+    { href: '/admin/rss-sources', label: 'Nguồn tin', icon: Rss },
+    { href: '/admin/ai-config', label: 'Cấu hình AI', icon: Bot },
+    { href: '/admin/fetch-logs', label: 'Nhật ký', icon: ScrollText },
   ];
 
   return (

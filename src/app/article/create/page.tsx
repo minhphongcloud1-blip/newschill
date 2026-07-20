@@ -8,6 +8,7 @@ import Sidebar from '@/components/layout/Sidebar';
 import MobileNav from '@/components/layout/MobileNav';
 import { useAuth } from '@/contexts/AuthContext';
 import { generateId } from '@/lib/utils';
+import { AdminButton } from '@/components/admin/AdminUI';
 
 export default function ArticleCreatePage() {
   const router = useRouter();
@@ -75,38 +76,44 @@ export default function ArticleCreatePage() {
   return (
     <div className="min-h-screen lg:pl-[275px]" style={{ background: 'var(--bg-primary)' }}>
       <Sidebar />
-      {/* Header - full width */}
-      <div className="sticky top-0 z-30 flex items-center justify-between px-4 py-3">
-        <div className="flex items-center gap-4">
-          <button onClick={() => router.back()} className="p-2 rounded-full hover:bg-[var(--bg-hover-md)]" style={{ color: 'var(--text-primary)' }}>
-            <ArrowLeft className="w-5 h-5" />
-          </button>
-          <h1 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>✍️ Viết bài mới</h1>
-        </div>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setIsPreview(!isPreview)}
-            className="px-3 py-1.5 rounded-lg text-sm flex items-center gap-1.5 border"
-            style={{ borderColor: 'var(--border-primary)', color: 'var(--text-secondary)' }}
-          >
-            {isPreview ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-            {isPreview ? 'Sửa' : 'Xem trước'}
-          </button>
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={handlePublish}
-            disabled={!title.trim() || !content.trim() || !topicSlug}
-            className="px-4 py-1.5 rounded-full text-sm font-semibold text-white disabled:opacity-40"
-            style={{ background: '#F97316' }}
-          >
-            Đăng bài
-          </motion.button>
-        </div>
-      </div>
-      {/* Content */}
+
+      {/* Content — centered, same max-w as feed */}
       <div className="flex justify-center">
-        <main className="flex-1 min-h-screen max-w-[760px]">
+        <div className="flex-1 min-w-0 max-w-[760px]">
+
+          {/* Header — same width as content */}
+          <div
+            className="sticky top-0 z-30 flex items-center justify-between px-4 py-3"
+            style={{ borderBottom: '1px solid var(--border-primary)' }}
+          >
+            <div className="flex items-center gap-4">
+              <button onClick={() => router.back()} className="p-2 rounded-full hover:bg-[var(--bg-hover-md)]" style={{ color: 'var(--text-primary)' }}>
+                <ArrowLeft className="w-5 h-5" />
+              </button>
+              <h1 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>✍️ Viết bài mới</h1>
+            </div>
+            <div className="flex items-center gap-2">
+              <AdminButton
+                variant="secondary"
+                size="sm"
+                icon={isPreview ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                onClick={() => setIsPreview(!isPreview)}
+              >
+                {isPreview ? 'Sửa' : 'Xem trước'}
+              </AdminButton>
+              <AdminButton
+                variant="primary"
+                size="sm"
+                disabled={!title.trim() || !content.trim() || !topicSlug}
+                onClick={handlePublish}
+              >
+                Đăng bài
+              </AdminButton>
+            </div>
+          </div>
+
+          {/* Content */}
+          <main className="min-h-screen">
           <div className="p-4">
           {isPreview ? (
             /* Preview Mode */
@@ -218,7 +225,8 @@ export default function ArticleCreatePage() {
             </div>
           )}
           </div>
-        </main>
+          </main>
+        </div>{/* end max-w-[760px] */}
       </div>
       <MobileNav />
     </div>
