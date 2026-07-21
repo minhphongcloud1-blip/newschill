@@ -26,6 +26,8 @@ export async function POST(req: Request) {
       gemini_model: body.gemini?.model ?? 'gemini-2.0-flash-lite',
       openai_api_key: body.openai?.apiKey ?? '',
       openai_model: body.openai?.model ?? 'gpt-4o-mini',
+      openrouter_api_key: body.openrouter?.apiKey ?? '',
+      openrouter_model: body.openrouter?.model ?? 'google/gemini-2.5-flash',
       system_prompt: body.systemPrompt ?? '',
       max_tokens: body.maxTokens ?? 2048,
       temperature: body.temperature ?? 0.7,

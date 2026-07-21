@@ -11,7 +11,7 @@ import {
   AdminBadge, AdminTabs,
 } from '@/components/admin/AdminUI';
 
-type ProviderKey = 'gemini' | 'openai';
+type ProviderKey = 'gemini' | 'openai' | 'openrouter';
 
 interface ProviderModel { id: string; label: string; description: string; badge?: string; }
 interface ProviderConfig {
@@ -22,6 +22,7 @@ interface AiConfig {
   activeProvider: ProviderKey;
   gemini: { apiKey: string; model: string };
   openai: { apiKey: string; model: string };
+  openrouter: { apiKey: string; model: string };
   systemPrompt: string; maxTokens: number; temperature: number;
 }
 
@@ -44,6 +45,16 @@ const PROVIDERS: ProviderConfig[] = [
       { id: 'gpt-4o', label: 'GPT-4o', description: 'Chất lượng cao nhất' },
       { id: 'gpt-4-turbo', label: 'GPT-4 Turbo', description: 'Context 128K token' },
       { id: 'gpt-3.5-turbo', label: 'GPT-3.5 Turbo', description: 'Siêu nhanh, chi phí thấp nhất' },
+    ],
+  },
+  {
+    key: 'openrouter', name: 'OpenRouter', logo: '🌌', color: '#6366F1',
+    apiKeyPlaceholder: 'sk-or-v1-...', docsUrl: 'https://openrouter.ai/keys',
+    models: [
+      { id: 'google/gemini-2.5-flash', label: 'Gemini 2.5 Flash', description: 'Nhanh, thông minh, free', badge: 'Khuyến nghị' },
+      { id: 'anthropic/claude-3.5-sonnet', label: 'Claude 3.5 Sonnet', description: 'Cực thông minh, logic tốt' },
+      { id: 'deepseek/deepseek-chat', label: 'DeepSeek V3', description: 'Rẻ, chất lượng ngang GPT-4' },
+      { id: 'meta-llama/llama-3.3-70b-instruct', label: 'Llama 3.3 70B', description: 'Mã nguồn mở hàng đầu' },
     ],
   },
 ];
@@ -79,6 +90,7 @@ const DEFAULT_CONFIG: AiConfig = {
   activeProvider: 'gemini',
   gemini: { apiKey: '', model: 'gemini-2.0-flash-lite' },
   openai: { apiKey: '', model: 'gpt-4o-mini' },
+  openrouter: { apiKey: '', model: 'google/gemini-2.5-flash' },
   systemPrompt: DEFAULT_PROMPT,
   maxTokens: 2048,
   temperature: 0.7,
@@ -89,9 +101,9 @@ const DEFAULT_CONFIG: AiConfig = {
 
 export default function AiConfigPage() {
   const [config, setConfig] = useState<AiConfig>(DEFAULT_CONFIG);
-  const [showKey, setShowKey] = useState<Record<ProviderKey, boolean>>({ gemini: false, openai: false });
+  const [showKey, setShowKey] = useState<Record<ProviderKey, boolean>>({ gemini: false, openai: false, openrouter: false });
   const [testStatus, setTestStatus] = useState<Record<ProviderKey, 'idle' | 'testing' | 'ok' | 'fail' | 'quota'>>({
-    gemini: 'idle', openai: 'idle',
+    gemini: 'idle', openai: 'idle', openrouter: 'idle'
   });
   const [saved, setSaved] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -107,6 +119,7 @@ export default function AiConfigPage() {
           activeProvider: data.active_provider ?? 'gemini',
           gemini: { apiKey: data.gemini_api_key ?? '', model: data.gemini_model ?? 'gemini-2.0-flash-lite' },
           openai: { apiKey: data.openai_api_key ?? '', model: data.openai_model ?? 'gpt-4o-mini' },
+          openrouter: { apiKey: data.openrouter_api_key ?? '', model: data.openrouter_model ?? 'google/gemini-2.5-flash' },
           systemPrompt: data.system_prompt ?? DEFAULT_PROMPT,
           maxTokens: data.max_tokens ?? 2048,
           temperature: data.temperature ?? 0.7,
@@ -160,10 +173,22 @@ export default function AiConfigPage() {
           }
         );
         status = res.status;
-      } else {
+      } else if (providerKey === 'openai') {
         const res = await fetch('https://api.openai.com/v1/chat/completions', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
+          body: JSON.stringify({ model, messages: [{ role: 'user', content: 'Hi' }], max_tokens: 5 }),
+        });
+        status = res.status;
+      } else {
+        const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json', 
+            Authorization: `Bearer ${apiKey}`,
+            'HTTP-Referer': 'https://newschill.online',
+            'X-Title': 'NewsChill',
+          },
           body: JSON.stringify({ model, messages: [{ role: 'user', content: 'Hi' }], max_tokens: 5 }),
         });
         status = res.status;
@@ -335,7 +360,7 @@ export default function AiConfigPage() {
                         )}
                         {testStatus[provider.key] === 'quota' && (
                           <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="text-xs mt-1.5 flex items-center gap-1" style={{ color: '#F59E0B' }}>
-                            <span className="w-3 h-3 text-base leading-none">⚠️</span> Key đúng nhưng hết quota — nạp thêm tiền vào tài khoản {provider.key === 'gemini' ? 'Google AI' : 'OpenAI'} để tiếp tục.
+                            <span className="w-3 h-3 text-base leading-none">⚠️</span> Key đúng nhưng hết quota — nạp thêm tiền vào tài khoản {provider.key === 'gemini' ? 'Google AI' : provider.key === 'openai' ? 'OpenAI' : 'OpenRouter'} để tiếp tục.
                           </motion.p>
                         )}
                         {testStatus[provider.key] === 'fail' && (

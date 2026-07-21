@@ -7,9 +7,10 @@
 import { supabaseServer } from '@/lib/supabase';
 
 export interface AiConfig {
-  activeProvider: 'gemini' | 'openai';
+  activeProvider: 'gemini' | 'openai' | 'openrouter';
   gemini: { apiKey: string; model: string };
   openai: { apiKey: string; model: string };
+  openrouter: { apiKey: string; model: string };
   systemPrompt: string;
   maxTokens: number;
   temperature: number;
@@ -35,6 +36,7 @@ export async function loadAiConfig(): Promise<AiConfig | null> {
     activeProvider: data.active_provider ?? 'gemini',
     gemini: { apiKey: data.gemini_api_key ?? '', model: data.gemini_model ?? 'gemini-2.0-flash-lite' },
     openai: { apiKey: data.openai_api_key ?? '', model: data.openai_model ?? 'gpt-4o-mini' },
+    openrouter: { apiKey: data.openrouter_api_key ?? '', model: data.openrouter_model ?? 'google/gemini-2.5-flash' },
     systemPrompt: data.system_prompt ?? '',
     maxTokens: data.max_tokens ?? 2048,
     temperature: data.temperature ?? 0.7,
@@ -106,6 +108,40 @@ export async function callAi(
       if (!res.ok) {
         const errBody = await res.text();
         console.error('[AI] OpenAI error:', res.status, errBody.slice(0, 300));
+        return null;
+      }
+
+      const data = await res.json();
+      const text = data.choices?.[0]?.message?.content ?? '';
+      return JSON.parse(text);
+    }
+
+    if (provider === 'openrouter') {
+      console.log('[AI] Calling OpenRouter:', model);
+      const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${apiKey}`,
+          'HTTP-Referer': 'https://newschill.online', // Required by OpenRouter
+          'X-Title': 'NewsChill', // Optional
+        },
+        body: JSON.stringify({
+          model,
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: userMessage },
+          ],
+          temperature,
+          max_tokens: maxTokens,
+          response_format: { type: 'json_object' },
+        }),
+        signal: AbortSignal.timeout(40000), // OpenRouter can be a bit slower
+      });
+
+      if (!res.ok) {
+        const errBody = await res.text();
+        console.error('[AI] OpenRouter error:', res.status, errBody.slice(0, 300));
         return null;
       }
 
