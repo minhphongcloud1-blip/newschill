@@ -68,7 +68,7 @@ export default function HomePage() {
               </div>
             )}
 
-            <ArticleFeed articles={articles} />
+            <ArticleFeed articles={articles} loading={loading} />
           </main>
           <RightPanel />
         </div>

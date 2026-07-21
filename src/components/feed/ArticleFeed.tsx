@@ -8,9 +8,10 @@ import { motion } from 'framer-motion';
 interface ArticleFeedProps {
   articles: Article[];
   pageSize?: number;
+  loading?: boolean;
 }
 
-export default function ArticleFeed({ articles, pageSize = 5 }: ArticleFeedProps) {
+export default function ArticleFeed({ articles, pageSize = 5, loading: isDataLoading = false }: ArticleFeedProps) {
   const [displayed, setDisplayed] = useState<Article[]>([]);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -91,7 +92,29 @@ export default function ArticleFeed({ articles, pageSize = 5 }: ArticleFeedProps
         </motion.div>
       )}
 
-      {articles.length === 0 && (
+      {/* Initial loading skeletons */}
+      {isDataLoading && displayed.length === 0 && (
+        <div>
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="px-4 py-4 border-b" style={{ borderColor: 'var(--border-primary)' }}>
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 rounded-full skeleton" />
+                <div className="flex-1">
+                  <div className="h-4 w-32 rounded skeleton mb-1" />
+                  <div className="h-3 w-20 rounded skeleton" />
+                </div>
+              </div>
+              <div className="ml-[52px]">
+                <div className="h-5 w-full rounded skeleton mb-2" />
+                <div className="h-4 w-3/4 rounded skeleton mb-3" />
+                <div className="h-[180px] w-full rounded-2xl skeleton" />
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {articles.length === 0 && !isDataLoading && (
         <div className="py-16 text-center" style={{ color: 'var(--text-secondary)' }}>
           <p className="text-lg mb-2">Chưa có bài viết nào</p>
           <p className="text-sm">Hãy quay lại sau nhé!</p>

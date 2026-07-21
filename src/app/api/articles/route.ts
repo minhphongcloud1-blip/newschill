@@ -1,12 +1,15 @@
 import { NextResponse } from 'next/server';
 import { supabaseServer } from '@/lib/supabase';
 
+// Revalidate this route every 60 seconds on the server
+export const revalidate = 60;
+
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const topicSlug = searchParams.get('topic');
   const search = searchParams.get('search');
   const page = parseInt(searchParams.get('page') ?? '1');
-  const pageSize = parseInt(searchParams.get('pageSize') ?? '20');
+  const pageSize = parseInt(searchParams.get('pageSize') ?? '20'); // Reduced from 200
 
   // If filtering by topic slug, look up the topic_id first
   let topicId: string | null = null;
@@ -27,7 +30,16 @@ export async function GET(req: Request) {
 
   const { data, error, count } = await query;
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json({ data, total: count });
+
+  return NextResponse.json(
+    { data, total: count },
+    {
+      headers: {
+        // Cache at CDN/browser for 60s, stale-while-revalidate for 300s
+        'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300',
+      },
+    }
+  );
 }
 
 export async function POST(req: Request) {

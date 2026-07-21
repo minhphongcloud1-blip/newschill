@@ -10,7 +10,7 @@ const inter = Inter({
   variable: "--font-inter",
 });
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://newschill.vn';
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://newschill.online';
 const SITE_NAME = 'Newschill';
 const DEFAULT_DESCRIPTION = 'Đọc tin tức, bình luận và chia sẻ trên nền tảng kiểu X. Cập nhật tin tức công nghệ, khoa học, kinh doanh, thể thao nhanh nhất Việt Nam.';
 const DEFAULT_OG_IMAGE = `${SITE_URL}/og-image.png`;
