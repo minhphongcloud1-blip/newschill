@@ -90,7 +90,7 @@ const DEFAULT_CONFIG: AiConfig = {
 export default function AiConfigPage() {
   const [config, setConfig] = useState<AiConfig>(DEFAULT_CONFIG);
   const [showKey, setShowKey] = useState<Record<ProviderKey, boolean>>({ gemini: false, openai: false });
-  const [testStatus, setTestStatus] = useState<Record<ProviderKey, 'idle' | 'testing' | 'ok' | 'fail'>>({
+  const [testStatus, setTestStatus] = useState<Record<ProviderKey, 'idle' | 'testing' | 'ok' | 'fail' | 'quota'>>({
     gemini: 'idle', openai: 'idle',
   });
   const [saved, setSaved] = useState(false);
@@ -149,31 +149,38 @@ export default function AiConfigPage() {
     if (!apiKey) return;
     setTestStatus((s) => ({ ...s, [providerKey]: 'testing' }));
     try {
+      let status = 0;
       if (providerKey === 'gemini') {
         const res = await fetch(
           `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
           {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ contents: [{ parts: [{ text: 'Xin chào, trả lời ngắn gọn.' }] }] }),
+            body: JSON.stringify({ contents: [{ parts: [{ text: 'Hi' }] }] }),
           }
         );
-        setTestStatus((s) => ({ ...s, [providerKey]: res.ok ? 'ok' : 'fail' }));
-        if (!res.ok) { const err = await res.json().catch(() => ({})); alert(`Gemini ${res.status}: ${err.error?.message || 'Lỗi không xác định'}`); }
+        status = res.status;
       } else {
         const res = await fetch('https://api.openai.com/v1/chat/completions', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
           body: JSON.stringify({ model, messages: [{ role: 'user', content: 'Hi' }], max_tokens: 5 }),
         });
-        setTestStatus((s) => ({ ...s, [providerKey]: res.ok ? 'ok' : 'fail' }));
-        if (!res.ok) { const err = await res.json().catch(() => ({})); alert(`OpenAI ${res.status}: ${err.error?.message || 'Lỗi không xác định'}`); }
+        status = res.status;
+      }
+
+      if (status === 200) {
+        setTestStatus((s) => ({ ...s, [providerKey]: 'ok' }));
+      } else if (status === 429) {
+        setTestStatus((s) => ({ ...s, [providerKey]: 'quota' }));
+      } else {
+        setTestStatus((s) => ({ ...s, [providerKey]: 'fail' }));
       }
     } catch (e) {
       setTestStatus((s) => ({ ...s, [providerKey]: 'fail' }));
       alert(`Lỗi kết nối: ${e instanceof Error ? e.message : 'Unknown'}`);
     }
-    setTimeout(() => setTestStatus((s) => ({ ...s, [providerKey]: 'idle' })), 4000);
+    setTimeout(() => setTestStatus((s) => ({ ...s, [providerKey]: 'idle' })), 5000);
   };
 
   const handleReset = () => {
@@ -323,12 +330,17 @@ export default function AiConfigPage() {
                       <AnimatePresence>
                         {testStatus[provider.key] === 'ok' && (
                           <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="text-xs mt-1.5 flex items-center gap-1 text-green-500">
-                            <CheckCircle2 className="w-3 h-3" /> Kết nối thành công!
+                            <CheckCircle2 className="w-3 h-3" /> Kết nối thành công! Key hợp lệ.
+                          </motion.p>
+                        )}
+                        {testStatus[provider.key] === 'quota' && (
+                          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="text-xs mt-1.5 flex items-center gap-1" style={{ color: '#F59E0B' }}>
+                            <span className="w-3 h-3 text-base leading-none">⚠️</span> Key đúng nhưng hết quota — nạp thêm tiền vào tài khoản {provider.key === 'gemini' ? 'Google AI' : 'OpenAI'} để tiếp tục.
                           </motion.p>
                         )}
                         {testStatus[provider.key] === 'fail' && (
                           <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="text-xs mt-1.5 flex items-center gap-1 text-red-500">
-                            <XCircle className="w-3 h-3" /> API key không hợp lệ. Kiểm tra lại.
+                            <XCircle className="w-3 h-3" /> API key không hợp lệ hoặc đã bị khóa. Kiểm tra lại.
                           </motion.p>
                         )}
                       </AnimatePresence>
