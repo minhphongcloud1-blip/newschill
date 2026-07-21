@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useEffect, useRef, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Sidebar from '@/components/layout/Sidebar';
 import RightPanel from '@/components/layout/RightPanel';
@@ -12,14 +12,60 @@ import { Flame } from 'lucide-react';
 import HomeBanner from '@/components/banner/HomeBanner';
 import { JsonLd, websiteSchema } from '@/components/seo/JsonLd';
 
+const POLL_INTERVAL = 60_000; // Check for new articles every 60s
+
 export default function HomePage() {
   const { myArticles } = useAuth();
-  const { articles: supaArticles, loading } = useArticles();
+  const { articles: supaArticles, loading, refetch } = useArticles();
   const searchParams = useSearchParams();
   const router = useRouter();
   const searchQuery = searchParams.get('search') || '';
 
-  // Merge Supabase + user-created articles, newest first
+  // ── New articles polling (Giải pháp 2) ───────────────────
+  const [newArticlesCount, setNewArticlesCount] = useState(0);
+  const latestIdRef = useRef<string | null>(null);
+
+  // Track the ID of the most recent article we know about
+  useEffect(() => {
+    if (supaArticles.length > 0 && !latestIdRef.current) {
+      latestIdRef.current = supaArticles[0].id;
+    }
+  }, [supaArticles]);
+
+  // Poll for new articles in the background
+  useEffect(() => {
+    if (searchQuery) return; // Don't poll during search
+
+    const timer = setInterval(async () => {
+      try {
+        const res = await fetch('/api/articles?pageSize=5');
+        if (!res.ok) return;
+        const json = await res.json();
+        const rows = json.data ?? [];
+        if (rows.length === 0 || !latestIdRef.current) return;
+
+        // Count how many new articles appeared since we last loaded
+        const newOnes = rows.filter(
+          (r: { id: string }) => r.id !== latestIdRef.current &&
+            !supaArticles.find((a) => a.id === r.id)
+        );
+        if (newOnes.length > 0) {
+          setNewArticlesCount((c) => c + newOnes.length);
+        }
+      } catch { /* silent fail */ }
+    }, POLL_INTERVAL);
+
+    return () => clearInterval(timer);
+  }, [searchQuery, supaArticles]);
+
+  // Called when user clicks the "new articles" pill
+  const handleRefresh = () => {
+    setNewArticlesCount(0);
+    refetch?.();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // ── Merge articles ────────────────────────────────────────
   const articles = useMemo(() => {
     const ids = new Set(supaArticles.map((a) => a.id));
     let merged = [...supaArticles, ...myArticles.filter((a) => !ids.has(a.id))].sort(
@@ -68,7 +114,12 @@ export default function HomePage() {
               </div>
             )}
 
-            <ArticleFeed articles={articles} loading={loading} />
+            <ArticleFeed
+              articles={articles}
+              loading={loading}
+              newArticlesCount={newArticlesCount}
+              onRefresh={handleRefresh}
+            />
           </main>
           <RightPanel />
         </div>

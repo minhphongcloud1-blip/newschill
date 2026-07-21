@@ -8,11 +8,12 @@ import { NewsSource, NewsSourceFeed } from '@/types';
 import SearchInput from '@/components/ui/SearchInput';
 import Pagination from '@/components/ui/Pagination';
 import {
-  AdminPageHeader, AdminTable, AdminTr, AdminTd, AdminBadge,
+  AdminPageHeader, AdminBadge,
   AdminModal, AdminDeleteModal, AdminTabs,
   AdminFormField, AdminInput, AdminSelect, AdminToggle,
   AdminActionButton, AdminButton,
   AdminToastContainer, useToast,
+  DataTable, DataTableColumn,
 } from '@/components/admin/AdminUI';
 
 const ITEMS_PER_PAGE = 8;
@@ -56,14 +57,18 @@ function SourceModal({ source, onSave, onClose }: {
 
 // ─── Feed Modal ──────────────────────────────────────────
 const categoryOptions = [
-  { value: 'general',    label: 'Tổng hợp' },
-  { value: 'technology', label: 'Công nghệ' },
-  { value: 'business',   label: 'Kinh doanh' },
-  { value: 'finance',    label: 'Tài chính' },
-  { value: 'politics',   label: 'Thời sự' },
-  { value: 'sports',     label: 'Thể thao' },
-  { value: 'world',      label: 'Thế giới' },
-  { value: 'realestate', label: 'Bất động sản' },
+  { value: '',          label: '🤖 Auto (AI tự phân loại)' }, // empty = let AI decide
+  { value: 'general',    label: '📰 Tổng hợp' },
+  { value: 'technology', label: '💻 Công nghệ' },
+  { value: 'business',   label: '💼 Kinh doanh' },
+  { value: 'finance',    label: '💰 Tài chính' },
+  { value: 'politics',   label: '🏛️ Thời sự' },
+  { value: 'sports',     label: '⚽ Thể thao' },
+  { value: 'world',      label: '🌍 Thế giới' },
+  { value: 'realestate', label: '🏠 Bất động sản' },
+  { value: 'entertainment', label: '🎬 Giải trí' },
+  { value: 'health',     label: '❤️ Sức khỏe' },
+  { value: 'science',    label: '🔬 Khoa học' },
 ];
 
 function FeedModal({ feed, sources, onSave, onClose }: {
@@ -75,7 +80,8 @@ function FeedModal({ feed, sources, onSave, onClose }: {
   const [sourceId, setSourceId] = useState(feed?.sourceId ?? sources[0]?.id ?? '');
   const [feedName, setFeedName] = useState(feed?.feedName ?? '');
   const [feedUrl, setFeedUrl] = useState(feed?.feedUrl ?? '');
-  const [category, setCategory] = useState(feed?.category ?? 'general');
+  const [category, setCategory] = useState(feed?.category ?? '');
+  const [maxItems, setMaxItems] = useState(String((feed as (NewsSourceFeed & { maxFetchItems?: number }))?.maxFetchItems ?? 10));
   const [crawlInterval, setCrawlInterval] = useState(String(feed?.crawlInterval ?? 10));
   const [active, setActive] = useState(feed ? feed.status === 'active' : true);
   const canSave = feedName.trim().length >= 2 && feedUrl.startsWith('https://') && !!sourceId;
@@ -91,7 +97,7 @@ function FeedModal({ feed, sources, onSave, onClose }: {
           <AdminButton variant="secondary" onClick={onClose}>Hủy</AdminButton>
           <AdminButton
             disabled={!canSave}
-            onClick={() => canSave && onSave({ sourceId, feedName: feedName.trim(), feedUrl: feedUrl.trim(), category, crawlInterval: Math.max(1, Number(crawlInterval)), status: active ? 'active' : 'inactive' })}
+            onClick={() => canSave && onSave({ sourceId, feedName: feedName.trim(), feedUrl: feedUrl.trim(), category, crawlInterval: Math.max(1, Number(crawlInterval)), status: active ? 'active' : 'inactive', maxFetchItems: Math.max(1, Math.min(50, Number(maxItems))) } as Omit<NewsSourceFeed, 'id'>)}
           >
             Lưu
           </AdminButton>
@@ -109,13 +115,19 @@ function FeedModal({ feed, sources, onSave, onClose }: {
           <AdminInput value={feedUrl} onChange={setFeedUrl} placeholder="https://vnexpress.net/rss/so-hoa.rss" />
         </AdminFormField>
         <div className="grid grid-cols-2 gap-3">
-          <AdminFormField label="Danh mục">
+          <AdminFormField label="Chủ đề mặc định">
             <AdminSelect value={category} onChange={setCategory} options={categoryOptions} />
           </AdminFormField>
           <AdminFormField label="Chu kỳ (phút)">
             <AdminInput value={crawlInterval} onChange={setCrawlInterval} type="number" placeholder="10" />
           </AdminFormField>
         </div>
+        <AdminFormField
+          label="Số bài tối đa mỗi lần đồng bộ"
+          hint={`Tối đa 50. Bài mới nhất sẽ được ưu tiên.`}
+        >
+          <AdminInput value={maxItems} onChange={setMaxItems} type="number" placeholder="10" />
+        </AdminFormField>
         <AdminToggle checked={active} onChange={setActive} label="Trạng thái hoạt động" />
       </div>
     </AdminModal>
@@ -135,7 +147,7 @@ function timeAgo(dateStr?: string) {
 
 // ─── Main Page ───────────────────────────────────────────
 export default function RssSourcesPage() {
-  const { sources, feeds, addSource, updateSource, deleteSource, addFeed, updateFeed, deleteFeed, toggleFeedActive, getFeedsBySource, loading, fetchAllDrafts } = useRss();
+  const { sources, feeds, addSource, updateSource, deleteSource, addFeed, updateFeed, deleteFeed, toggleFeedActive, getFeedsBySource, loading, fetchAllDrafts, refetchLogs } = useRss();
   const { toasts, addToast, removeToast } = useToast();
 
   const [tab, setTab] = useState('sources');
@@ -251,7 +263,8 @@ export default function RssSourcesPage() {
         addToast(data.error ?? 'Lỗi đồng bộ', 'error');
       } else {
         addToast(`Đồng bộ "${feed.feedName}": ${data.totalSaved} bài mới, ${data.totalDuplicates} trùng`, 'success');
-        fetchAllDrafts(); // refresh drafts list
+        fetchAllDrafts();
+        refetchLogs(); // refresh log list
       }
     } catch {
       addToast('Không thể kết nối API', 'error');
@@ -275,7 +288,8 @@ export default function RssSourcesPage() {
         addToast(data.error ?? 'Lỗi đồng bộ', 'error');
       } else {
         addToast(`Đồng bộ hoàn tất: ${data.totalSaved} bài mới, ${data.totalDuplicates} trùng, ${data.totalErrors} lỗi`, 'success');
-        fetchAllDrafts(); // refresh drafts list
+        fetchAllDrafts();
+        refetchLogs(); // refresh log list
       }
     } catch {
       addToast('Không thể kết nối API', 'error');
@@ -284,22 +298,22 @@ export default function RssSourcesPage() {
     }
   };
 
-  const sourceCols = [
-    { key: 'name', label: 'Tên nguồn' },
+  const sourceCols: DataTableColumn[] = [
+    { key: 'name',    label: 'Tên nguồn' },
     { key: 'website', label: 'Website' },
-    { key: 'feeds', label: 'Feeds', align: 'center' as const },
-    { key: 'status', label: 'Trạng thái', align: 'center' as const },
-    { key: 'actions', label: '', align: 'right' as const },
+    { key: 'feeds',   label: 'Feeds',       align: 'center' },
+    { key: 'status',  label: 'Trạng thái', align: 'center' },
+    { key: 'actions', label: '',            align: 'right' },
   ];
 
-  const feedCols = [
-    { key: 'source', label: 'Nguồn' },
-    { key: 'feed', label: 'Feed' },
-    { key: 'url', label: 'URL', hide: 'md' as const },
-    { key: 'interval', label: 'Chu kỳ', align: 'center' as const },
-    { key: 'lastSync', label: 'Lần cuối', align: 'center' as const, hide: 'md' as const },
-    { key: 'status', label: 'Trạng thái', align: 'center' as const },
-    { key: 'actions', label: '', align: 'right' as const },
+  const feedCols: DataTableColumn[] = [
+    { key: 'source',   label: 'Nguồn' },
+    { key: 'feed',     label: 'Feed' },
+    { key: 'url',      label: 'URL',       hide: 'md' },
+    { key: 'interval', label: 'Chu kỳ',   align: 'center' },
+    { key: 'lastSync', label: 'Lần cuối', align: 'center', hide: 'md' },
+    { key: 'status',   label: 'Trạng thái', align: 'center' },
+    { key: 'actions',  label: '',          align: 'right' },
   ];
 
   return (
@@ -344,31 +358,34 @@ export default function RssSourcesPage() {
 
       {/* Table: Sources */}
       {isSourcesTab && (
-        <AdminTable columns={sourceCols} isEmpty={paginatedSources.length === 0} emptyText="Không có nguồn nào">
-          {paginatedSources.map((src) => (
-            <AdminTr key={src.id}>
-              <AdminTd>
+        <DataTable
+          columns={sourceCols}
+          rows={paginatedSources}
+          emptyText="Không có nguồn nào"
+          renderRow={(src) => (
+            <>
+              <td className="px-4 py-3">
                 <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>{src.name}</span>
-              </AdminTd>
-              <AdminTd>
+              </td>
+              <td className="px-4 py-3">
                 <span className="text-sm flex items-center gap-1.5" style={{ color: 'var(--text-secondary)' }}>
                   <Globe className="w-3.5 h-3.5 shrink-0" />{src.website}
                 </span>
-              </AdminTd>
-              <AdminTd align="center">
+              </td>
+              <td className="px-4 py-3 text-center">
                 <span className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
                   {getFeedsBySource(src.id).length}
                 </span>
-              </AdminTd>
-              <AdminTd align="center">
+              </td>
+              <td className="px-4 py-3 text-center">
                 <AdminBadge
                   variant={src.status === 'active' ? 'green' : 'red'}
                   icon={src.status === 'active' ? <Check className="w-3 h-3" /> : <X className="w-3 h-3" />}
                 >
                   {src.status === 'active' ? 'Active' : 'Inactive'}
                 </AdminBadge>
-              </AdminTd>
-              <AdminTd align="right">
+              </td>
+              <td className="px-4 py-3">
                 <div className="flex items-center gap-1 justify-end">
                   <AdminActionButton icon={<Pencil className="w-4 h-4" />} label="Sửa" onClick={() => setSourceModal({ open: true, source: src })} />
                   <AdminActionButton
@@ -376,26 +393,29 @@ export default function RssSourcesPage() {
                     onClick={() => setDeleteModal({ open: true, type: 'source', id: src.id, name: src.name, desc: getFeedsBySource(src.id).length > 0 ? `Thao tác này sẽ xóa cả ${getFeedsBySource(src.id).length} feed liên quan.` : undefined })}
                   />
                 </div>
-              </AdminTd>
-            </AdminTr>
-          ))}
-        </AdminTable>
+              </td>
+            </>
+          )}
+        />
       )}
 
       {/* Table: Feeds */}
       {!isSourcesTab && (
-        <AdminTable columns={feedCols} isEmpty={paginatedFeeds.length === 0} emptyText="Không có feed nào">
-          {paginatedFeeds.map((feed) => {
+        <DataTable
+          columns={feedCols}
+          rows={paginatedFeeds}
+          emptyText="Không có feed nào"
+          renderRow={(feed) => {
             const src = sources.find((s) => s.id === feed.sourceId);
             return (
-              <AdminTr key={feed.id}>
-                <AdminTd>
+              <>
+                <td className="px-4 py-3">
                   <span className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>{src?.name ?? '—'}</span>
-                </AdminTd>
-                <AdminTd>
+                </td>
+                <td className="px-4 py-3">
                   <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>{feed.feedName}</span>
-                </AdminTd>
-                <AdminTd hide="md">
+                </td>
+                <td className="px-4 py-3 max-md:hidden">
                   <a href={feed.feedUrl} target="_blank" rel="noopener noreferrer"
                     className="text-xs flex items-center gap-1 hover:underline max-w-[180px] truncate"
                     style={{ color: '#8B5CF6' }}
@@ -403,23 +423,23 @@ export default function RssSourcesPage() {
                     {feed.feedUrl.replace(/^https?:\/\//, '').slice(0, 30)}…
                     <ExternalLink className="w-3 h-3 shrink-0" />
                   </a>
-                </AdminTd>
-                <AdminTd align="center">
+                </td>
+                <td className="px-4 py-3 text-center">
                   <span className="text-xs flex items-center gap-1 justify-center" style={{ color: 'var(--text-secondary)' }}>
                     <Clock className="w-3.5 h-3.5" />{feed.crawlInterval}p
                   </span>
-                </AdminTd>
-                <AdminTd align="center" hide="md">
+                </td>
+                <td className="px-4 py-3 text-center max-md:hidden">
                   <span className="text-xs" style={{ color: 'var(--text-secondary)' }}>{timeAgo(feed.lastSync)}</span>
-                </AdminTd>
-                <AdminTd align="center">
+                </td>
+                <td className="px-4 py-3 text-center">
                   <button onClick={() => toggleFeedActive(feed.id)}>
                     <AdminBadge variant={feed.status === 'active' ? 'green' : 'red'}>
                       {feed.status === 'active' ? '✅' : '❌'}
                     </AdminBadge>
                   </button>
-                </AdminTd>
-                <AdminTd align="right">
+                </td>
+                <td className="px-4 py-3">
                   <div className="flex items-center gap-1 justify-end">
                     <AnimatePresence>
                       {testResult?.feedId === feed.id && (
@@ -441,11 +461,11 @@ export default function RssSourcesPage() {
                     <AdminActionButton icon={<Pencil className="w-4 h-4" />} label="Sửa" onClick={() => setFeedModal({ open: true, feed })} />
                     <AdminActionButton icon={<Trash2 className="w-4 h-4" />} label="Xóa" variant="danger" onClick={() => setDeleteModal({ open: true, type: 'feed', id: feed.id, name: feed.feedName })} />
                   </div>
-                </AdminTd>
-              </AdminTr>
+                </td>
+              </>
             );
-          })}
-        </AdminTable>
+          }}
+        />
       )}
 
       {/* Pagination */}

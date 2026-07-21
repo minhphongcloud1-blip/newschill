@@ -20,7 +20,15 @@ export interface AiResult {
   title: string;
   excerpt: string;
   content: string;
+  topic_slug?: string; // Returned only when AI classifies topic automatically
 }
+
+// Available topic slugs for AI classification
+export const TOPIC_SLUGS = [
+  'technology', 'business', 'finance', 'politics', 'sports',
+  'world', 'realestate', 'entertainment', 'health', 'science', 'general',
+] as const;
+
 
 // ── Load AI config from Supabase ──────────────────────────
 export async function loadAiConfig(): Promise<AiConfig | null> {

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { supabaseServer } from '@/lib/supabase';
-import { loadAiConfig, callAi } from '@/lib/ai';
+import { loadAiConfig, callAi, TOPIC_SLUGS } from '@/lib/ai';
 
 // ── Types ────────────────────────────────────────────────
 interface RssItem {
@@ -30,7 +30,7 @@ async function fetchAndParseRss(url: string): Promise<RssItem[]> {
       return m ? (m[1] ?? m[2] ?? '').trim() : '';
     };
     const getAttr = (tag: string, attr: string) => {
-      const m = block.match(new RegExp(`<${tag}[^>]*${attr}=["']([^"']*)["'][^>]*>`, 's'));
+      const m = block.match(new RegExp(`<${tag}[^>]*${attr}=["']([^"']*)[^>]*>`, 's'));
       return m ? m[1].trim() : '';
     };
 
@@ -45,6 +45,12 @@ async function fetchAndParseRss(url: string): Promise<RssItem[]> {
   }
 
   return items.filter((i) => i.title && i.link);
+}
+
+// ── Build topic-aware system prompt ─────────────────────
+function buildTopicPrompt(basePrompt: string, topicList: readonly string[]): string {
+  const topicGuide = `\n\nSau khi viết lại bài, hãy thêm trường "topic_slug" vào JSON output. Chọn 1 trong các chủ đề sau (chỉ dùng đúng slug, không viết khác): ${topicList.join(', ')}. Ví dụ: "topic_slug": "technology"`;
+  return basePrompt + topicGuide;
 }
 
 // ── Main handler ─────────────────────────────────────────
@@ -87,6 +93,16 @@ export async function POST(req: Request) {
 
   for (const feed of feedsToProcess) {
     const sourceName = (feed.rss_sources as { name: string } | null)?.name ?? '';
+
+    // ── Per-feed config: topic and max items ──────────────
+    const feedTopicSlug: string | null = feed.topic_slug || null; // null = use AI
+    const maxItems: number = feed.max_fetch_items ?? 10;           // default 10
+
+    // Build a topic-aware AI config when needed
+    const aiConfigForFeed = feedTopicSlug
+      ? aiConfig // Use base config (AI doesn't need to classify)
+      : { ...aiConfig, systemPrompt: buildTopicPrompt(aiConfig.systemPrompt, TOPIC_SLUGS) };
+
     let savedItems = 0;
     let duplicateItems = 0;
     let aiSuccessItems = 0;
@@ -94,7 +110,8 @@ export async function POST(req: Request) {
     try {
       const items = await fetchAndParseRss(feed.feed_url);
 
-      for (const item of items.slice(0, 10)) {
+      // ── Take top N items (newest first as RSS standard) ──
+      for (const item of items.slice(0, maxItems)) {
         // Check duplicate
         const { data: existing } = await supabaseServer
           .from('ai_drafts')
@@ -142,10 +159,19 @@ export async function POST(req: Request) {
           }
         } catch { /* timeout or fetch error — use description */ }
 
-        // ── Call AI (reads config from DB via lib/ai.ts) ──
-        const aiResult = await callAi(item.title, fullContent, aiConfig);
+        // ── Call AI (with topic-aware config) ──
+        const aiResult = await callAi(item.title, fullContent, aiConfigForFeed);
 
-        // ── Cover image mapping: enclosure > media:content > og:image > img in desc > fallback ──
+        // ── Resolve final topic_slug ──
+        // Priority: Admin hard-coded > AI returned > 'general'
+        const resolvedTopicSlug =
+          feedTopicSlug ||
+          (aiResult?.topic_slug && TOPIC_SLUGS.includes(aiResult.topic_slug as typeof TOPIC_SLUGS[number])
+            ? aiResult.topic_slug
+            : null) ||
+          'general';
+
+        // ── Cover image mapping ──
         const descImgMatch = (item.description ?? '').match(/<img[^>]+src=["']([^"']+)["']/);
         const coverImage = (
           item.enclosure?.url ||
@@ -175,7 +201,7 @@ export async function POST(req: Request) {
           ai_summary: aiResult?.excerpt || cleanDesc.slice(0, 200),
           ai_provider: aiResult ? provider : 'none',
           ai_model: aiResult ? aiConfig[provider].model : 'fallback',
-          topic_slug: feed.category ?? 'general',
+          topic_slug: resolvedTopicSlug,
           status: 'pending',
         });
 

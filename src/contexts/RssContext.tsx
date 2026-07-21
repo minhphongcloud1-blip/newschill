@@ -65,6 +65,7 @@ interface RssContextType {
   getDraftsByStatus: (status: DraftStatus) => AiDraft[];
   fetchAllDrafts: () => Promise<void>;
   refetchSources: () => Promise<void>;
+  refetchLogs: () => Promise<void>;
 }
 
 const RssContext = createContext<RssContextType | undefined>(undefined);
@@ -117,9 +118,9 @@ export function RssProvider({ children }: { children: React.ReactNode }) {
 
   // ── Initial load ──
   useEffect(() => {
-    Promise.all([fetchSources(), fetchFeeds(), fetchAllDrafts()])
+    Promise.all([fetchSources(), fetchFeeds(), fetchAllDrafts(), fetchLogs()])
       .finally(() => setLoading(false));
-  }, [fetchSources, fetchFeeds, fetchAllDrafts]);
+  }, [fetchSources, fetchFeeds, fetchAllDrafts, fetchLogs]);
 
   // ── Source CRUD ──
   const addSource = useCallback(async (data: Omit<NewsSource, 'id' | 'createdAt'>) => {
@@ -226,6 +227,7 @@ export function RssProvider({ children }: { children: React.ReactNode }) {
       addFeed, updateFeed, deleteFeed, toggleFeedActive, getFeedsBySource,
       updateDraftStatus, getDraftsByStatus, fetchAllDrafts,
       refetchSources: fetchSources,
+      refetchLogs: fetchLogs,
     }}>
       {children}
     </RssContext.Provider>

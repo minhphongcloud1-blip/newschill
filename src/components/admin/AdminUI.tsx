@@ -75,36 +75,242 @@ export function AdminBadge({ variant, children, icon, className = '' }: AdminBad
   );
 }
 
-// ─────────────────────────────────────────────────────────
-// AdminTable — consistent table wrapper
-// ─────────────────────────────────────────────────────────
+// ───────────────────────────────────────────────────────
+// DataTable — universal admin table with built-in selection
+// ───────────────────────────────────────────────────────
+export interface DataTableColumn {
+  key: string;
+  label: React.ReactNode;
+  align?: 'left' | 'center' | 'right';
+  hide?: 'sm' | 'md' | 'lg';
+  width?: string; // e.g. 'w-10'
+}
+
+export interface BulkAction {
+  label: string;
+  icon?: React.ReactNode;
+  onClick: (ids: string[]) => void;
+  variant?: 'danger' | 'success' | 'warning' | 'default';
+}
+
+interface DataTableProps<T extends { id: string }> {
+  columns: DataTableColumn[];
+  rows: T[];
+  renderRow: (row: T, index: number, isSelected: boolean) => React.ReactNode;
+  keyExtractor?: (row: T) => string;
+  emptyText?: string;
+  // Selection
+  selectable?: boolean;
+  selectedIds?: Set<string>;
+  onSelectionChange?: (ids: Set<string>) => void;
+  bulkActions?: BulkAction[];
+  // Misc
+  loading?: boolean;
+}
+
+const hideClass: Record<string, string> = {
+  sm: 'max-sm:hidden',
+  md: 'max-md:hidden',
+  lg: 'max-lg:hidden',
+};
+
+function DTCheckbox({ checked, indeterminate, onChange }: {
+  checked: boolean;
+  indeterminate?: boolean;
+  onChange: (e: React.MouseEvent) => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={(e) => { e.stopPropagation(); onChange(e); }}
+      className="flex items-center justify-center w-5 h-5 rounded transition-colors flex-shrink-0"
+      style={{ color: (checked || indeterminate) ? '#8B5CF6' : 'var(--text-secondary)' }}
+    >
+      {indeterminate ? (
+        <svg viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5"><rect x="3" y="9" width="14" height="2" rx="1" /></svg>
+      ) : checked ? (
+        <svg viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5"><path d="M3 3h14v14H3z" rx="2" /><path d="M7 10l2 2 4-4" stroke="white" strokeWidth="2" fill="none" strokeLinecap="round" /></svg>
+      ) : (
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-5 h-5"><rect x="3" y="3" width="14" height="14" rx="2" /></svg>
+      )}
+    </button>
+  );
+}
+
+export function DataTable<T extends { id: string }>({
+  columns,
+  rows,
+  renderRow,
+  keyExtractor,
+  emptyText = 'Không có dữ liệu',
+  selectable = false,
+  selectedIds,
+  onSelectionChange,
+  bulkActions = [],
+  loading = false,
+}: DataTableProps<T>) {
+  const getKey = (row: T) => keyExtractor ? keyExtractor(row) : row.id;
+  const allSelected = rows.length > 0 && rows.every((r) => selectedIds?.has(getKey(r)));
+  const someSelected = rows.some((r) => selectedIds?.has(getKey(r))) && !allSelected;
+  const selectedCount = selectedIds?.size ?? 0;
+
+  const toggleAll = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!onSelectionChange) return;
+    if (allSelected) {
+      const next = new Set(selectedIds);
+      rows.forEach((r) => next.delete(getKey(r)));
+      onSelectionChange(next);
+    } else {
+      const next = new Set(selectedIds);
+      rows.forEach((r) => next.add(getKey(r)));
+      onSelectionChange(next);
+    }
+  };
+
+  const toggleOne = (id: string) => {
+    if (!onSelectionChange || !selectedIds) return;
+    const next = new Set(selectedIds);
+    next.has(id) ? next.delete(id) : next.add(id);
+    onSelectionChange(next);
+  };
+
+  const bulkVariantStyle = (v?: string) => {
+    if (v === 'danger')  return { background: 'rgba(239,68,68,0.1)',   color: '#EF4444', border: '1px solid rgba(239,68,68,0.2)' };
+    if (v === 'success') return { background: 'rgba(34,197,94,0.1)',   color: '#22C55E', border: '1px solid rgba(34,197,94,0.2)' };
+    if (v === 'warning') return { background: 'rgba(245,158,11,0.1)',  color: '#F59E0B', border: '1px solid rgba(245,158,11,0.2)' };
+    return { background: 'rgba(139,92,246,0.1)', color: '#8B5CF6', border: '1px solid rgba(139,92,246,0.2)' };
+  };
+
+  return (
+    <div>
+      {/* Bulk action bar */}
+      {selectable && selectedCount > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          className="flex flex-wrap items-center gap-2 px-4 py-2.5 rounded-xl mb-3"
+          style={{ background: 'rgba(139,92,246,0.08)', border: '1px solid rgba(139,92,246,0.2)' }}
+        >
+          <span className="text-sm font-semibold" style={{ color: '#8B5CF6' }}>
+            Đã chọn {selectedCount} mục
+          </span>
+          <div className="flex-1" />
+          {bulkActions.map((action) => (
+            <button
+              key={action.label}
+              onClick={() => action.onClick(Array.from(selectedIds ?? []))}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all hover:opacity-90"
+              style={bulkVariantStyle(action.variant)}
+            >
+              {action.icon}
+              {action.label}
+            </button>
+          ))}
+          <button
+            onClick={() => onSelectionChange?.(new Set())}
+            className="p-1 rounded-lg opacity-50 hover:opacity-100"
+            style={{ color: 'var(--text-secondary)' }}
+          >
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4">
+              <path d="M4 4l8 8M12 4l-8 8" />
+            </svg>
+          </button>
+        </motion.div>
+      )}
+
+      {/* Table */}
+      <div className="rounded-xl overflow-hidden" style={{ border: '1px solid var(--border-primary)' }}>
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr style={{ background: 'var(--bg-secondary)', borderBottom: '1px solid var(--border-primary)' }}>
+                {selectable && (
+                  <th className="px-4 py-3 w-10">
+                    <DTCheckbox
+                      checked={allSelected}
+                      indeterminate={someSelected}
+                      onChange={toggleAll}
+                    />
+                  </th>
+                )}
+                {columns.map((col) => (
+                  <th
+                    key={col.key}
+                    className={`px-4 py-3 text-xs font-semibold uppercase tracking-wider ${
+                      col.align === 'center' ? 'text-center' :
+                      col.align === 'right'  ? 'text-right'  : 'text-left'
+                    } ${col.hide ? hideClass[col.hide] : ''} ${col.width ?? ''}`}
+                    style={{ color: 'var(--text-secondary)' }}
+                  >
+                    {col.label}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {loading ? (
+                <tr>
+                  <td colSpan={columns.length + (selectable ? 1 : 0)} className="px-4 py-16 text-center text-sm" style={{ color: 'var(--text-secondary)' }}>
+                    Đang tải...
+                  </td>
+                </tr>
+              ) : rows.length === 0 ? (
+                <tr>
+                  <td colSpan={columns.length + (selectable ? 1 : 0)} className="px-4 py-16 text-center text-sm" style={{ color: 'var(--text-secondary)' }}>
+                    {emptyText}
+                  </td>
+                </tr>
+              ) : rows.map((row, index) => {
+                const id = getKey(row);
+                const isSelected = selectedIds?.has(id) ?? false;
+                return (
+                  <tr
+                    key={id}
+                    className="border-t transition-colors hover:bg-[var(--bg-hover-sm)] cursor-default"
+                    style={{
+                      borderColor: 'var(--border-primary)',
+                      background: isSelected ? 'rgba(139,92,246,0.06)' : undefined,
+                    }}
+                  >
+                    {selectable && (
+                      <td className="px-4 py-3 w-10">
+                        <DTCheckbox checked={isSelected} onChange={() => toggleOne(id)} />
+                      </td>
+                    )}
+                    {renderRow(row, index, isSelected)}
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Legacy AdminTable — kept for backward compat, wraps DataTable
 interface AdminTableColumn {
   key: string;
   label: string;
   align?: 'left' | 'center' | 'right';
-  hide?: 'sm' | 'md' | 'lg';  // responsive hide
+  hide?: 'sm' | 'md' | 'lg';
 }
-
 interface AdminTableProps {
   columns: AdminTableColumn[];
-  children: React.ReactNode;  // <tbody> rows
+  children: React.ReactNode;
   emptyText?: string;
   isEmpty?: boolean;
 }
-
 export function AdminTable({ columns, children, emptyText = 'Không có dữ liệu', isEmpty }: AdminTableProps) {
-  const hideClass: Record<string, string> = {
-    sm: 'max-sm:hidden',
-    md: 'max-md:hidden',
-    lg: 'max-lg:hidden',
-  };
-
   return (
     <div className="rounded-xl overflow-hidden" style={{ border: '1px solid var(--border-primary)' }}>
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead>
-            <tr style={{ background: 'var(--bg-secondary)' }}>
+            <tr style={{ background: 'var(--bg-secondary)', borderBottom: '1px solid var(--border-primary)' }}>
               {columns.map((col) => (
                 <th
                   key={col.key}
@@ -139,9 +345,9 @@ export function AdminTable({ columns, children, emptyText = 'Không có dữ li�
 }
 
 // AdminTable row helper
-export function AdminTr({ children, className = '' }: { children: React.ReactNode; className?: string }) {
+export function AdminTr({ children, className = '', style }: { children: React.ReactNode; className?: string; style?: React.CSSProperties }) {
   return (
-    <tr className={`border-t transition-colors hover:bg-[var(--bg-hover-sm)] ${className}`} style={{ borderColor: 'var(--border-primary)' }}>
+    <tr className={`border-t transition-colors hover:bg-[var(--bg-hover-sm)] ${className}`} style={{ borderColor: 'var(--border-primary)', ...style }}>
       {children}
     </tr>
   );
@@ -302,11 +508,12 @@ export function AdminDeleteModal({ itemName, onConfirm, onClose, description }: 
 interface AdminFormFieldProps {
   label: string;
   error?: string;
+  hint?: string;
   required?: boolean;
   children: React.ReactNode;
 }
 
-export function AdminFormField({ label, error, required, children }: AdminFormFieldProps) {
+export function AdminFormField({ label, error, hint, required, children }: AdminFormFieldProps) {
   return (
     <div>
       <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>
@@ -314,6 +521,7 @@ export function AdminFormField({ label, error, required, children }: AdminFormFi
         {required && <span className="ml-0.5" style={{ color: '#EF4444' }}>*</span>}
       </label>
       {children}
+      {hint && !error && <p className="mt-1 text-xs" style={{ color: 'var(--text-secondary)' }}>{hint}</p>}
       {error && <p className="mt-1 text-xs" style={{ color: '#EF4444' }}>{error}</p>}
     </div>
   );
