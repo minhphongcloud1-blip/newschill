@@ -2,7 +2,7 @@ import { MetadataRoute } from 'next';
 import { mockArticles } from '@/data/articles';
 import { mockTopics } from '@/data/topics';
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://newsx.vn';
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://newschill.vn';
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const staticPages: MetadataRoute.Sitemap = [

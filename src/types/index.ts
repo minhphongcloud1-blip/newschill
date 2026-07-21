@@ -1,5 +1,5 @@
 // ==========================================
-// NewsX - Type Definitions
+// Newschill - Type Definitions
 // ==========================================
 
 export type UserRole = 'admin' | 'editor' | 'reader';

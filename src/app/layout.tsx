@@ -10,8 +10,8 @@ const inter = Inter({
   variable: "--font-inter",
 });
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://newsx.vn';
-const SITE_NAME = 'NewsX';
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://newschill.vn';
+const SITE_NAME = 'Newschill';
 const DEFAULT_DESCRIPTION = 'Đọc tin tức, bình luận và chia sẻ trên nền tảng kiểu X. Cập nhật tin tức công nghệ, khoa học, kinh doanh, thể thao nhanh nhất Việt Nam.';
 const DEFAULT_OG_IMAGE = `${SITE_URL}/og-image.png`;
 
@@ -22,10 +22,10 @@ export const metadata: Metadata = {
     template: `%s | ${SITE_NAME}`,
   },
   description: DEFAULT_DESCRIPTION,
-  keywords: ['tin tức', 'blog', 'công nghệ', 'khoa học', 'kinh doanh', 'thể thao', 'Việt Nam', 'NewsX', 'tin tức mới nhất', 'tin công nghệ'],
-  authors: [{ name: 'NewsX', url: SITE_URL }],
-  creator: 'NewsX',
-  publisher: 'NewsX',
+  keywords: ['tin tức', 'blog', 'công nghệ', 'khoa học', 'kinh doanh', 'thể thao', 'Việt Nam', 'Newschill', 'tin tức mới nhất', 'tin công nghệ'],
+  authors: [{ name: 'Newschill', url: SITE_URL }],
+  creator: 'Newschill',
+  publisher: 'Newschill',
   robots: {
     index: true,
     follow: true,
@@ -45,8 +45,8 @@ export const metadata: Metadata = {
     title: `${SITE_NAME} – Tin tức thế hệ mới`,
     description: DEFAULT_DESCRIPTION,
     images: [DEFAULT_OG_IMAGE],
-    creator: '@newsxvn',
-    site: '@newsxvn',
+    creator: '@newschillvn',
+    site: '@newschillvn',
   },
   alternates: { canonical: SITE_URL },
   other: { 'google-site-verification': 'YOUR_GOOGLE_VERIFICATION_TOKEN' },

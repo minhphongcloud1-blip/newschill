@@ -16,13 +16,13 @@ export function JsonLd({ data }: JsonLdProps) {
   );
 }
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://newsx.vn';
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://newschill.vn';
 
 /** WebSite schema for homepage */
 export const websiteSchema = {
   '@context': 'https://schema.org',
   '@type': 'WebSite',
-  name: 'NewsX',
+  name: 'Newschill',
   url: SITE_URL,
   description: 'Đọc tin tức, bình luận và chia sẻ trên nền tảng kiểu X. Cập nhật tin tức công nghệ, khoa học, kinh doanh, thể thao nhanh nhất Việt Nam.',
   inLanguage: 'vi',
@@ -59,7 +59,7 @@ export function buildArticleSchema(article: {
     },
     publisher: {
       '@type': 'Organization',
-      name: 'NewsX',
+      name: 'Newschill',
       url: SITE_URL,
       logo: { '@type': 'ImageObject', url: `${SITE_URL}/logo.png` },
     },
@@ -93,6 +93,6 @@ export function buildCollectionSchema(name: string, description: string, url: st
     description,
     url,
     inLanguage: 'vi',
-    publisher: { '@type': 'Organization', name: 'NewsX', url: SITE_URL },
+    publisher: { '@type': 'Organization', name: 'Newschill', url: SITE_URL },
   };
 }

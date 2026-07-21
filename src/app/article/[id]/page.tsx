@@ -1,7 +1,7 @@
 import { JsonLd, buildBreadcrumbSchema } from '@/components/seo/JsonLd';
 import ArticleDetailClient from './ArticleDetailClient';
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://newsx.vn';
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://newschill.vn';
 
 interface Props {
   params: Promise<{ id: string }>;

@@ -33,7 +33,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
       excerpt: draft.excerpt,
       content: draft.content,
       cover_image: draft.cover_image,
-      author_name: 'Admin NewsX',
+      author_name: 'Admin Newschill',
       author_avatar: 'https://api.dicebear.com/9.x/avataaars/svg?seed=admin',
       topic_id: topic?.id ?? null,
       likes_count: 0,

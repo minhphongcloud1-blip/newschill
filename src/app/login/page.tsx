@@ -79,7 +79,7 @@ export default function LoginPage() {
             Đăng nhập
           </h1>
           <p className="text-center mb-6" style={{ color: 'var(--text-secondary)' }}>
-            Chào mừng bạn quay lại NewsX
+            Chào mừng bạn quay lại Newschill
           </p>
 
           {error && (
@@ -104,7 +104,7 @@ export default function LoginPage() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="admin@newsx.com"
+                  placeholder="admin@newschill.com"
                   required
                   className="w-full pl-11 pr-4 py-3 rounded-xl border text-sm transition-colors focus:outline-none"
                   style={{
@@ -176,8 +176,8 @@ export default function LoginPage() {
             </p>
             <div className="space-y-2">
               {[
-                { label: '🛡️ Admin', email: 'admin@newsx.com' },
-                { label: '✍️ Editor', email: 'tuan@newsx.com' },
+                { label: '🛡️ Admin', email: 'admin@newschill.com' },
+                { label: '✍️ Editor', email: 'tuan@newschill.com' },
                 { label: '👤 Reader', email: 'cuong@gmail.com' },
               ].map((account) => (
                 <button

@@ -79,7 +79,7 @@ export default function RegisterPage() {
             Tạo tài khoản
           </h1>
           <p className="text-center mb-6" style={{ color: 'var(--text-secondary)' }}>
-            Tham gia cộng đồng đọc tin NewsX
+            Tham gia cộng đồng đọc tin Newschill
           </p>
 
           {error && (

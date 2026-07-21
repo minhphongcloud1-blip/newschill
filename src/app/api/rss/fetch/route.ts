@@ -20,7 +20,7 @@ interface AiResult {
 // ── Parse RSS XML ────────────────────────────────────────
 async function fetchAndParseRss(url: string): Promise<RssItem[]> {
   const res = await fetch(url, {
-    headers: { 'User-Agent': 'NewsX-Bot/1.0' },
+    headers: { 'User-Agent': 'Newschill-Bot/1.0' },
     signal: AbortSignal.timeout(10000),
   });
   const xml = await res.text();
@@ -192,7 +192,7 @@ export async function POST(req: Request) {
         let fullHtmlContent = ''; // keep HTML version for fallback
         try {
           const pageRes = await fetch(item.link, {
-            headers: { 'User-Agent': 'NewsX-Bot/1.0' },
+            headers: { 'User-Agent': 'Newschill-Bot/1.0' },
             signal: AbortSignal.timeout(8000),
           });
           if (pageRes.ok) {

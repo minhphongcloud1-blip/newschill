@@ -105,7 +105,7 @@ export default function RightPanel() {
         {/* Footer */}
         <div className="px-2">
           <p className="text-xs" style={{ color: 'var(--text-tertiary)' }}>
-            © 2024 NewsX · Nền tảng tin tức thế hệ mới
+            © 2024 Newschill · Nền tảng tin tức thế hệ mới
           </p>
       </div>
     </aside>

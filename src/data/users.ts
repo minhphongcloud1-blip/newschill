@@ -3,11 +3,11 @@ import { User } from '@/types';
 export const mockUsers: User[] = [
   {
     id: 'user-admin',
-    name: 'Admin NewsX',
-    email: 'admin@newsx.com',
+    name: 'Admin Newschill',
+    email: 'admin@newschill.com',
     password: '123456',
     avatar: 'https://api.dicebear.com/9.x/avataaars/svg?seed=admin',
-    bio: 'Quản trị viên hệ thống NewsX',
+    bio: 'Quản trị viên hệ thống Newschill',
     role: 'admin',
     status: 'active',
     createdAt: '2024-01-01T00:00:00Z',
@@ -15,7 +15,7 @@ export const mockUsers: User[] = [
   {
     id: 'user-editor1',
     name: 'Nguyễn Minh Tuấn',
-    email: 'tuan@newsx.com',
+    email: 'tuan@newschill.com',
     password: '123456',
     avatar: 'https://api.dicebear.com/9.x/avataaars/svg?seed=tuan',
     bio: 'Biên tập viên công nghệ | Yêu AI & Startups',
@@ -26,7 +26,7 @@ export const mockUsers: User[] = [
   {
     id: 'user-editor2',
     name: 'Trần Thị Mai',
-    email: 'mai@newsx.com',
+    email: 'mai@newschill.com',
     password: '123456',
     avatar: 'https://api.dicebear.com/9.x/avataaars/svg?seed=mai',
     bio: 'Nhà báo khoa học | Nghiên cứu sinh vật học',
@@ -37,7 +37,7 @@ export const mockUsers: User[] = [
   {
     id: 'user-editor3',
     name: 'Phạm Hoàng Long',
-    email: 'long@newsx.com',
+    email: 'long@newschill.com',
     password: '123456',
     avatar: 'https://api.dicebear.com/9.x/avataaars/svg?seed=long',
     bio: 'Phóng viên kinh tế | Phân tích thị trường tài chính',
@@ -84,7 +84,7 @@ export const mockUsers: User[] = [
     email: 'ngoc@gmail.com',
     password: '123456',
     avatar: 'https://api.dicebear.com/9.x/avataaars/svg?seed=ngoc',
-    bio: 'Mới tham gia NewsX',
+    bio: 'Mới tham gia Newschill',
     role: 'reader',
     status: 'active',
     createdAt: '2024-07-10T00:00:00Z',

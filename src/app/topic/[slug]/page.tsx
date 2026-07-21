@@ -3,7 +3,7 @@ import { mockTopics } from '@/data/topics';
 import { JsonLd, buildCollectionSchema, buildBreadcrumbSchema } from '@/components/seo/JsonLd';
 import TopicPageClient from './TopicPageClient';
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://newsx.vn';
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://newschill.vn';
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -14,12 +14,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const topic = mockTopics.find((t) => t.slug === slug);
   if (!topic) return { title: 'Không tìm thấy chủ đề' };
   const url = `${SITE_URL}/topic/${slug}`;
-  const description = `${topic.description} Xem ${topic.articleCount} bài viết về chủ đề ${topic.name} trên NewsX.`;
+  const description = `${topic.description} Xem ${topic.articleCount} bài viết về chủ đề ${topic.name} trên Newschill.`;
   return {
     title: `${topic.icon} ${topic.name}`,
     description,
-    openGraph: { title: `${topic.name} | NewsX`, description, url, siteName: 'NewsX', locale: 'vi_VN' },
-    twitter: { card: 'summary', title: `${topic.name} | NewsX`, description },
+    openGraph: { title: `${topic.name} | Newschill`, description, url, siteName: 'Newschill', locale: 'vi_VN' },
+    twitter: { card: 'summary', title: `${topic.name} | Newschill`, description },
     alternates: { canonical: url },
   };
 }

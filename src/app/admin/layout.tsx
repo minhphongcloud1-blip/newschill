@@ -86,7 +86,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <Link href="/">
           <div className="flex items-center gap-3 px-4 py-2.5 rounded-xl" style={{ color: 'var(--text-secondary)' }}>
             <ArrowLeft className="w-5 h-5" />
-            <span className="text-sm">Quay lại NewsX</span>
+            <span className="text-sm">Quay lại Newschill</span>
           </div>
         </Link>
       </aside>

@@ -60,7 +60,7 @@ export default function AdminDashboard() {
     <div className="p-6">
       <div className="mb-6">
         <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>Dashboard</h1>
-        <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>Tổng quan hệ thống NewsX</p>
+        <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>Tổng quan hệ thống Newschill</p>
       </div>
 
       {/* Stats cards */}
