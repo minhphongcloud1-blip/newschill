@@ -109,7 +109,7 @@ export default function ProfilePage() {
 
   useEffect(() => {
     if (!isAuthenticated || !currentUser) {
-      router.push('/login');
+      router.replace('/login?from=/profile');
     }
   }, [isAuthenticated, currentUser, router]);
 

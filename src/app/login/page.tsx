@@ -1,20 +1,34 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { Flame, Eye, EyeOff, ArrowRight, Mail, Lock } from 'lucide-react';
+import { Flame, Eye, EyeOff, ArrowRight, Mail, Lock, BookOpen, Check } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // Read ?from= param to redirect back after login
+  const fromPath = searchParams.get('from') || '/';
+
+  // Auto-fill remembered email
+  useEffect(() => {
+    const saved = localStorage.getItem('newschill_remember_email');
+    if (saved) {
+      setEmail(saved);
+      setRememberMe(true);
+    }
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,11 +39,20 @@ export default function LoginPage() {
 
     const result = login(email, password);
     if (result.success) {
-      router.push('/');
+      if (rememberMe) {
+        localStorage.setItem('newschill_remember_email', email);
+      } else {
+        localStorage.removeItem('newschill_remember_email');
+      }
+      router.replace(fromPath);
     } else {
       setError(result.message);
     }
     setIsLoading(false);
+  };
+
+  const handleGuestAccess = () => {
+    router.replace('/');
   };
 
   return (
@@ -63,7 +86,7 @@ export default function LoginPage() {
             <Flame className="w-7 h-7 text-white" />
           </div>
           <span className="text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>
-            News<span style={{ color: '#F97316' }}>X</span>
+            News<span style={{ color: '#F97316' }}>chill</span>
           </span>
         </motion.div>
 
@@ -113,7 +136,7 @@ export default function LoginPage() {
                     color: 'var(--text-primary)',
                   }}
                   onFocus={(e) => (e.target.style.borderColor = '#F97316')}
-                  onBlur={(e) => (e.target.style.borderColor = '#2F3336')}
+                  onBlur={(e) => (e.target.style.borderColor = 'var(--border-primary)')}
                 />
               </div>
             </div>
@@ -137,7 +160,7 @@ export default function LoginPage() {
                     color: 'var(--text-primary)',
                   }}
                   onFocus={(e) => (e.target.style.borderColor = '#F97316')}
-                  onBlur={(e) => (e.target.style.borderColor = '#2F3336')}
+                  onBlur={(e) => (e.target.style.borderColor = 'var(--border-primary)')}
                 />
                 <button
                   type="button"
@@ -148,6 +171,30 @@ export default function LoginPage() {
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
+            </div>
+
+            {/* Remember Me */}
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                id="remember-me"
+                onClick={() => setRememberMe(!rememberMe)}
+                className="w-5 h-5 rounded flex items-center justify-center border transition-all flex-shrink-0"
+                style={{
+                  background: rememberMe ? '#F97316' : 'transparent',
+                  borderColor: rememberMe ? '#F97316' : 'var(--border-primary)',
+                }}
+              >
+                {rememberMe && <Check className="w-3 h-3 text-white" strokeWidth={3} />}
+              </button>
+              <label
+                htmlFor="remember-me"
+                className="text-sm cursor-pointer select-none"
+                style={{ color: 'var(--text-secondary)' }}
+                onClick={() => setRememberMe(!rememberMe)}
+              >
+                Ghi nhớ mật khẩu
+              </label>
             </div>
 
             <motion.button
@@ -169,7 +216,29 @@ export default function LoginPage() {
             </motion.button>
           </form>
 
+          {/* Divider */}
+          <div className="flex items-center gap-3 my-5">
+            <div className="flex-1 h-px" style={{ background: 'var(--border-primary)' }} />
+            <span className="text-xs" style={{ color: 'var(--text-secondary)' }}>hoặc</span>
+            <div className="flex-1 h-px" style={{ background: 'var(--border-primary)' }} />
+          </div>
 
+          {/* Guest Access Button */}
+          <motion.button
+            type="button"
+            onClick={handleGuestAccess}
+            whileHover={{ scale: 1.01 }}
+            whileTap={{ scale: 0.99 }}
+            className="w-full py-3 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all border"
+            style={{
+              background: 'transparent',
+              borderColor: 'var(--border-primary)',
+              color: 'var(--text-secondary)',
+            }}
+          >
+            <BookOpen className="w-4 h-4" />
+            Đọc tin tức không cần đăng nhập
+          </motion.button>
         </motion.div>
 
         {/* Register link */}
