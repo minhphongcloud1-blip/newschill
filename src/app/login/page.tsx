@@ -169,43 +169,7 @@ export default function LoginPage() {
             </motion.button>
           </form>
 
-          {/* Demo accounts */}
-          <div className="mt-6 pt-6" style={{ borderTop: '1px solid #2F3336' }}>
-            <p className="text-xs text-center mb-3" style={{ color: 'var(--text-secondary)' }}>
-              Tài khoản demo
-            </p>
-            <div className="space-y-2">
-              {[
-                { label: '🛡️ Admin', email: 'admin@newschill.com' },
-                { label: '✍️ Editor', email: 'tuan@newschill.com' },
-                { label: '👤 Reader', email: 'cuong@gmail.com' },
-              ].map((account) => (
-                <button
-                  key={account.email}
-                  onClick={() => {
-                    setEmail(account.email);
-                    setPassword('123456');
-                  }}
-                  className="w-full py-2 px-3 rounded-lg text-xs flex items-center justify-between transition-colors cursor-pointer"
-                  style={{ background: 'var(--bg-primary)', border: '1px solid #2F3336', color: 'var(--text-secondary)' }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.borderColor = '#F97316';
-                    e.currentTarget.style.color = '#E7E9EA';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.borderColor = '#2F3336';
-                    e.currentTarget.style.color = '#71767B';
-                  }}
-                >
-                  <span>{account.label}</span>
-                  <span>{account.email}</span>
-                </button>
-              ))}
-              <p className="text-xs text-center" style={{ color: 'var(--text-tertiary)' }}>
-                Mật khẩu: 123456
-              </p>
-            </div>
-          </div>
+
         </motion.div>
 
         {/* Register link */}
