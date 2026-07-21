@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Bot, Key, Eye, EyeOff, CheckCircle2, XCircle,
@@ -84,7 +84,8 @@ const DEFAULT_CONFIG: AiConfig = {
   temperature: 0.7,
 };
 
-const STORAGE_KEY = 'newsx_ai_config';
+
+
 
 export default function AiConfigPage() {
   const [config, setConfig] = useState<AiConfig>(DEFAULT_CONFIG);
@@ -93,25 +94,53 @@ export default function AiConfigPage() {
     gemini: 'idle', openai: 'idle',
   });
   const [saved, setSaved] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<string>('providers');
 
-  useEffect(() => {
+  const loadConfig = useCallback(async () => {
     try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) setConfig({ ...DEFAULT_CONFIG, ...JSON.parse(stored) });
-    } catch { /* ignore */ }
+      const res = await fetch('/api/ai-settings');
+      const { data } = await res.json();
+      if (data) {
+        setConfig({
+          activeProvider: data.active_provider ?? 'gemini',
+          gemini: { apiKey: data.gemini_api_key ?? '', model: data.gemini_model ?? 'gemini-2.0-flash-lite' },
+          openai: { apiKey: data.openai_api_key ?? '', model: data.openai_model ?? 'gpt-4o-mini' },
+          systemPrompt: data.system_prompt ?? DEFAULT_PROMPT,
+          maxTokens: data.max_tokens ?? 2048,
+          temperature: data.temperature ?? 0.7,
+        });
+      }
+    } catch { /* use defaults */ }
+    setLoading(false);
   }, []);
+
+  useEffect(() => { loadConfig(); }, [loadConfig]);
 
   const updateProvider = (provider: ProviderKey, field: 'apiKey' | 'model', value: string) => {
     setConfig((prev) => ({ ...prev, [provider]: { ...prev[provider], [field]: value } }));
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
+    setSaving(true);
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
-      setSaved(true);
-      setTimeout(() => setSaved(false), 2500);
-    } catch { /* ignore */ }
+      const res = await fetch('/api/ai-settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(config),
+      });
+      if (res.ok) {
+        setSaved(true);
+        setTimeout(() => setSaved(false), 2500);
+      } else {
+        const err = await res.json();
+        alert('Lỗi lưu cấu hình: ' + (err.error || 'Unknown'));
+      }
+    } catch (e) {
+      alert('Lỗi kết nối: ' + (e instanceof Error ? e.message : 'Unknown'));
+    }
+    setSaving(false);
   };
 
   const handleTest = async (providerKey: ProviderKey) => {
@@ -166,8 +195,9 @@ export default function AiConfigPage() {
             variant="primary"
             icon={saved ? <CheckCircle2 className="w-4 h-4" /> : <Save className="w-4 h-4" />}
             onClick={handleSave}
+            disabled={saving || loading}
           >
-            {saved ? 'Đã lưu!' : 'Lưu cấu hình'}
+            {saving ? 'Đang lưu...' : saved ? 'Đã lưu!' : 'Lưu cấu hình'}
           </AdminButton>
         }
       />

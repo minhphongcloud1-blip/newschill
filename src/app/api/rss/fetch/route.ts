@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { supabaseServer } from '@/lib/supabase';
+import { loadAiConfig, callAi } from '@/lib/ai';
 
 // ── Types ────────────────────────────────────────────────
 interface RssItem {
@@ -11,12 +12,6 @@ interface RssItem {
   'media:content'?: { $?: { url?: string } };
 }
 
-interface AiResult {
-  title: string;
-  excerpt: string;
-  content: string;
-}
-
 // ── Parse RSS XML ────────────────────────────────────────
 async function fetchAndParseRss(url: string): Promise<RssItem[]> {
   const res = await fetch(url, {
@@ -25,7 +20,6 @@ async function fetchAndParseRss(url: string): Promise<RssItem[]> {
   });
   const xml = await res.text();
 
-  // Simple regex-based XML parser (no external lib needed)
   const items: RssItem[] = [];
   const itemMatches = xml.matchAll(/<item>([\s\S]*?)<\/item>/g);
 
@@ -53,87 +47,12 @@ async function fetchAndParseRss(url: string): Promise<RssItem[]> {
   return items.filter((i) => i.title && i.link);
 }
 
-// ── Call AI ──────────────────────────────────────────
-async function callAi(
-  title: string,
-  content: string,
-  systemPrompt: string,
-  provider: 'gemini' | 'openai',
-  model: string,
-  apiKey: string,
-): Promise<AiResult | null> {
-  const userMessage = `Tiêu đề gốc: ${title}\n\nNội dung gốc:\n${content.slice(0, 3000)}`;
-
-  try {
-    if (provider === 'gemini') {
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
-      console.log('[AI] Calling Gemini:', model);
-      const res = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: systemPrompt + '\n\n' + userMessage }] }],
-          generationConfig: { temperature: 0.7, maxOutputTokens: 2048 },
-        }),
-        signal: AbortSignal.timeout(30000),
-      });
-      if (!res.ok) {
-        const errBody = await res.text();
-        console.error('[AI] Gemini error:', res.status, errBody.slice(0, 300));
-        return null;
-      }
-      const data = await res.json();
-      const text = data.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
-      const json = text.match(/\{[\s\S]*\}/)?.[0];
-      if (!json) { console.error('[AI] No JSON in Gemini response'); return null; }
-      return JSON.parse(json);
-    }
-
-    if (provider === 'openai') {
-      console.log('[AI] Calling OpenAI:', model);
-      const res = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
-        body: JSON.stringify({
-          model,
-          messages: [
-            { role: 'system', content: systemPrompt },
-            { role: 'user', content: userMessage },
-          ],
-          temperature: 0.7,
-          max_tokens: 2048,
-          response_format: { type: 'json_object' },
-        }),
-        signal: AbortSignal.timeout(30000),
-      });
-      if (!res.ok) {
-        const errBody = await res.text();
-        console.error('[AI] OpenAI error:', res.status, errBody.slice(0, 300));
-        return null;
-      }
-      const data = await res.json();
-      const text = data.choices?.[0]?.message?.content ?? '';
-      return JSON.parse(text);
-    }
-  } catch (e) {
-    console.error('[AI] Call failed:', e instanceof Error ? e.message : e);
-  }
-  return null;
-}
-
 // ── Main handler ─────────────────────────────────────────
 export async function POST(req: Request) {
   const body = await req.json().catch(() => ({}));
 
-  // Get AI config from request body (sent from client localStorage)
-  const aiConfig = body.aiConfig as {
-    activeProvider: 'gemini' | 'openai';
-    gemini: { apiKey: string; model: string };
-    openai: { apiKey: string; model: string };
-    systemPrompt: string;
-    maxTokens: number;
-    temperature: number;
-  } | null;
+  // Load AI config from Database (not from client localStorage)
+  const aiConfig = await loadAiConfig();
 
   if (!aiConfig?.activeProvider) {
     return NextResponse.json({ error: 'Chưa cấu hình AI. Vào Admin → Cấu hình AI để thiết lập.' }, { status: 400 });
@@ -141,7 +60,6 @@ export async function POST(req: Request) {
 
   const provider = aiConfig.activeProvider;
   const apiKey = aiConfig[provider].apiKey;
-  const model = aiConfig[provider].model;
 
   if (!apiKey) {
     return NextResponse.json({ error: `Chưa có API key cho ${provider}. Vào Admin → Cấu hình AI.` }, { status: 400 });
@@ -160,7 +78,7 @@ export async function POST(req: Request) {
   // Limit feeds to process per request
   const feedsToProcess = body.feedId
     ? feeds.filter((f) => f.id === body.feedId)
-    : feeds.slice(0, 5); // max 5 feeds per run
+    : feeds.slice(0, 5);
 
   let totalSaved = 0;
   let totalDuplicates = 0;
@@ -189,7 +107,7 @@ export async function POST(req: Request) {
         // ── Fetch full article page ──
         let fullContent = item.description ?? item.title;
         let ogImage = '';
-        let fullHtmlContent = ''; // keep HTML version for fallback
+        let fullHtmlContent = '';
         try {
           const pageRes = await fetch(item.link, {
             headers: { 'User-Agent': 'Newschill-Bot/1.0' },
@@ -209,7 +127,6 @@ export async function POST(req: Request) {
             const rawHtml = articleMatch?.[1] || detailMatch?.[1] || contentMatch?.[1] || '';
 
             if (rawHtml.length > 100) {
-              // Keep clean HTML for fallback content (remove scripts, styles, but keep p/h2/ul/li)
               fullHtmlContent = rawHtml
                 .replace(/<script[\s\S]*?<\/script>/gi, '')
                 .replace(/<style[\s\S]*?<\/style>/gi, '')
@@ -220,21 +137,13 @@ export async function POST(req: Request) {
                 .replace(/\n\s*\n/g, '\n')
                 .trim();
 
-              // Plain text for AI input
               fullContent = rawHtml.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 5000);
             }
           }
         } catch { /* timeout or fetch error — use description */ }
 
-        // ── Call AI ──
-        const aiResult = await callAi(
-          item.title,
-          fullContent,
-          aiConfig.systemPrompt,
-          provider,
-          model,
-          apiKey,
-        );
+        // ── Call AI (reads config from DB via lib/ai.ts) ──
+        const aiResult = await callAi(item.title, fullContent, aiConfig);
 
         // ── Cover image mapping: enclosure > media:content > og:image > img in desc > fallback ──
         const descImgMatch = (item.description ?? '').match(/<img[^>]+src=["']([^"']+)["']/);
@@ -257,15 +166,15 @@ export async function POST(req: Request) {
         // ── Save draft ──
         const { error: insertError } = await supabaseServer.from('ai_drafts').insert({
           rss_item_id: item.link,
-          title: aiResult?.title || item.title,                    // Giữ nguyên tiêu đề gốc
-          excerpt: aiResult?.excerpt || cleanDesc.slice(0, 200),   // AI tóm tắt 2-3 câu
-          content: aiResult?.content || fallbackContent,           // AI tóm tắt thành HTML
+          title: aiResult?.title || item.title,
+          excerpt: aiResult?.excerpt || cleanDesc.slice(0, 200),
+          content: aiResult?.content || fallbackContent,
           cover_image: coverImage,
           source_name: sourceName,
           source_url: item.link,
           ai_summary: aiResult?.excerpt || cleanDesc.slice(0, 200),
           ai_provider: aiResult ? provider : 'none',
-          ai_model: aiResult ? model : 'fallback',
+          ai_model: aiResult ? aiConfig[provider].model : 'fallback',
           topic_slug: feed.category ?? 'general',
           status: 'pending',
         });
