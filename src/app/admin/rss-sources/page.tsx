@@ -4,6 +4,7 @@ import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Rss, Plus, Pencil, Trash2, ExternalLink, RefreshCw, Zap, Globe, Clock, Check, X, Loader2 } from 'lucide-react';
 import { useRss } from '@/contexts/RssContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { NewsSource, NewsSourceFeed } from '@/types';
 import SearchInput from '@/components/ui/SearchInput';
 import Pagination from '@/components/ui/Pagination';
@@ -56,24 +57,10 @@ function SourceModal({ source, onSave, onClose }: {
 }
 
 // ─── Feed Modal ──────────────────────────────────────────
-const categoryOptions = [
-  { value: '',          label: '🤖 Auto (AI tự phân loại)' }, // empty = let AI decide
-  { value: 'general',    label: '📰 Tổng hợp' },
-  { value: 'technology', label: '💻 Công nghệ' },
-  { value: 'business',   label: '💼 Kinh doanh' },
-  { value: 'finance',    label: '💰 Tài chính' },
-  { value: 'politics',   label: '🏛️ Thời sự' },
-  { value: 'sports',     label: '⚽ Thể thao' },
-  { value: 'world',      label: '🌍 Thế giới' },
-  { value: 'realestate', label: '🏠 Bất động sản' },
-  { value: 'entertainment', label: '🎬 Giải trí' },
-  { value: 'health',     label: '❤️ Sức khỏe' },
-  { value: 'science',    label: '🔬 Khoa học' },
-];
-
-function FeedModal({ feed, sources, onSave, onClose }: {
+function FeedModal({ feed, sources, topics, onSave, onClose }: {
   feed?: NewsSourceFeed;
   sources: NewsSource[];
+  topics: { slug: string; name: string; icon: string }[];
   onSave: (data: Omit<NewsSourceFeed, 'id'>) => void;
   onClose: () => void;
 }) {
@@ -87,6 +74,10 @@ function FeedModal({ feed, sources, onSave, onClose }: {
   const canSave = feedName.trim().length >= 2 && feedUrl.startsWith('https://') && !!sourceId;
 
   const sourceOptions = sources.map((s) => ({ value: s.id, label: s.name }));
+  const categoryOptions = [
+    { value: '', label: '🤖 Auto (AI tự phân loại)' },
+    ...topics.map((t) => ({ value: t.slug, label: `${t.icon} ${t.name}` })),
+  ];
 
   return (
     <AdminModal
@@ -148,6 +139,7 @@ function timeAgo(dateStr?: string) {
 // ─── Main Page ───────────────────────────────────────────
 export default function RssSourcesPage() {
   const { sources, feeds, addSource, updateSource, deleteSource, addFeed, updateFeed, deleteFeed, toggleFeedActive, getFeedsBySource, loading, fetchAllDrafts, refetchLogs } = useRss();
+  const { topics } = useAuth();
   const { toasts, addToast, removeToast } = useToast();
 
   const [tab, setTab] = useState('sources');
@@ -478,7 +470,7 @@ export default function RssSourcesPage() {
       {/* Modals */}
       <AnimatePresence>
         {sourceModal.open && <SourceModal source={sourceModal.source} onSave={handleSaveSource} onClose={() => setSourceModal({ open: false })} />}
-        {feedModal.open && <FeedModal feed={feedModal.feed} sources={sources} onSave={handleSaveFeed} onClose={() => setFeedModal({ open: false })} />}
+        {feedModal.open && <FeedModal feed={feedModal.feed} sources={sources} topics={topics} onSave={handleSaveFeed} onClose={() => setFeedModal({ open: false })} />}
         {deleteModal.open && <AdminDeleteModal itemName={deleteModal.name} description={deleteModal.desc} onConfirm={handleDelete} onClose={() => setDeleteModal({ open: false, type: 'source', id: '', name: '' })} />}
       </AnimatePresence>
 
