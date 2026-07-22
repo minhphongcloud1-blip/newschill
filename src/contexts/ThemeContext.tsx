@@ -14,11 +14,11 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState<Theme>('dark');
+  const [theme, setTheme] = useState<Theme>('light');
   const [isHydrated, setIsHydrated] = useState(false);
 
   useEffect(() => {
-    const saved = store.get<Theme>('theme', 'dark');
+    const saved = store.get<Theme>('theme', 'light');
     setTheme(saved);
     document.documentElement.setAttribute('data-theme', saved);
     setIsHydrated(true);
