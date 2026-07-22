@@ -49,8 +49,8 @@ export async function GET(req: Request) {
       if (fullError) return NextResponse.json({ error: fullError.message }, { status: 500 });
       
       // 4. Sắp xếp lại fullData theo đúng thứ tự của mảng ids từ RPC trả về
-      const idToIndex = new Map(ids.map((id: string, index: number) => [id, index]));
-      data = (fullData || []).sort((a, b) => idToIndex.get(a.id)! - idToIndex.get(b.id)!);
+      const idToIndex = new Map<string, number>(ids.map((id: string, index: number) => [id, index] as [string, number]));
+      data = (fullData || []).sort((a, b) => (idToIndex.get(a.id) ?? 0) - (idToIndex.get(b.id) ?? 0));
     }
   } else {
     // Fallback: Tìm kiếm thông thường hoặc không có seed
