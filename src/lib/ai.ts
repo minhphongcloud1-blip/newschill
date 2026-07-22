@@ -45,7 +45,7 @@ export async function loadAiConfig(): Promise<AiConfig | null> {
     gemini: { apiKey: data.gemini_api_key ?? '', model: data.gemini_model ?? 'gemini-2.0-flash-lite' },
     openai: { apiKey: data.openai_api_key ?? '', model: data.openai_model ?? 'gpt-4o-mini' },
     openrouter: { apiKey: data.openrouter_api_key ?? '', model: data.openrouter_model ?? 'google/gemini-2.5-flash' },
-    systemPrompt: data.system_prompt ?? '',
+    systemPrompt: data.system_prompt || `Bạn là biên tập viên tin tức. Tóm tắt NGẮN GỌN 20-30% bài gốc. Trả về JSON: {"title": "...", "excerpt": "...", "content": "<h2>...</h2><p>...</p>"}`,
     maxTokens: data.max_tokens ?? 2048,
     temperature: data.temperature ?? 0.7,
   };

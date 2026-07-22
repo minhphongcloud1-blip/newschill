@@ -1,86 +1,15 @@
 import { NextResponse } from 'next/server';
 import { supabaseServer } from '@/lib/supabase';
-
-interface AiResult {
-  title: string;
-  excerpt: string;
-  content: string;
-}
-
-async function callAi(
-  title: string,
-  content: string,
-  systemPrompt: string,
-  provider: 'gemini' | 'openai',
-  model: string,
-  apiKey: string,
-): Promise<{ result: AiResult | null; error?: string }> {
-  const userMessage = `Tiêu đề gốc: ${title}\n\nNội dung gốc:\n${content.slice(0, 3000)}`;
-  try {
-    if (provider === 'gemini') {
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
-      const res = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: systemPrompt + '\n\n' + userMessage }] }],
-          generationConfig: { temperature: 0.7, maxOutputTokens: 2048 },
-        }),
-        signal: AbortSignal.timeout(30000),
-      });
-      if (!res.ok) {
-        const errBody = await res.text().catch(() => '');
-        return { result: null, error: `Gemini ${res.status}: ${errBody.slice(0, 200)}` };
-      }
-      const data = await res.json();
-      const text = data.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
-      const json = text.match(/\{[\s\S]*\}/)?.[0];
-      if (!json) return { result: null, error: 'Gemini không trả JSON hợp lệ' };
-      return { result: JSON.parse(json) };
-    }
-    if (provider === 'openai') {
-      const res = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
-        body: JSON.stringify({
-          model,
-          messages: [
-            { role: 'system', content: systemPrompt },
-            { role: 'user', content: userMessage },
-          ],
-          temperature: 0.7,
-          max_tokens: 2048,
-          response_format: { type: 'json_object' },
-        }),
-        signal: AbortSignal.timeout(30000),
-      });
-      if (!res.ok) {
-        const errBody = await res.text().catch(() => '');
-        return { result: null, error: `OpenAI ${res.status}: ${errBody.slice(0, 200)}` };
-      }
-      const data = await res.json();
-      const text = data.choices?.[0]?.message?.content ?? '';
-      return { result: JSON.parse(text) };
-    }
-  } catch (e) {
-    return { result: null, error: e instanceof Error ? e.message : String(e) };
-  }
-  return { result: null, error: 'Provider không hợp lệ' };
-}
+import { loadAiConfig, callAi } from '@/lib/ai';
 
 export async function POST(
-  req: Request,
+  _req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  const body = await req.json().catch(() => ({}));
 
-  const aiConfig = body.aiConfig as {
-    activeProvider: 'gemini' | 'openai';
-    gemini: { apiKey: string; model: string };
-    openai: { apiKey: string; model: string };
-    systemPrompt: string;
-  } | null;
+  // ── Load AI config from DB ────────────────────────────────
+  const aiConfig = await loadAiConfig();
 
   if (!aiConfig?.activeProvider) {
     return NextResponse.json({ error: 'Chưa cấu hình AI.' }, { status: 400 });
@@ -94,7 +23,7 @@ export async function POST(
     return NextResponse.json({ error: `Chưa có API key cho ${provider}.` }, { status: 400 });
   }
 
-  // Get draft
+  // ── Get draft from DB ─────────────────────────────────────
   const { data: draft, error } = await supabaseServer
     .from('ai_drafts')
     .select('*')
@@ -105,22 +34,16 @@ export async function POST(
     return NextResponse.json({ error: 'Không tìm thấy bản nháp.' }, { status: 404 });
   }
 
-  // Call AI with original source content
+  // ── Call AI with content ──────────────────────────────────
+  // Use source_url content if possible (excerpt is short), fall back to source content
   const originalContent = draft.excerpt || draft.title;
-  const { result: aiResult, error: aiError } = await callAi(
-    draft.title,
-    originalContent,
-    aiConfig.systemPrompt,
-    provider,
-    model,
-    apiKey,
-  );
+  const aiResult = await callAi(draft.title, originalContent, aiConfig);
 
   if (!aiResult) {
-    return NextResponse.json({ error: aiError || 'AI không trả về kết quả.' }, { status: 500 });
+    return NextResponse.json({ error: `AI (${provider}/${model}) không trả về kết quả. Kiểm tra API key hoặc quota.` }, { status: 500 });
   }
 
-  // Update draft with new AI content
+  // ── Update draft ──────────────────────────────────────────
   const { data: updated, error: updateError } = await supabaseServer
     .from('ai_drafts')
     .update({

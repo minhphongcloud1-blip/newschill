@@ -67,8 +67,9 @@ function FeedModal({ feed, sources, topics, onSave, onClose }: {
   const [sourceId, setSourceId] = useState(feed?.sourceId ?? sources[0]?.id ?? '');
   const [feedName, setFeedName] = useState(feed?.feedName ?? '');
   const [feedUrl, setFeedUrl] = useState(feed?.feedUrl ?? '');
-  const [category, setCategory] = useState(feed?.category ?? '');
-  const [maxItems, setMaxItems] = useState(String((feed as (NewsSourceFeed & { maxFetchItems?: number }))?.maxFetchItems ?? 10));
+  // topicSlug: ưu tiên feed.topicSlug, fallback feed.category
+  const [topicSlug, setTopicSlug] = useState(feed?.topicSlug ?? feed?.category ?? '');
+  const [maxItems, setMaxItems] = useState(String(feed?.maxFetchItems ?? 10));
   const [crawlInterval, setCrawlInterval] = useState(String(feed?.crawlInterval ?? 10));
   const [active, setActive] = useState(feed ? feed.status === 'active' : true);
   const canSave = feedName.trim().length >= 2 && feedUrl.startsWith('https://') && !!sourceId;
@@ -88,7 +89,14 @@ function FeedModal({ feed, sources, topics, onSave, onClose }: {
           <AdminButton variant="secondary" onClick={onClose}>Hủy</AdminButton>
           <AdminButton
             disabled={!canSave}
-            onClick={() => canSave && onSave({ sourceId, feedName: feedName.trim(), feedUrl: feedUrl.trim(), category, crawlInterval: Math.max(1, Number(crawlInterval)), status: active ? 'active' : 'inactive', maxFetchItems: Math.max(1, Math.min(50, Number(maxItems))) } as Omit<NewsSourceFeed, 'id'>)}
+            onClick={() => canSave && onSave({
+              sourceId, feedName: feedName.trim(), feedUrl: feedUrl.trim(),
+              category: topicSlug,    // keep category in sync
+              topicSlug,
+              maxFetchItems: Math.max(1, Math.min(50, Number(maxItems))),
+              crawlInterval: Math.max(1, Number(crawlInterval)),
+              status: active ? 'active' : 'inactive',
+            })}
           >
             Lưu
           </AdminButton>
@@ -107,7 +115,7 @@ function FeedModal({ feed, sources, topics, onSave, onClose }: {
         </AdminFormField>
         <div className="grid grid-cols-2 gap-3">
           <AdminFormField label="Chủ đề mặc định">
-            <AdminSelect value={category} onChange={setCategory} options={categoryOptions} />
+            <AdminSelect value={topicSlug} onChange={setTopicSlug} options={categoryOptions} />
           </AdminFormField>
           <AdminFormField label="Chu kỳ (phút)">
             <AdminInput value={crawlInterval} onChange={setCrawlInterval} type="number" placeholder="10" />
@@ -301,7 +309,9 @@ export default function RssSourcesPage() {
   const feedCols: DataTableColumn[] = [
     { key: 'source',   label: 'Nguồn' },
     { key: 'feed',     label: 'Feed' },
+    { key: 'topic',    label: 'Chủ đề',   align: 'center', hide: 'md' },
     { key: 'url',      label: 'URL',       hide: 'md' },
+    { key: 'maxItems', label: 'Bài/lần',   align: 'center' },
     { key: 'interval', label: 'Chu kỳ',   align: 'center' },
     { key: 'lastSync', label: 'Lần cuối', align: 'center', hide: 'md' },
     { key: 'status',   label: 'Trạng thái', align: 'center' },
@@ -407,6 +417,23 @@ export default function RssSourcesPage() {
                 <td className="px-4 py-3">
                   <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>{feed.feedName}</span>
                 </td>
+                {/* Chủ đề */}
+                <td className="px-4 py-3 text-center max-md:hidden">
+                  {(() => {
+                    const t = topics.find(t => t.slug === feed.topicSlug);
+                    return t ? (
+                      <span className="text-xs px-2 py-1 rounded-full font-medium whitespace-nowrap" style={{ background: `${t.color}18`, color: t.color }}>
+                        {t.icon} {t.name}
+                      </span>
+                    ) : feed.topicSlug ? (
+                      <span className="text-xs px-2 py-1 rounded-full font-medium" style={{ background: 'rgba(139,92,246,0.12)', color: '#8B5CF6' }}>
+                        {feed.topicSlug}
+                      </span>
+                    ) : (
+                      <span className="text-xs opacity-40" style={{ color: 'var(--text-secondary)' }}>auto</span>
+                    );
+                  })()}
+                </td>
                 <td className="px-4 py-3 max-md:hidden">
                   <a href={feed.feedUrl} target="_blank" rel="noopener noreferrer"
                     className="text-xs flex items-center gap-1 hover:underline max-w-[180px] truncate"
@@ -415,6 +442,12 @@ export default function RssSourcesPage() {
                     {feed.feedUrl.replace(/^https?:\/\//, '').slice(0, 30)}…
                     <ExternalLink className="w-3 h-3 shrink-0" />
                   </a>
+                </td>
+                {/* Bài/lần */}
+                <td className="px-4 py-3 text-center">
+                  <span className="text-xs font-medium px-2 py-1 rounded-full" style={{ background: 'rgba(16,185,129,0.1)', color: '#10B981' }}>
+                    {feed.maxFetchItems ?? 10}
+                  </span>
                 </td>
                 <td className="px-4 py-3 text-center">
                   <span className="text-xs flex items-center gap-1 justify-center" style={{ color: 'var(--text-secondary)' }}>

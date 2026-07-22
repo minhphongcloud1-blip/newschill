@@ -59,31 +59,23 @@ const PROVIDERS: ProviderConfig[] = [
   },
 ];
 
-const DEFAULT_PROMPT = `Bạn là biên tập viên tin tức. Đầu vào là nội dung bài báo gốc.
+const DEFAULT_PROMPT = `Bạn là biên tập viên tin tức. Bạn nhận được Tiêu đề và Nội dung bài báo gốc.
+Nhiệm vụ: TÓM TẮT NGẮN GỌN, SÚC TÍCH.
 
-Nhiệm vụ:
-1. Chỉ sử dụng thông tin có trong bài viết.
-2. Tuyệt đối KHÔNG thêm bất kỳ thông tin, nhận định hoặc suy luận nào.
-3. Không tự bổ sung số liệu.
-4. Không dự đoán.
-5. Không viết theo ý kiến cá nhân.
-6. Giữ nguyên ý nghĩa bài gốc.
-7. Tóm tắt khoảng 30-50% độ dài.
-8. Xuất HTML.
+Các quy tắc TỐI QUAN TRỌNG:
+1. ĐỘ DÀI: Tóm tắt LUÔN PHẢI NGẮN HƠN bài gốc (chỉ bằng 20% - 30% độ dài văn bản gốc). Tuyệt đối không tự viết dài thêm hoặc lặp ý.
+2. SỰ THẬT: Chỉ dùng dữ liệu có trong bài. KHÔNG BỊA ĐẶT, KHÔNG THÊM THẮT, KHÔNG BÌNH LUẬN.
+3. NGÔN NGỮ: Giọng văn báo chí, khách quan, trực diện.
 
-Định dạng nội dung:
-<h2>Mở đầu</h2>
-<p>...</p>
-<h2>Chi tiết</h2>
-<p>...</p>
-<ul><li>...</li></ul>
-Nếu bài có nhiều mục thì chia thành nhiều h2.
+Định dạng nội dung HTML (content):
+- Dùng thẻ HTML cơ bản: <h2>, <p>, <ul>, <li>.
+- KHÔNG gượng ép chia quá nhiều mục nếu bài quá ngắn. Chỉ dùng 1-2 thẻ <h2> nếu bài đủ dài và cần thiết.
 
-Trả về JSON với cấu trúc sau (BẮT BUỘC):
+Trả về JSON ĐÚNG cấu trúc sau (BẮT BUỘC):
 {
-  "title": "Giữ nguyên hoặc rút gọn tối đa 5-10% tiêu đề gốc",
-  "excerpt": "Tóm tắt 1-2 câu ngắn gọn nội dung chính",
-  "content": "<h2>Mở đầu</h2><p>...</p><h2>Chi tiết</h2><p>...</p>"
+  "title": "Tiêu đề hấp dẫn, khách quan, giữ ý chính gốc",
+  "excerpt": "1-2 câu tóm tắt nội dung cốt lõi nhất (dưới 250 ký tự)",
+  "content": "<h2>...</h2><p>...</p>"
 }`;
 
 const DEFAULT_CONFIG: AiConfig = {
@@ -120,7 +112,7 @@ export default function AiConfigPage() {
           gemini: { apiKey: data.gemini_api_key ?? '', model: data.gemini_model ?? 'gemini-2.0-flash-lite' },
           openai: { apiKey: data.openai_api_key ?? '', model: data.openai_model ?? 'gpt-4o-mini' },
           openrouter: { apiKey: data.openrouter_api_key ?? '', model: data.openrouter_model ?? 'google/gemini-2.5-flash' },
-          systemPrompt: data.system_prompt ?? DEFAULT_PROMPT,
+          systemPrompt: data.system_prompt || DEFAULT_PROMPT,
           maxTokens: data.max_tokens ?? 2048,
           temperature: data.temperature ?? 0.7,
         });

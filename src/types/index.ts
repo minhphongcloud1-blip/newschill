@@ -74,6 +74,8 @@ export interface NewsSourceFeed {
   feedName: string;
   feedUrl: string;
   category: string;
+  topicSlug?: string;
+  maxFetchItems?: number;
   crawlInterval: number;
   status: 'active' | 'inactive';
   lastSync?: string;
@@ -106,6 +108,7 @@ export interface AiDraft {
   sourceName: string;
   sourceUrl: string;
   aiSummary: string;
+  aiProvider: string;
   topicSlug: string;
   status: DraftStatus;
   createdAt: string;

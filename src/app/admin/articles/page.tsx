@@ -131,6 +131,7 @@ export default function AdminArticlesPage() {
   // ── Drafts state ──
   const [draftTab, setDraftTab] = useState<DraftStatus>('pending');
   const [draftSearch, setDraftSearch] = useState('');
+  const [draftAiFilter, setDraftAiFilter] = useState<'all' | 'success' | 'failed'>('all');
   const [draftPage, setDraftPage] = useState(1);
   const [preview, setPreview] = useState<AiDraft | null>(null);
   const [selectedDraftIds, setSelectedDraftIds] = useState<Set<string>>(new Set());
@@ -176,10 +177,14 @@ export default function AdminArticlesPage() {
 
   const filteredDrafts = useMemo(() => {
     const q = draftSearch.toLowerCase();
-    return drafts.filter((d) => d.status === draftTab && (
-      d.title.toLowerCase().includes(q) || d.sourceName.toLowerCase().includes(q)
-    ));
-  }, [drafts, draftTab, draftSearch]);
+    return drafts.filter((d) => {
+      if (d.status !== draftTab) return false;
+      const matchSearch = d.title.toLowerCase().includes(q) || d.sourceName.toLowerCase().includes(q);
+      const isFailed = d.aiProvider === 'none';
+      const matchAi = draftAiFilter === 'all' || (draftAiFilter === 'failed' && isFailed) || (draftAiFilter === 'success' && !isFailed);
+      return matchSearch && matchAi;
+    });
+  }, [drafts, draftTab, draftSearch, draftAiFilter]);
 
   const paginatedDrafts = filteredDrafts.slice((draftPage - 1) * DRAFT_PAGE_SIZE, draftPage * DRAFT_PAGE_SIZE);
 
@@ -432,7 +437,21 @@ export default function AdminArticlesPage() {
               onChange={(t) => { setDraftTab(t as DraftStatus); setDraftPage(1); setDraftSearch(''); setSelectedDraftIds(new Set()); }}
             />
 
-            <SearchInput value={draftSearch} onChange={(v) => { setDraftSearch(v); setDraftPage(1); }} placeholder="Tìm tiêu đề, nguồn..." />
+            <div className="flex gap-3">
+              <div className="flex-1">
+                <SearchInput value={draftSearch} onChange={(v) => { setDraftSearch(v); setDraftPage(1); }} placeholder="Tìm tiêu đề, nguồn..." />
+              </div>
+              <select 
+                value={draftAiFilter} 
+                onChange={(e) => { setDraftAiFilter(e.target.value as 'all' | 'success' | 'failed'); setDraftPage(1); }}
+                className="px-3 py-2 rounded-xl border text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#8B5CF6]/50 transition-colors"
+                style={{ background: 'var(--bg-primary)', borderColor: 'var(--border-primary)', color: 'var(--text-primary)' }}
+              >
+                <option value="all">Tất cả bài</option>
+                <option value="success">AI thành công</option>
+                <option value="failed">AI bị lỗi</option>
+              </select>
+            </div>
 
             <DataTable
               columns={draftCols}
@@ -451,7 +470,11 @@ export default function AdminArticlesPage() {
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-1.5">
-                        <Bot className="w-3.5 h-3.5 shrink-0" style={{ color: '#8B5CF6' }} />
+                        <Bot 
+                          className="w-3.5 h-3.5 shrink-0" 
+                          style={{ color: draft.aiProvider === 'none' ? '#EF4444' : '#8B5CF6' }} 
+                          title={draft.aiProvider === 'none' ? 'AI thất bại (Lấy bài gốc)' : 'AI tóm tắt thành công'} 
+                        />
                         <p className="text-sm font-semibold line-clamp-2 max-w-[220px]" style={{ color: 'var(--text-primary)' }}>{draft.title}</p>
                       </div>
                     </td>

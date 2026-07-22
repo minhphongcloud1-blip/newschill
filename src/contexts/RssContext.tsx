@@ -9,7 +9,8 @@ interface SupabaseSource {
 }
 interface SupabaseFeed {
   id: string; source_id: string; feed_name: string; feed_url: string;
-  category: string; crawl_interval: number; status: 'active' | 'inactive'; last_sync?: string;
+  category: string; topic_slug?: string; max_fetch_items?: number;
+  crawl_interval: number; status: 'active' | 'inactive'; last_sync?: string;
   rss_sources?: { name: string };
 }
 interface SupabaseDraft {
@@ -31,12 +32,14 @@ const mapSource = (s: SupabaseSource): NewsSource => ({
 });
 const mapFeed = (f: SupabaseFeed): NewsSourceFeed => ({
   id: f.id, sourceId: f.source_id, feedName: f.feed_name, feedUrl: f.feed_url,
-  category: f.category, crawlInterval: f.crawl_interval, status: f.status, lastSync: f.last_sync,
+  category: f.category ?? '', topicSlug: f.topic_slug ?? f.category ?? '',
+  maxFetchItems: f.max_fetch_items ?? 10,
+  crawlInterval: f.crawl_interval, status: f.status, lastSync: f.last_sync,
 });
 const mapDraft = (d: SupabaseDraft): AiDraft => ({
   id: d.id, rssItemId: d.rss_item_id, title: d.title, excerpt: d.excerpt, content: d.content,
   coverImage: d.cover_image, sourceName: d.source_name, sourceUrl: d.source_url,
-  aiSummary: d.ai_summary, topicSlug: d.topic_slug, status: d.status,
+  aiSummary: d.ai_summary, aiProvider: d.ai_provider, topicSlug: d.topic_slug, status: d.status,
   createdAt: d.created_at, reviewedAt: d.reviewed_at,
 });
 const mapLog = (l: SupabaseLog): FetchLog => ({
@@ -154,7 +157,10 @@ export function RssProvider({ children }: { children: React.ReactNode }) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         sourceId: data.sourceId, feedName: data.feedName, feedUrl: data.feedUrl,
-        category: data.category, crawlInterval: data.crawlInterval, status: data.status,
+        category: data.category ?? data.topicSlug ?? '',
+        topicSlug: data.topicSlug ?? data.category ?? '',
+        maxFetchItems: data.maxFetchItems ?? 10,
+        crawlInterval: data.crawlInterval, status: data.status,
       }),
     });
     if (!res.ok) {
@@ -170,7 +176,10 @@ export function RssProvider({ children }: { children: React.ReactNode }) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         sourceId: data.sourceId, feedName: data.feedName, feedUrl: data.feedUrl,
-        category: data.category, crawlInterval: data.crawlInterval, status: data.status,
+        category: data.category ?? data.topicSlug ?? '',
+        topicSlug: data.topicSlug ?? data.category ?? '',
+        maxFetchItems: data.maxFetchItems ?? 10,
+        crawlInterval: data.crawlInterval, status: data.status,
       }),
     });
     if (!res.ok) {

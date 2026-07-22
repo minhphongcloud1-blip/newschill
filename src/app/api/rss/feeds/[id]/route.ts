@@ -11,6 +11,8 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
       feed_name: body.feedName ?? body.feed_name,
       feed_url: body.feedUrl ?? body.feed_url,
       category: body.category,
+      topic_slug: body.topicSlug ?? body.topic_slug ?? body.category ?? null,
+      max_fetch_items: body.maxFetchItems ?? body.max_fetch_items ?? 10,
       crawl_interval: body.crawlInterval ?? body.crawl_interval,
       status: body.status,
     })
