@@ -470,11 +470,12 @@ export default function AdminArticlesPage() {
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-1.5">
-                        <Bot 
-                          className="w-3.5 h-3.5 shrink-0" 
-                          style={{ color: draft.aiProvider === 'none' ? '#EF4444' : '#8B5CF6' }} 
-                          title={draft.aiProvider === 'none' ? 'AI thất bại (Lấy bài gốc)' : 'AI tóm tắt thành công'} 
-                        />
+                        <span title={draft.aiProvider === 'none' ? 'AI thất bại (Lấy bài gốc)' : 'AI tóm tắt thành công'}>
+                          <Bot 
+                            className="w-3.5 h-3.5 shrink-0" 
+                            style={{ color: draft.aiProvider === 'none' ? '#EF4444' : '#8B5CF6' }} 
+                          />
+                        </span>
                         <p className="text-sm font-semibold line-clamp-2 max-w-[220px]" style={{ color: 'var(--text-primary)' }}>{draft.title}</p>
                       </div>
                     </td>
