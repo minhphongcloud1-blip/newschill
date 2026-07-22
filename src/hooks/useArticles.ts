@@ -57,6 +57,7 @@ interface UseArticlesOptions {
   topic?: string;   // filter by topic slug
   search?: string;
   pageSize?: number;
+  seed?: string;    // Session seed cho Tiered Random
 }
 
 export function useArticles(opts: UseArticlesOptions = {}) {
@@ -70,6 +71,7 @@ export function useArticles(opts: UseArticlesOptions = {}) {
       const params = new URLSearchParams();
       if (opts.topic) params.set('topic', opts.topic);
       if (opts.search) params.set('search', opts.search);
+      if (opts.seed) params.set('seed', opts.seed);
       params.set('pageSize', String(opts.pageSize ?? 200));
       const res = await fetch(`/api/articles?${params}`, {
         // Cache response in browser for 60s, serve stale while refreshing
@@ -83,7 +85,7 @@ export function useArticles(opts: UseArticlesOptions = {}) {
       }
     } catch { /* ignore */ }
     setLoading(false);
-  }, [opts.topic, opts.search, opts.pageSize]);
+  }, [opts.topic, opts.search, opts.pageSize, opts.seed]);
 
   useEffect(() => { fetchArticles(); }, [fetchArticles]);
 

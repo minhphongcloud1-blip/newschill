@@ -15,8 +15,9 @@ import { JsonLd, websiteSchema } from '@/components/seo/JsonLd';
 const POLL_INTERVAL = 60_000; // Check for new articles every 60s
 
 export default function HomePage() {
+  const [sessionSeed] = useState(() => Math.random().toString(36).substring(7));
   const { myArticles } = useAuth();
-  const { articles: supaArticles, loading, refetch } = useArticles();
+  const { articles: supaArticles, loading, refetch } = useArticles({ seed: sessionSeed });
   const searchParams = useSearchParams();
   const router = useRouter();
   const searchQuery = searchParams.get('search') || '';
@@ -65,22 +66,30 @@ export default function HomePage() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // ── Merge articles ────────────────────────────────────────
+  // ── Merge articles (API đã xử lý Tiered Random) ─────────────
   const articles = useMemo(() => {
     const ids = new Set(supaArticles.map((a) => a.id));
-    let merged = [...supaArticles, ...myArticles.filter((a) => !ids.has(a.id))].sort(
-      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    );
+    
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
-      merged = merged.filter(
-        (a) =>
-          a.title.toLowerCase().includes(q) ||
-          a.excerpt.toLowerCase().includes(q) ||
-          a.topic.name.toLowerCase().includes(q)
-      );
+      const merged = [...supaArticles, ...myArticles.filter((a) => !ids.has(a.id))];
+      return merged
+        .filter(
+          (a) =>
+            a.title.toLowerCase().includes(q) ||
+            a.excerpt.toLowerCase().includes(q) ||
+            a.topic.name.toLowerCase().includes(q)
+        )
+        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
     }
-    return merged;
+
+    // Khi không search, supaArticles đã được sort sẵn bởi DB (Tiered Random).
+    // Chỉ cần nối myArticles (nếu có) lên đầu.
+    const localOnly = myArticles
+      .filter((a) => !ids.has(a.id))
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      
+    return [...localOnly, ...supaArticles];
   }, [searchQuery, myArticles, supaArticles]);
 
   return (
