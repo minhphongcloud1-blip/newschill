@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Bot, Key, Eye, EyeOff, CheckCircle2, XCircle,
   Sparkles, Save, FlaskConical, RotateCcw, Cpu, Zap,
+  RefreshCw, ChevronDown
 } from 'lucide-react';
 import {
   AdminPageHeader, AdminButton, AdminFormField,
@@ -101,6 +102,46 @@ export default function AiConfigPage() {
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<string>('providers');
+
+  // --- OpenRouter Dynamic Models State ---
+  const [orModels, setOrModels] = useState<any[]>([]);
+  const [orSearch, setOrSearch] = useState('');
+  const [orDropdownOpen, setOrDropdownOpen] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
+
+  useEffect(() => {
+    if (config.activeProvider === 'openrouter' && orModels.length === 0) {
+      fetch('/api/admin/openrouter/sync')
+        .then(res => res.json())
+        .then(res => setOrModels(res.data || []))
+        .catch(() => {});
+    }
+  }, [config.activeProvider, orModels.length]);
+
+  const handleSyncOpenRouter = async () => {
+    const apiKey = config.openrouter.apiKey;
+    if (!apiKey) return alert('Vui lòng nhập API Key trước khi đồng bộ!');
+    setIsSyncing(true);
+    try {
+      const res = await fetch('/api/admin/openrouter/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ apiKey }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        alert(data.message);
+        fetch('/api/admin/openrouter/sync')
+          .then(r => r.json())
+          .then(r => setOrModels(r.data || []));
+      } else {
+        alert('Lỗi: ' + data.error);
+      }
+    } catch (err) {
+      alert('Lỗi kết nối đồng bộ');
+    }
+    setIsSyncing(false);
+  };
 
   const loadConfig = useCallback(async () => {
     try {
@@ -291,7 +332,7 @@ export default function AiConfigPage() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -6 }}
                   transition={{ duration: 0.18 }}
-                  className="rounded-2xl overflow-hidden"
+                  className="rounded-2xl overflow-visible relative"
                   style={{ border: `1.5px solid ${provider.color}50` }}
                 >
                   {/* Header */}
@@ -365,29 +406,117 @@ export default function AiConfigPage() {
 
                     {/* Model selector */}
                     <AdminFormField label="Model">
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                        {provider.models.map((model) => {
-                          const isSelected = config[provider.key].model === model.id;
-                          return (
-                            <button key={model.id} type="button"
-                              onClick={() => updateProvider(provider.key, 'model', model.id)}
-                              className="text-left p-3 rounded-xl border-2 transition-all"
-                              style={{
-                                borderColor: isSelected ? provider.color : 'var(--border-primary)',
-                                background: isSelected ? `${provider.color}08` : 'var(--bg-secondary)',
-                              }}
+                      {provider.key === 'openrouter' ? (
+                        <div className="space-y-3">
+                          <div className="flex items-center gap-3">
+                            <button 
+                              type="button" onClick={handleSyncOpenRouter} disabled={isSyncing} 
+                              className="px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all disabled:opacity-50"
+                              style={{ background: provider.color, color: '#fff' }}
                             >
-                              <div className="flex items-center justify-between mb-0.5">
-                                <span className="text-xs font-semibold" style={{ color: isSelected ? provider.color : 'var(--text-primary)' }}>{model.label}</span>
-                                {model.badge && (
-                                  <span className="text-[10px] px-1.5 py-0.5 rounded-full font-bold" style={{ background: `${provider.color}20`, color: provider.color }}>{model.badge}</span>
-                                )}
-                              </div>
-                              <p className="text-[11px]" style={{ color: 'var(--text-secondary)' }}>{model.description}</p>
+                              <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
+                              Đồng bộ Models
                             </button>
-                          );
-                        })}
-                      </div>
+                            <span className="text-[11px]" style={{ color: 'var(--text-secondary)' }}>
+                              Kéo 100+ models mới nhất từ OpenRouter
+                            </span>
+                          </div>
+                          
+                          <div className="relative">
+                            <div 
+                              className="w-full p-3 rounded-xl border-2 flex justify-between items-center cursor-pointer transition-all"
+                              style={{ 
+                                borderColor: orDropdownOpen ? provider.color : 'var(--border-primary)', 
+                                background: orDropdownOpen ? `${provider.color}08` : 'var(--bg-secondary)' 
+                              }}
+                              onClick={() => setOrDropdownOpen(!orDropdownOpen)}
+                            >
+                              <div className="flex-1 truncate">
+                                <p className="text-sm font-semibold truncate" style={{ color: 'var(--text-primary)' }}>
+                                  {orModels.find(m => m.model_id === config.openrouter.model)?.name || config.openrouter.model}
+                                </p>
+                                <p className="text-[10px] truncate" style={{ color: 'var(--text-secondary)' }}>
+                                  {config.openrouter.model}
+                                </p>
+                              </div>
+                              <ChevronDown className={`w-4 h-4 transition-transform ${orDropdownOpen ? 'rotate-180' : ''}`} style={{ color: 'var(--text-secondary)' }} />
+                            </div>
+                            
+                            <AnimatePresence>
+                              {orDropdownOpen && (
+                                <motion.div 
+                                  initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }}
+                                  className="absolute top-full left-0 right-0 mt-2 rounded-xl shadow-xl border-2 z-50 flex flex-col" 
+                                  style={{ borderColor: 'var(--border-primary)', background: 'var(--bg-primary)', maxHeight: '350px' }}
+                                >
+                                  <div className="p-2 border-b" style={{ borderColor: 'var(--border-primary)' }}>
+                                    <input 
+                                      type="text" placeholder="Tìm model (VD: claude, gemini, free...)" 
+                                      value={orSearch} onChange={e => setOrSearch(e.target.value)}
+                                      className="w-full p-2.5 rounded-lg text-sm outline-none transition-all"
+                                      style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-primary)', color: 'var(--text-primary)' }}
+                                      onFocus={(e) => (e.target.style.borderColor = provider.color)}
+                                      onBlur={(e) => (e.target.style.borderColor = 'var(--border-primary)')}
+                                    />
+                                  </div>
+                                  <div className="overflow-y-auto p-2 space-y-1">
+                                    {orModels.filter(m => m.name.toLowerCase().includes(orSearch.toLowerCase()) || m.model_id.toLowerCase().includes(orSearch.toLowerCase())).map(m => {
+                                      const isSelected = config.openrouter.model === m.model_id;
+                                      return (
+                                        <button 
+                                          key={m.model_id} type="button"
+                                          onClick={() => { updateProvider('openrouter', 'model', m.model_id); setOrDropdownOpen(false); }}
+                                          className="w-full text-left p-2.5 rounded-lg flex justify-between items-center transition-all"
+                                          style={{ background: isSelected ? `${provider.color}15` : 'transparent' }}
+                                        >
+                                          <div className="min-w-0 flex-1 pr-2">
+                                            <p className="text-sm font-semibold truncate" style={{ color: isSelected ? provider.color : 'var(--text-primary)' }}>{m.name}</p>
+                                            <p className="text-[11px] truncate mt-0.5" style={{ color: 'var(--text-secondary)' }}>{m.model_id}</p>
+                                          </div>
+                                          {m.is_free && (
+                                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0" style={{ background: '#22C55E20', color: '#22C55E' }}>
+                                              FREE
+                                            </span>
+                                          )}
+                                        </button>
+                                      );
+                                    })}
+                                    {orModels.length === 0 && (
+                                      <div className="p-4 text-center text-xs" style={{ color: 'var(--text-secondary)' }}>
+                                        Chưa có model nào. Hãy đồng bộ!
+                                      </div>
+                                    )}
+                                  </div>
+                                </motion.div>
+                              )}
+                            </AnimatePresence>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                          {provider.models.map((model) => {
+                            const isSelected = config[provider.key].model === model.id;
+                            return (
+                              <button key={model.id} type="button"
+                                onClick={() => updateProvider(provider.key, 'model', model.id)}
+                                className="text-left p-3 rounded-xl border-2 transition-all"
+                                style={{
+                                  borderColor: isSelected ? provider.color : 'var(--border-primary)',
+                                  background: isSelected ? `${provider.color}08` : 'var(--bg-secondary)',
+                                }}
+                              >
+                                <div className="flex items-center justify-between mb-0.5">
+                                  <span className="text-xs font-semibold" style={{ color: isSelected ? provider.color : 'var(--text-primary)' }}>{model.label}</span>
+                                  {model.badge && (
+                                    <span className="text-[10px] px-1.5 py-0.5 rounded-full font-bold" style={{ background: `${provider.color}20`, color: provider.color }}>{model.badge}</span>
+                                  )}
+                                </div>
+                                <p className="text-[11px]" style={{ color: 'var(--text-secondary)' }}>{model.description}</p>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      )}
                     </AdminFormField>
                   </div>
                 </motion.div>
