@@ -209,14 +209,26 @@ export function RssProvider({ children }: { children: React.ReactNode }) {
 
   // ── Draft actions ──
   const updateDraftStatus = useCallback(async (id: string, status: DraftStatus): Promise<{ ok: boolean; error?: string }> => {
-    const res = await fetch(`/api/drafts/${id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status }),
-    });
-    const data = await res.json().catch(() => ({}));
-    await fetchAllDrafts();
-    return { ok: res.ok, error: data.error };
+    // Cập nhật Optimistic UI (cập nhật state ngay lập tức)
+    setDrafts((prev) => prev.map((d) => d.id === id ? { ...d, status } : d));
+
+    try {
+      const res = await fetch(`/api/drafts/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status }),
+      });
+      const data = await res.json().catch(() => ({}));
+      
+      if (!res.ok) {
+        // Rollback nếu lỗi
+        fetchAllDrafts();
+      }
+      return { ok: res.ok, error: data.error };
+    } catch (e) {
+      fetchAllDrafts();
+      return { ok: false, error: 'Lỗi mạng' };
+    }
   }, [fetchAllDrafts]);
 
   const getDraftsByStatus = useCallback(

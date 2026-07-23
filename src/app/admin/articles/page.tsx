@@ -22,7 +22,6 @@ import {
 
 // ── helpers ───────────────────────────────────────────────
 const PAGE_SIZE_OPTIONS = [5, 10, 20, 50];
-const DRAFT_PAGE_SIZE = 8;
 
 function timeAgo(dateStr: string) {
   const diff = Date.now() - new Date(dateStr).getTime();
@@ -133,6 +132,7 @@ export default function AdminArticlesPage() {
   const [draftSearch, setDraftSearch] = useState('');
   const [draftAiFilter, setDraftAiFilter] = useState<'all' | 'success' | 'failed'>('all');
   const [draftPage, setDraftPage] = useState(1);
+  const [draftPageSize, setDraftPageSize] = useState(10);
   const [preview, setPreview] = useState<AiDraft | null>(null);
   const [selectedDraftIds, setSelectedDraftIds] = useState<Set<string>>(new Set());
   const [rerunning, setRerunning] = useState<string | null>(null);
@@ -186,19 +186,25 @@ export default function AdminArticlesPage() {
     });
   }, [drafts, draftTab, draftSearch, draftAiFilter]);
 
-  const paginatedDrafts = filteredDrafts.slice((draftPage - 1) * DRAFT_PAGE_SIZE, draftPage * DRAFT_PAGE_SIZE);
+  const draftTotalPages = Math.max(1, Math.ceil(filteredDrafts.length / draftPageSize));
+  const safeDraftPage = Math.min(draftPage, draftTotalPages);
+  const draftStartIndex = (safeDraftPage - 1) * draftPageSize;
+  const paginatedDrafts = filteredDrafts.slice(draftStartIndex, draftStartIndex + draftPageSize);
+  const draftStartItem = filteredDrafts.length > 0 ? draftStartIndex + 1 : 0;
+  const draftEndItem = Math.min(draftStartIndex + draftPageSize, filteredDrafts.length);
 
   // ── Single actions ──
   const handleDelete = async (id: string) => {
     if (!window.confirm('Bạn có chắc muốn xóa bài viết này?')) return;
+    setArticles((prev) => prev.filter(a => a.id !== id)); // Optimistic UI
     const res = await fetch(`/api/articles/${id}`, { method: 'DELETE' });
-    if (res.ok) { addToast('Đã xóa bài viết', 'success'); fetchArticles(); }
-    else addToast('Lỗi khi xóa bài viết', 'error');
+    if (res.ok) { addToast('Đã xóa bài viết', 'success'); }
+    else { addToast('Lỗi khi xóa bài viết', 'error'); fetchArticles(); }
   };
 
   const handleApproveDraft = async (id: string) => {
     const result = await updateDraftStatus(id, 'approved');
-    if (result.ok) { addToast('Đã duyệt và đăng bài viết', 'success'); fetchArticles(); }
+    if (result.ok) { addToast('Đã duyệt và đăng bài viết', 'success'); }
     else addToast(result.error ?? 'Lỗi khi duyệt', 'error');
   };
 
@@ -223,34 +229,61 @@ export default function AdminArticlesPage() {
   // ── Bulk actions ──
   const bulkDeleteArticles = async (ids: string[]) => {
     if (!window.confirm(`Xóa ${ids.length} bài viết?`)) return;
-    let ok = 0;
-    for (const id of ids) { const r = await fetch(`/api/articles/${id}`, { method: 'DELETE' }); if (r.ok) ok++; }
-    addToast(`Đã xóa ${ok}/${ids.length} bài`, 'success');
+    setArticles((prev) => prev.filter(a => !ids.includes(a.id))); // Optimistic UI
     setSelectedIds(new Set());
-    fetchArticles();
+    let ok = 0;
+    await Promise.all(ids.map(async (id) => {
+      const r = await fetch(`/api/articles/${id}`, { method: 'DELETE' });
+      if (r.ok) ok++;
+    }));
+    addToast(`Đã xóa ${ok}/${ids.length} bài`, 'success');
   };
 
   const bulkApproveDrafts = async (ids: string[]) => {
     if (!window.confirm(`Duyệt ${ids.length} bài?`)) return;
-    let ok = 0;
-    for (const id of ids) { const r = await updateDraftStatus(id, 'approved'); if (r.ok) ok++; }
-    addToast(`Đã duyệt ${ok}/${ids.length} bài`, 'success');
     setSelectedDraftIds(new Set());
-    fetchArticles();
+    let ok = 0;
+    await Promise.all(ids.map(async (id) => {
+      const r = await updateDraftStatus(id, 'approved');
+      if (r.ok) ok++;
+    }));
+    addToast(`Đã duyệt ${ok}/${ids.length} bài`, 'success');
   };
 
   const bulkRejectDrafts = async (ids: string[]) => {
     if (!window.confirm(`Từ chối ${ids.length} bài?`)) return;
-    for (const id of ids) await updateDraftStatus(id, 'rejected');
-    addToast(`Đã từ chối ${ids.length} bài`, 'success');
     setSelectedDraftIds(new Set());
+    await Promise.all(ids.map(async (id) => {
+      await updateDraftStatus(id, 'rejected');
+    }));
+    addToast(`Đã từ chối ${ids.length} bài`, 'success');
   };
 
   const bulkDeleteDrafts = async (ids: string[]) => {
     if (!window.confirm(`Xóa ${ids.length} bản nháp?`)) return;
+    setSelectedDraftIds(new Set());
     let ok = 0;
-    for (const id of ids) { const r = await fetch(`/api/drafts/${id}`, { method: 'DELETE' }); if (r.ok) ok++; }
+    await Promise.all(ids.map(async (id) => {
+      const r = await fetch(`/api/drafts/${id}`, { method: 'DELETE' });
+      if (r.ok) ok++;
+    }));
     addToast(`Đã xóa ${ok} bản nháp`, 'success');
+    fetchAllDrafts();
+  };
+
+  const bulkRerunAi = async (ids: string[]) => {
+    if (!window.confirm(`Chạy lại AI cho ${ids.length} bản nháp? (Có thể tốn vài phút)`)) return;
+    addToast(`Đang chạy lại AI cho ${ids.length} bài...`, 'info');
+    let ok = 0;
+    for (const id of ids) {
+      setRerunning(id);
+      try {
+        const res = await fetch(`/api/drafts/${id}/rerun`, { method: 'POST' });
+        if (res.ok) ok++;
+      } catch { /* ignore */ }
+    }
+    setRerunning(null);
+    addToast(`Đã cập nhật AI thành công ${ok}/${ids.length} bài`, 'success');
     setSelectedDraftIds(new Set());
     fetchAllDrafts();
   };
@@ -286,8 +319,9 @@ export default function AdminArticlesPage() {
 
   const draftBulkActions: BulkAction[] = [
     ...(draftTab === 'pending' ? [
+      { label: 'Chạy lại AI', icon: <RefreshCw className="w-3.5 h-3.5" />, onClick: bulkRerunAi, variant: 'warning' as const },
       { label: 'Duyệt hàng loạt', icon: <Check className="w-3.5 h-3.5" />, onClick: bulkApproveDrafts, variant: 'success' as const },
-      { label: 'Từ chối hàng loạt', icon: <X className="w-3.5 h-3.5" />, onClick: bulkRejectDrafts, variant: 'warning' as const },
+      { label: 'Từ chối hàng loạt', icon: <X className="w-3.5 h-3.5" />, onClick: bulkRejectDrafts, variant: 'danger' as const },
     ] : []),
     { label: 'Xóa hàng loạt', icon: <Trash2 className="w-3.5 h-3.5" />, onClick: bulkDeleteDrafts, variant: 'danger' as const },
   ];
@@ -302,6 +336,20 @@ export default function AdminArticlesPage() {
       for (let i = s; i <= e; i++) pages.push(i);
       if (safeCurrentPage < totalPages - 2) pages.push('dots');
       pages.push(totalPages);
+    }
+    return pages;
+  };
+
+  const getDraftPageNumbers = () => {
+    const pages: (number | 'dots')[] = [];
+    if (draftTotalPages <= 7) { for (let i = 1; i <= draftTotalPages; i++) pages.push(i); }
+    else {
+      pages.push(1);
+      if (safeDraftPage > 3) pages.push('dots');
+      const s = Math.max(2, safeDraftPage - 1), e = Math.min(draftTotalPages - 1, safeDraftPage + 1);
+      for (let i = s; i <= e; i++) pages.push(i);
+      if (safeDraftPage < draftTotalPages - 2) pages.push('dots');
+      pages.push(draftTotalPages);
     }
     return pages;
   };
@@ -508,8 +556,35 @@ export default function AdminArticlesPage() {
               }}
             />
 
-            {filteredDrafts.length > DRAFT_PAGE_SIZE && (
-              <Pagination total={filteredDrafts.length} page={draftPage} pageSize={DRAFT_PAGE_SIZE} onPageChange={setDraftPage} />
+            {/* Pagination */}
+            {filteredDrafts.length > 0 && (
+              <div className="px-1 py-3 flex flex-wrap items-center justify-between gap-4 mt-3">
+                <div className="flex items-center gap-4">
+                  <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+                    Hiển thị <strong style={{ color: 'var(--text-primary)' }}>{draftStartItem}–{draftEndItem}</strong> / <strong style={{ color: 'var(--text-primary)' }}>{filteredDrafts.length}</strong>
+                  </span>
+                  <select value={draftPageSize} onChange={(e) => { setDraftPageSize(Number(e.target.value)); setDraftPage(1); }}
+                    className="px-2 py-1 rounded-lg border text-xs focus:outline-none"
+                    style={{ background: 'var(--bg-primary)', borderColor: 'var(--border-primary)', color: 'var(--text-primary)' }}>
+                    {PAGE_SIZE_OPTIONS.map((s) => <option key={s} value={s}>{s} / trang</option>)}
+                  </select>
+                </div>
+                <div className="flex items-center gap-1">
+                  <button onClick={() => setDraftPage(1)} disabled={safeDraftPage === 1} className="p-1.5 rounded-lg disabled:opacity-30" style={{ color: 'var(--text-secondary)' }}><ChevronsLeft className="w-4 h-4" /></button>
+                  <button onClick={() => setDraftPage((p) => Math.max(1, p - 1))} disabled={safeDraftPage === 1} className="p-1.5 rounded-lg disabled:opacity-30" style={{ color: 'var(--text-secondary)' }}><ChevronLeft className="w-4 h-4" /></button>
+                  {getDraftPageNumbers().map((p, i) =>
+                    p === 'dots' ? <span key={`d${i}`} className="px-1 text-sm" style={{ color: 'var(--text-tertiary)' }}>···</span> : (
+                      <button key={p} onClick={() => setDraftPage(p)}
+                        className="min-w-[32px] h-8 rounded-lg text-sm font-medium"
+                        style={{ background: safeDraftPage === p ? '#8B5CF6' : 'transparent', color: safeDraftPage === p ? '#fff' : 'var(--text-secondary)' }}>
+                        {p}
+                      </button>
+                    )
+                  )}
+                  <button onClick={() => setDraftPage((p) => Math.min(draftTotalPages, p + 1))} disabled={safeDraftPage === draftTotalPages} className="p-1.5 rounded-lg disabled:opacity-30" style={{ color: 'var(--text-secondary)' }}><ChevronRight className="w-4 h-4" /></button>
+                  <button onClick={() => setDraftPage(draftTotalPages)} disabled={safeDraftPage === draftTotalPages} className="p-1.5 rounded-lg disabled:opacity-30" style={{ color: 'var(--text-secondary)' }}><ChevronsRight className="w-4 h-4" /></button>
+                </div>
+              </div>
             )}
           </motion.div>
         )}
