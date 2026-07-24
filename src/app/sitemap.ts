@@ -14,19 +14,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE_URL}/topics`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.7 },
   ];
 
-  // Fetch real articles from Supabase
+  // Fetch real articles from Supabase (with slug)
   let articlePages: MetadataRoute.Sitemap = [];
   try {
     const { data } = await supabaseServer
       .from('articles')
-      .select('id, created_at')
+      .select('id, slug, created_at, updated_at')
       .order('created_at', { ascending: false })
-      .limit(500);
+      .limit(1000);
 
     if (data) {
       articlePages = data.map((article) => ({
-        url: `${SITE_URL}/article/${article.id}`,
-        lastModified: new Date(article.created_at),
+        url: article.slug
+          ? `${SITE_URL}/tin-tuc/${article.slug}`
+          : `${SITE_URL}/article/${article.id}`,
+        lastModified: new Date(article.updated_at || article.created_at),
         changeFrequency: 'weekly' as const,
         priority: 0.8,
       }));

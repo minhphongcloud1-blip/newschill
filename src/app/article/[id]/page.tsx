@@ -1,4 +1,5 @@
 import { Metadata } from 'next';
+import { redirect } from 'next/navigation';
 import { supabaseServer } from '@/lib/supabase';
 import { JsonLd, buildBreadcrumbSchema, buildArticleSchema } from '@/components/seo/JsonLd';
 import ArticleDetailClient from './ArticleDetailClient';
@@ -16,15 +17,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   try {
     const { data } = await supabaseServer
       .from('articles')
-      .select('title, excerpt, cover_image, author_name, created_at')
+      .select('title, title_seo, excerpt, meta_description, cover_image, author_name, created_at, slug')
       .eq('id', id)
       .single();
 
     if (!data) return {};
 
-    const title = data.title;
-    const description = data.excerpt?.slice(0, 160) || '';
+    const title = data.title_seo || data.title;
+    const description = data.meta_description || data.excerpt?.slice(0, 160) || '';
     const image = data.cover_image || `${SITE_URL}/og-image.png`;
+    // Canonical points to slug URL if available
+    const canonical = data.slug ? `${SITE_URL}/tin-tuc/${data.slug}` : `${SITE_URL}/article/${id}`;
 
     return {
       title,
@@ -33,18 +36,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         type: 'article',
         title,
         description,
-        url: `${SITE_URL}/article/${id}`,
+        url: canonical,
         images: [{ url: image, width: 1200, height: 630, alt: title }],
         publishedTime: data.created_at,
         authors: [data.author_name],
       },
-      twitter: {
-        card: 'summary_large_image',
-        title,
-        description,
-        images: [image],
-      },
-      alternates: { canonical: `${SITE_URL}/article/${id}` },
+      twitter: { card: 'summary_large_image', title, description, images: [image] },
+      alternates: { canonical },
     };
   } catch {
     return {};
@@ -54,7 +52,20 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function ArticleDetailPage({ params }: Props) {
   const { id } = await params;
 
-  // Try to fetch article data server-side for JSON-LD
+  // If article has a slug → redirect 301 to /tin-tuc/[slug]
+  try {
+    const { data: slugData } = await supabaseServer
+      .from('articles')
+      .select('slug')
+      .eq('id', id)
+      .single();
+
+    if (slugData?.slug) {
+      redirect(`/tin-tuc/${slugData.slug}`);
+    }
+  } catch { /* no slug – fall through */ }
+
+  // Fallback render for articles without slug yet
   let articleSchema = null;
   try {
     const { data } = await supabaseServer

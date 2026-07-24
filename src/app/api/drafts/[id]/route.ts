@@ -39,6 +39,11 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
       likes_count: 0,
       comments_count: 0,
       shares_count: 0,
+      // SEO fields — carried over from AI-generated draft
+      slug: draft.slug || null,
+      title_seo: draft.title_seo || null,
+      meta_description: draft.meta_description || null,
+      keywords: draft.keywords || null,
     };
 
     // Try with source fields first

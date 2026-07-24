@@ -41,7 +41,7 @@ export default function RightPanel() {
             <Link href="/trending" className="text-xs font-medium" style={{ color: '#F97316' }}>Xem thêm</Link>
           </div>
           {trending.map((article, i) => (
-            <Link key={article.id} href={`/article/${article.id}`}>
+            <Link key={article.id} href={article.slug ? `/tin-tuc/${article.slug}` : `/article/${article.id}`}>
               <motion.div
                 whileHover={{ backgroundColor: 'var(--bg-hover)' }}
                 className="px-4 py-3 border-t cursor-pointer"

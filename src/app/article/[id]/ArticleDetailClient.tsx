@@ -11,6 +11,7 @@ import { formatDate, formatNumber, generateId } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { Article, Comment } from '@/types';
 import { mapArticle, SupaArticleRow } from '@/hooks/useArticles';
+import RelatedArticles from '@/components/article/RelatedArticles';
 
 interface Props {
   articleId: string;
@@ -234,6 +235,12 @@ export default function ArticleDetailClient({ articleId }: Props) {
                 </motion.div>
               )}
             </motion.article>
+
+            {/* Related Articles — internal links for SEO */}
+            <RelatedArticles
+              topicSlug={article.topic.slug}
+              currentId={article.id}
+            />
 
             {/* Comment input */}
             <div id="comments" className="scroll-mt-20">

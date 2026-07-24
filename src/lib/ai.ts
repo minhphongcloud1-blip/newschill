@@ -20,7 +20,12 @@ export interface AiResult {
   title: string;
   excerpt: string;
   content: string;
-  topic_slug?: string; // Returned only when AI classifies topic automatically
+  topic_slug?: string;        // Returned only when AI classifies topic automatically
+  // SEO fields (Sprint 1)
+  title_seo?: string;         // 50-60 chars, keyword-optimized
+  meta_description?: string;  // 140-160 chars
+  slug?: string;              // URL-safe, hyphen-separated, no diacritics
+  keywords?: string;          // Comma-separated, 5-8 keywords
 }
 
 // Available topic slugs for AI classification
@@ -45,7 +50,16 @@ export async function loadAiConfig(): Promise<AiConfig | null> {
     gemini: { apiKey: data.gemini_api_key ?? '', model: data.gemini_model ?? 'gemini-2.0-flash-lite' },
     openai: { apiKey: data.openai_api_key ?? '', model: data.openai_model ?? 'gpt-4o-mini' },
     openrouter: { apiKey: data.openrouter_api_key ?? '', model: data.openrouter_model ?? 'google/gemini-2.5-flash' },
-    systemPrompt: data.system_prompt || `Bạn là biên tập viên tin tức. Tóm tắt NGẮN GỌN 20-30% bài gốc. Trả về JSON: {"title": "...", "excerpt": "...", "content": "<h2>...</h2><p>...</p>"}`,
+    systemPrompt: data.system_prompt || `Bạn là biên tập viên tin tức SEO chuyên nghiệp. Hãy viết lại bài bằng cách diễn đạt mới, KHÔNG sao chép nguyên văn. Tóm tắt 20-30% nội dung gốc, thêm phân tích riêng. Trả về JSON:
+{
+  "title": "Tiêu đề hấp dẫn, tự nhiên",
+  "title_seo": "Tiêu đề SEO 50-60 ký tự, có từ khóa chính",
+  "slug": "url-dep-khong-dau-ngan-gon",
+  "meta_description": "Mô tả SEO 140-160 ký tự, hấp dẫn, có CTA nhẹ",
+  "keywords": "từ khóa 1, từ khóa 2, từ khóa 3, từ khóa 4, từ khóa 5",
+  "excerpt": "Tóm tắt 1-2 câu ngắn gọn",
+  "content": "<h2>...</h2><p>...</p>"
+}`, 
     maxTokens: data.max_tokens ?? 2048,
     temperature: data.temperature ?? 0.7,
   };

@@ -203,6 +203,11 @@ export async function POST(req: Request) {
           ai_model: aiResult ? aiConfig[provider].model : 'fallback',
           topic_slug: resolvedTopicSlug,
           status: 'pending',
+          // SEO fields from AI
+          slug: aiResult?.slug || null,
+          title_seo: aiResult?.title_seo || null,
+          meta_description: aiResult?.meta_description || null,
+          keywords: aiResult?.keywords || null,
         });
 
         if (!insertError) {

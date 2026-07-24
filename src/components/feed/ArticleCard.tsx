@@ -46,14 +46,16 @@ export default function ArticleCard({ article, index = 0 }: ArticleCardProps) {
     if (!isAuthenticated) {
       router.push('/login');
     } else {
-      router.push(`/article/${article.id}#comments`);
+      const href = article.slug ? `/tin-tuc/${article.slug}` : `/article/${article.id}`;
+      router.push(`${href}#comments`);
     }
   };
 
   const handleConfirmShare = () => {
     // Copy article link to clipboard
     if (typeof window !== 'undefined') {
-      navigator.clipboard.writeText(`${window.location.origin}/article/${article.id}`).catch(() => {});
+      const href = article.slug ? `/tin-tuc/${article.slug}` : `/article/${article.id}`;
+      navigator.clipboard.writeText(`${window.location.origin}${href}`).catch(() => {});
     }
     recordShare(article.id);
     setShowSharePopup(false);
@@ -69,7 +71,7 @@ export default function ArticleCard({ article, index = 0 }: ArticleCardProps) {
       transition={{ duration: 0.3, delay: index * 0.05 }}
       className="relative"
     >
-      <Link href={`/article/${article.id}`}>
+      <Link href={article.slug ? `/tin-tuc/${article.slug}` : `/article/${article.id}`}>
         <motion.article
           className="px-4 py-4 border-b cursor-pointer group"
           style={{ borderColor: 'var(--border-primary)' }}

@@ -22,6 +22,7 @@ export interface User {
 
 export interface Article {
   id: string;
+  slug?: string;        // SEO-friendly URL slug
   title: string;
   excerpt: string;
   content: string;

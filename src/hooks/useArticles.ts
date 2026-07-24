@@ -4,8 +4,9 @@ import { useState, useEffect, useCallback } from 'react';
 import { Article } from '@/types';
 
 /** Shape returned by Supabase via /api/articles */
-interface SupaArticleRow {
+export interface SupaArticleRow {
   id: string;
+  slug?: string | null;
   title: string;
   excerpt: string;
   content: string;
@@ -23,9 +24,10 @@ interface SupaArticleRow {
 }
 
 /** Map a Supabase article row to the frontend Article type */
-function mapArticle(row: SupaArticleRow): Article {
+export function mapArticle(row: SupaArticleRow): Article {
   return {
     id: row.id,
+    slug: row.slug ?? undefined,
     title: row.title,
     excerpt: row.excerpt,
     content: row.content,
@@ -91,6 +93,3 @@ export function useArticles(opts: UseArticlesOptions = {}) {
 
   return { articles, total, loading, refetch: fetchArticles };
 }
-
-export { mapArticle };
-export type { SupaArticleRow };
