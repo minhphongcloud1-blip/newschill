@@ -103,10 +103,10 @@ export default function HomePage() {
           <main className="flex-1 min-h-screen max-w-[760px]">
             {/* Inline page title */}
             {!searchQuery && (
-              <div className="flex items-center gap-2 px-4 py-4">
+              <header className="flex items-center gap-2 px-4 py-4">
                 <Flame className="w-5 h-5" style={{ color: '#F97316' }} />
                 <h1 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>Trang chủ</h1>
-              </div>
+              </header>
             )}
 
             {/* Banner slide */}

@@ -42,7 +42,7 @@ export default function TopicPageClient({ slug }: { slug: string }) {
         <div className="flex-1 min-w-0 max-w-[760px]">
 
           {/* Header — same width as content */}
-          <div
+          <header
             className="sticky top-0 z-30 flex items-center gap-3 px-4 py-3"
             style={{ borderBottom: '1px solid var(--border-primary)' }}
           >
@@ -53,7 +53,7 @@ export default function TopicPageClient({ slug }: { slug: string }) {
               <h1 className="text-lg font-bold leading-tight" style={{ color: 'var(--text-primary)' }}>{topic.icon} {topic.name}</h1>
               <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>{topic.description}</p>
             </div>
-          </div>
+          </header>
 
           <main className="min-h-screen">
             {loading ? (

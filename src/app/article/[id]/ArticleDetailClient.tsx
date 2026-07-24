@@ -141,7 +141,7 @@ export default function ArticleDetailClient({ articleId }: Props) {
               <button onClick={() => router.back()} className="p-2 rounded-full hover:bg-[var(--bg-hover-md)]" style={{ color: 'var(--text-primary)' }}>
                 <ArrowLeft className="w-5 h-5" />
               </button>
-              <h1 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>Bài viết</h1>
+              <span className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>Bài viết</span>
             </div>
             {/* Edit button - author or admin */}
             {currentUser && article && (currentUser.id === article.author.id || currentUser.role === 'admin') && (

@@ -3,21 +3,29 @@ import { notFound, redirect } from 'next/navigation';
 import { supabaseServer } from '@/lib/supabase';
 import { JsonLd, buildBreadcrumbSchema, buildArticleSchema } from '@/components/seo/JsonLd';
 import ArticleDetailClient from '@/app/article/[id]/ArticleDetailClient';
+import { unstable_cache } from 'next/cache';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://newschill.online';
+
+// ISR: revalidate article pages every 5 minutes
+export const revalidate = 300;
 
 interface Props {
   params: Promise<{ slug: string }>;
 }
 
-async function getArticleBySlug(slug: string) {
-  const { data } = await supabaseServer
-    .from('articles')
-    .select('*, topics(slug, name, icon, color, description)')
-    .eq('slug', slug)
-    .single();
-  return data;
-}
+const getArticleBySlug = unstable_cache(
+  async (slug: string) => {
+    const { data } = await supabaseServer
+      .from('articles')
+      .select('*, topics(slug, name, icon, color, description)')
+      .eq('slug', slug)
+      .single();
+    return data;
+  },
+  ['article-by-slug'],
+  { revalidate: 300, tags: ['articles'] }
+);
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;

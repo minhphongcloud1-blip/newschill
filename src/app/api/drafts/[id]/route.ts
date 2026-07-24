@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { supabaseServer } from '@/lib/supabase';
+import { revalidateTag, revalidatePath } from 'next/cache';
 
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -66,6 +67,12 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
       await supabaseServer.from('ai_drafts').update({ status: 'pending', reviewed_at: null }).eq('id', id);
       return NextResponse.json({ error: 'Lỗi tạo bài viết: ' + articleError.message }, { status: 500 });
     }
+
+    // Purge ISR cache so new article appears immediately
+    revalidateTag('articles');
+    revalidatePath('/');
+    revalidatePath('/trending');
+    if (draft.slug) revalidatePath(`/tin-tuc/${draft.slug}`);
   }
 
   return NextResponse.json(draft);
