@@ -162,7 +162,15 @@ export default function ArticleDetailClient({ articleId }: Props) {
           <div>
             <motion.article initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="px-4 py-4 border-b" style={{ borderColor: 'var(--border-primary)' }}>
               <div className="flex items-center gap-3 mb-4">
-                <img src={article.author.avatar} alt={article.author.name} className="w-12 h-12 rounded-full" style={{ background: 'var(--border-primary)' }} />
+                <img
+                  src={article.author.avatar}
+                  alt={article.author.name}
+                  className="w-12 h-12 rounded-full shrink-0 object-cover"
+                  width={48} height={48}
+                  loading="lazy"
+                  decoding="async"
+                  style={{ background: 'var(--border-primary)' }}
+                />
                 <div>
                   <p className="font-bold" style={{ color: 'var(--text-primary)' }}>{article.author.name}</p>
                   {article.sourceName ? (
@@ -186,8 +194,17 @@ export default function ArticleDetailClient({ articleId }: Props) {
               <h1 className="text-2xl font-bold mb-3 leading-tight" style={{ color: 'var(--text-primary)' }}>{article.title}</h1>
 
               {article.coverImage && (
-                <div className="rounded-2xl overflow-hidden mb-4 border" style={{ borderColor: 'var(--border-primary)' }}>
-                  <img src={article.coverImage} alt={article.title} className="w-full max-h-[400px] object-cover" />
+                <div className="rounded-2xl overflow-hidden mb-4 border" style={{ borderColor: 'var(--border-primary)', aspectRatio: '16/9' }}>
+                  <img
+                    src={article.coverImage}
+                    alt={article.title}
+                    className="w-full h-full object-cover"
+                    width={760}
+                    height={427}
+                    loading="eager"
+                    fetchPriority="high"
+                    decoding="async"
+                  />
                 </div>
               )}
 

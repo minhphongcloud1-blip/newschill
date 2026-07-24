@@ -48,7 +48,12 @@ export const metadata: Metadata = {
     creator: '@newschillvn',
     site: '@newschillvn',
   },
-  alternates: { canonical: SITE_URL },
+  alternates: {
+    canonical: SITE_URL,
+    types: {
+      'application/rss+xml': `${SITE_URL}/rss.xml`,
+    },
+  },
   other: { 'google-site-verification': 'YOUR_GOOGLE_VERIFICATION_TOKEN' },
 };
 

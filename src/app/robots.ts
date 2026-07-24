@@ -7,7 +7,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       {
         userAgent: '*',
-        allow: ['/', '/trending', '/topics', '/topic/', '/article/'],
+        allow: ['/', '/trending', '/topics', '/topic/', '/tin-tuc/', '/article/'],
         disallow: ['/admin/', '/profile/', '/login', '/register', '/article/create'],
       },
       {
@@ -16,7 +16,10 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ['/admin/', '/profile/', '/login', '/register'],
       },
     ],
-    sitemap: `${SITE_URL}/sitemap.xml`,
+    sitemap: [
+      `${SITE_URL}/sitemap.xml`,
+      `${SITE_URL}/news-sitemap.xml`,
+    ],
     host: SITE_URL,
   };
 }

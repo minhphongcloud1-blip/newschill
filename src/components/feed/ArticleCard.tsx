@@ -81,7 +81,10 @@ export default function ArticleCard({ article, index = 0 }: ArticleCardProps) {
             <img
               src={article.author.avatar}
               alt={article.author.name}
-              className="w-10 h-10 rounded-full shrink-0"
+              className="w-10 h-10 rounded-full shrink-0 object-cover"
+              width={40} height={40}
+              loading="lazy"
+              decoding="async"
               style={{ background: 'var(--border-primary)' }}
             />
             <div className="min-w-0 flex-1 flex items-center gap-2 flex-wrap">
@@ -117,6 +120,10 @@ export default function ArticleCard({ article, index = 0 }: ArticleCardProps) {
                   src={article.coverImage}
                   alt={article.title}
                   className="w-full h-full object-cover"
+                  width={700}
+                  height={394}
+                  loading="lazy"
+                  decoding="async"
                 />
               </div>
             )}
