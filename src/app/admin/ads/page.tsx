@@ -2,21 +2,56 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Trash2, Edit3, ExternalLink, Eye, EyeOff, Image, Link, Save, X, Loader2, CheckCircle2 } from 'lucide-react';
+import { Plus, Trash2, Edit3, ExternalLink, Eye, EyeOff, Image, Link, Save, X, Loader2, Check, AlertCircle } from 'lucide-react';
 import { Advertisement } from '@/data/ads';
 
-async function fetchAdsFromServer(): Promise<Advertisement[]> {
-  const res = await fetch('/api/ads', { cache: 'no-store' });
-  const json = await res.json();
-  return json.data ?? [];
+const LS_KEY = 'newsx_ads';
+
+function getLocalAds(): Advertisement[] {
+  if (typeof window === 'undefined') return [];
+  try { return JSON.parse(localStorage.getItem(LS_KEY) ?? '[]'); } catch { return []; }
 }
 
-async function saveAdsToServer(ads: Advertisement[]): Promise<void> {
-  await fetch('/api/ads', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ ads }),
-  });
+function setLocalAds(ads: Advertisement[]) {
+  if (typeof window === 'undefined') return;
+  localStorage.setItem(LS_KEY, JSON.stringify(ads));
+}
+
+async function fetchAdsFromServer(): Promise<Advertisement[]> {
+  try {
+    const res = await fetch('/api/ads', { cache: 'no-store' });
+    const json = await res.json();
+    if (json.data && Array.isArray(json.data)) {
+      // Supabase has data → sync to localStorage and return
+      setLocalAds(json.data);
+      return json.data;
+    }
+    // Supabase not ready yet → use localStorage
+    return getLocalAds();
+  } catch {
+    return getLocalAds();
+  }
+}
+
+async function saveAdsToServer(ads: Advertisement[]): Promise<{ ok: boolean; via: 'supabase' | 'localStorage'; error?: string }> {
+  // Always save to localStorage immediately
+  setLocalAds(ads);
+
+  try {
+    const res = await fetch('/api/ads', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ads }),
+    });
+    const json = await res.json();
+    if (!res.ok) {
+      // Supabase lỗi (table chưa tạo) → đã lưu localStorage rồi
+      return { ok: true, via: 'localStorage', error: json.error };
+    }
+    return { ok: true, via: 'supabase' };
+  } catch (e: any) {
+    return { ok: true, via: 'localStorage', error: String(e) };
+  }
 }
 
 function generateId() {
@@ -25,14 +60,22 @@ function generateId() {
 
 const EMPTY_AD: Advertisement = { id: '', imageUrl: '', linkUrl: '', title: '', isActive: true, type: 'banner' };
 
+type Toast = { type: 'saving' | 'success' | 'warn' | 'error'; msg: string } | null;
+
 export default function AdminAdsPage() {
   const [ads, setAds] = useState<Advertisement[]>([]);
   const [editing, setEditing] = useState<Advertisement | null>(null);
   const [isNew, setIsNew] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [savedOk, setSavedOk] = useState(false);
+  const [toast, setToast] = useState<Toast>(null);
+
+  const showToast = (t: Toast, durationMs = 3000) => {
+    setToast(t);
+    if (t?.type !== 'saving') {
+      setTimeout(() => setToast(null), durationMs);
+    }
+  };
 
   const loadAds = useCallback(async () => {
     setLoading(true);
@@ -45,14 +88,13 @@ export default function AdminAdsPage() {
 
   const persistAds = async (updated: Advertisement[]) => {
     setAds(updated);
-    setSaving(true);
-    setSavedOk(false);
-    try {
-      await saveAdsToServer(updated);
-      setSavedOk(true);
-      setTimeout(() => setSavedOk(false), 2500);
-    } finally {
-      setSaving(false);
+    showToast({ type: 'saving', msg: 'Đang lưu...' });
+    const result = await saveAdsToServer(updated);
+    if (result.via === 'supabase') {
+      showToast({ type: 'success', msg: '✅ Đã lưu lên Supabase!' });
+    } else {
+      // Saved locally — table not migrated yet
+      showToast({ type: 'warn', msg: '⚠️ Đã lưu tạm (cần chạy SQL migration để sync mọi người)' }, 5000);
     }
   };
 
@@ -418,6 +460,33 @@ export default function AdminAdsPage() {
                 </button>
               </div>
             </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── Toast Notification ── */}
+      <AnimatePresence>
+        {toast && (
+          <motion.div
+            key="ads-toast"
+            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.95 }}
+            className="fixed bottom-6 right-6 z-[100] flex items-center gap-3 px-4 py-3 rounded-2xl shadow-2xl max-w-sm"
+            style={{
+              background: toast.type === 'success' ? '#22C55E'
+                : toast.type === 'warn' ? '#F59E0B'
+                : toast.type === 'error' ? '#EF4444'
+                : 'var(--bg-primary)',
+              border: toast.type === 'saving' ? '1px solid var(--border-primary)' : 'none',
+              color: toast.type === 'saving' ? 'var(--text-primary)' : '#fff',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
+            }}
+          >
+            {toast.type === 'saving' && <Loader2 className="w-4 h-4 animate-spin shrink-0" />}
+            {toast.type === 'success' && <Check className="w-4 h-4 shrink-0" />}
+            {(toast.type === 'warn' || toast.type === 'error') && <AlertCircle className="w-4 h-4 shrink-0" />}
+            <span className="text-sm font-medium">{toast.msg}</span>
           </motion.div>
         )}
       </AnimatePresence>

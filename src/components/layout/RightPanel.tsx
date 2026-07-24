@@ -9,19 +9,37 @@ import { useState, useEffect, useMemo } from 'react';
 import { Advertisement } from '@/data/ads';
 import RightPanelSearch from '@/components/layout/RightPanelSearch';
 
+const LS_KEY = 'newsx_ads';
+
+function getLocalSidebarAds(): Advertisement[] {
+  if (typeof window === 'undefined') return [];
+  try {
+    const all: Advertisement[] = JSON.parse(localStorage.getItem(LS_KEY) ?? '[]');
+    return all.filter((ad) => ad.isActive && ad.type === 'sidebar');
+  } catch { return []; }
+}
+
 export default function RightPanel() {
   const [ads, setAds] = useState<Advertisement[]>([]);
   const { articles } = useArticles();
 
   useEffect(() => {
-    // Fetch sidebar ads từ Supabase qua API (không dùng localStorage)
+    // 1. Load instantly from localStorage
+    setAds(getLocalSidebarAds());
+
+    // 2. Fetch from Supabase via API and update
     fetch('/api/ads')
       .then((r) => r.json())
       .then((json) => {
-        const all: Advertisement[] = json.data ?? [];
-        setAds(all.filter((ad) => ad.isActive && ad.type === 'sidebar'));
+        if (json.data && Array.isArray(json.data)) {
+          const sidebar = (json.data as Advertisement[]).filter(
+            (ad) => ad.isActive && ad.type === 'sidebar'
+          );
+          setAds(sidebar);
+          localStorage.setItem(LS_KEY, JSON.stringify(json.data));
+        }
       })
-      .catch(() => setAds([]));
+      .catch(() => {});
   }, []);
 
   const trending = useMemo(() =>
