@@ -121,10 +121,11 @@ export default function AdminArticlesPage() {
   // ── Published state ──
   const [articles, setArticles] = useState<SupaArticle[]>([]);
   const [articlesLoading, setArticlesLoading] = useState(true);
+  const [articlesTotal, setArticlesTotal] = useState(0);
   const [search, setSearch] = useState('');
   const [topicFilter, setTopicFilter] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
+  const [pageSize] = useState(20);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   // ── Drafts state ──
@@ -140,33 +141,38 @@ export default function AdminArticlesPage() {
   const fetchArticles = useCallback(async () => {
     setArticlesLoading(true);
     try {
-      const res = await fetch('/api/articles?pageSize=200');
-      if (res.ok) { const json = await res.json(); setArticles(json.data ?? []); }
+      // Server-side pagination: pass page, pageSize, search, topic to API
+      const params = new URLSearchParams({
+        page: String(currentPage),
+        pageSize: String(pageSize),
+        ...(search ? { search } : {}),
+        ...(topicFilter !== 'all' ? { topic: topicFilter } : {}),
+      });
+      const res = await fetch(`/api/articles?${params}`);
+      if (res.ok) {
+        const json = await res.json();
+        setArticles(json.data ?? []);
+        setArticlesTotal(json.total ?? 0);
+      }
     } catch { /* ignore */ }
     setArticlesLoading(false);
-  }, []);
+  }, [currentPage, pageSize, search, topicFilter]);
 
   useEffect(() => { fetchArticles(); }, [fetchArticles]);
+
+  // Reset to page 1 whenever search/topic changes
+  useEffect(() => { setCurrentPage(1); }, [search, topicFilter]);
 
   // Reset selection on tab change
   useEffect(() => { setSelectedIds(new Set()); }, [mainTab]);
   useEffect(() => { setSelectedDraftIds(new Set()); }, [draftTab]);
 
-  // ── Published filtering + pagination ──
-  const filtered = useMemo(() => articles.filter((a) => {
-    const matchSearch =
-      a.title.toLowerCase().includes(search.toLowerCase()) ||
-      (a.author_name ?? '').toLowerCase().includes(search.toLowerCase());
-    const matchTopic = topicFilter === 'all' || a.topics?.slug === topicFilter;
-    return matchSearch && matchTopic;
-  }), [articles, search, topicFilter]);
-
-  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
-  const safeCurrentPage = Math.min(currentPage, totalPages);
-  const startIndex = (safeCurrentPage - 1) * pageSize;
-  const paginatedArticles = filtered.slice(startIndex, startIndex + pageSize);
-  const startItem = filtered.length > 0 ? startIndex + 1 : 0;
-  const endItem = Math.min(startIndex + pageSize, filtered.length);
+  // ── Server-side pagination — no client-side filter/slice needed ──
+  const totalPages = Math.max(1, Math.ceil(articlesTotal / pageSize));
+  const paginatedArticles = articles; // already paginated by server
+  const startItem = articlesTotal > 0 ? (currentPage - 1) * pageSize + 1 : 0;
+  const endItem = Math.min(currentPage * pageSize, articlesTotal);
+  const safeCurrentPage = currentPage;
 
   // ── Drafts filtering ──
   const draftCounts = useMemo(() => ({
@@ -440,17 +446,12 @@ export default function AdminArticlesPage() {
             />
 
             {/* Pagination */}
-            {filtered.length > 0 && (
+            {articlesTotal > 0 && (
               <div className="px-1 py-3 flex flex-wrap items-center justify-between gap-4 mt-3">
                 <div className="flex items-center gap-4">
                   <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-                    Hiển thị <strong style={{ color: 'var(--text-primary)' }}>{startItem}–{endItem}</strong> / <strong style={{ color: 'var(--text-primary)' }}>{filtered.length}</strong>
+                    Hiển thị <strong style={{ color: 'var(--text-primary)' }}>{startItem}–{endItem}</strong> / <strong style={{ color: 'var(--text-primary)' }}>{articlesTotal}</strong> bài viết
                   </span>
-                  <select value={pageSize} onChange={(e) => { setPageSize(Number(e.target.value)); setCurrentPage(1); }}
-                    className="px-2 py-1 rounded-lg border text-xs focus:outline-none"
-                    style={{ background: 'var(--bg-primary)', borderColor: 'var(--border-primary)', color: 'var(--text-primary)' }}>
-                    {PAGE_SIZE_OPTIONS.map((s) => <option key={s} value={s}>{s} / trang</option>)}
-                  </select>
                 </div>
                 <div className="flex items-center gap-1">
                   <button onClick={() => setCurrentPage(1)} disabled={safeCurrentPage === 1} className="p-1.5 rounded-lg disabled:opacity-30" style={{ color: 'var(--text-secondary)' }}><ChevronsLeft className="w-4 h-4" /></button>

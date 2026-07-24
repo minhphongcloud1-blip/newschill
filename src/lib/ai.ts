@@ -65,6 +65,19 @@ export async function loadAiConfig(): Promise<AiConfig | null> {
   };
 }
 
+// ── Safe JSON parser — never throws ─────────────────────
+function safeParseJson(text: string): AiResult | null {
+  const jsonStr = text.match(/\{[\s\S]*\}/)?.[0];
+  if (!jsonStr) { console.error('[AI] No JSON block found in response'); return null; }
+  try {
+    return JSON.parse(jsonStr) as AiResult;
+  } catch (e) {
+    console.error('[AI] JSON.parse failed:', e instanceof Error ? e.message : e);
+    console.error('[AI] Raw JSON attempt:', jsonStr.slice(0, 300));
+    return null;
+  }
+}
+
 // ── Call AI with the loaded config ────────────────────────
 export async function callAi(
   title: string,
@@ -104,9 +117,7 @@ export async function callAi(
 
       const data = await res.json();
       const text = data.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
-      const json = text.match(/\{[\s\S]*\}/)?.[0];
-      if (!json) { console.error('[AI] No JSON in Gemini response'); return null; }
-      return JSON.parse(json);
+      return safeParseJson(text);
     }
 
     if (provider === 'openai') {
@@ -135,7 +146,7 @@ export async function callAi(
 
       const data = await res.json();
       const text = data.choices?.[0]?.message?.content ?? '';
-      return JSON.parse(text);
+      return safeParseJson(text);
     }
 
     if (provider === 'openrouter') {
@@ -169,7 +180,7 @@ export async function callAi(
 
       const data = await res.json();
       const text = data.choices?.[0]?.message?.content ?? '';
-      return JSON.parse(text);
+      return safeParseJson(text);
     }
   } catch (e) {
     console.error('[AI] Call failed:', e instanceof Error ? e.message : e);

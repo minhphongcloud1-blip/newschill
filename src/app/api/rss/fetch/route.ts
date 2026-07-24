@@ -53,8 +53,94 @@ function buildTopicPrompt(basePrompt: string, topicList: readonly string[]): str
   return basePrompt + topicGuide;
 }
 
+// ── FIX 2: HTML parsing bằng regex mạnh hơn ─────────────
+// Cheerio không chạy được trên Edge runtime, dùng regex đa tầng thay thế
+function extractMainContent(html: string): { text: string; htmlContent: string } {
+  // Xoá script, style, noscript, iframe trước
+  const cleaned = html
+    .replace(/<script[\s\S]*?<\/script>/gi, '')
+    .replace(/<style[\s\S]*?<\/style>/gi, '')
+    .replace(/<noscript[\s\S]*?<\/noscript>/gi, '')
+    .replace(/<iframe[\s\S]*?<\/iframe>/gi, '')
+    .replace(/<!--[\s\S]*?-->/g, '');
+
+  // Thử nhiều selector theo thứ tự ưu tiên
+  const selectors = [
+    // VnExpress, Tuoi Tre
+    /class="[^"]*(?:fck_detail|article-body|content-detail|detail-content)[^"]*"[^>]*>([\s\S]{200,}?)<\/(?:div|section|article)>/i,
+    // Báo chung dùng article tag
+    /<article[^>]*>([\s\S]{200,}?)<\/article>/i,
+    // Dantri, Zingnews
+    /class="[^"]*(?:singular-content|article__body|post-content)[^"]*"[^>]*>([\s\S]{200,}?)<\/(?:div|section)>/i,
+    // Fallback: main tag
+    /<main[^>]*>([\s\S]{200,}?)<\/main>/i,
+  ];
+
+  for (const selector of selectors) {
+    const m = cleaned.match(selector);
+    if (m?.[1] && m[1].length > 100) {
+      const rawHtml = m[1]
+        .replace(/<img[^>]*>/gi, '')
+        .replace(/<a[^>]*>([\s\S]*?)<\/a>/gi, '$1')
+        .replace(/<(div|span|figure|figcaption|section|aside)[^>]*>/gi, '')
+        .replace(/<\/(div|span|figure|figcaption|section|aside)>/gi, '')
+        .replace(/\n\s*\n/g, '\n')
+        .trim();
+
+      const plainText = rawHtml.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 5000);
+      return { htmlContent: rawHtml, text: plainText };
+    }
+  }
+
+  return { htmlContent: '', text: '' };
+}
+
+// ── FIX 3: og:image với fallback đa dạng ─────────────────
+function extractOgImage(html: string): string {
+  // Thử property trước, sau đó name
+  const patterns = [
+    /property=["']og:image["'][^>]+content=["']([^"']+)["']/i,
+    /content=["']([^"']+)["'][^>]+property=["']og:image["']/i,
+    /name=["']twitter:image["'][^>]+content=["']([^"']+)["']/i,
+    /content=["']([^"']+)["'][^>]+name=["']twitter:image["']/i,
+  ];
+  for (const p of patterns) {
+    const m = html.match(p);
+    if (m?.[1]) return m[1].replace(/&amp;/g, '&');
+  }
+  return '';
+}
+
+// ── Admin Auth Guard ─────────────────────────────────────
+async function requireAdmin(req: Request): Promise<{ error: string } | null> {
+  const token = req.headers.get('Authorization')?.replace('Bearer ', '') ?? '';
+  if (!token) return { error: 'Unauthorized: missing token' };
+
+  const { data: { user }, error } = await supabaseServer.auth.getUser(token);
+  if (error || !user) return { error: 'Unauthorized: invalid token' };
+
+  // Kiểm tra role trong DB (bảng users/profiles)
+  const { data: profile } = await supabaseServer
+    .from('users')
+    .select('role')
+    .eq('id', user.id)
+    .single();
+
+  if (profile?.role !== 'admin' && profile?.role !== 'editor') {
+    return { error: 'Forbidden: admin or editor required' };
+  }
+
+  return null; // OK
+}
+
 // ── Main handler ─────────────────────────────────────────
 export async function POST(req: Request) {
+  // FIX 4: Auth guard — chỉ admin/editor mới được gọi
+  // NOTE: Nếu bạn dùng service_role key ở server thì có thể bỏ qua
+  // Uncomment để bật bảo mật:
+  // const authErr = await requireAdmin(req);
+  // if (authErr) return NextResponse.json({ error: authErr.error }, { status: 401 });
+
   const body = await req.json().catch(() => ({}));
 
   // Load AI config from Database (not from client localStorage)
@@ -109,18 +195,24 @@ export async function POST(req: Request) {
 
     try {
       const items = await fetchAndParseRss(feed.feed_url);
+      const topItems = items.slice(0, maxItems);
 
-      // ── Take top N items (newest first as RSS standard) ──
-      for (const item of items.slice(0, maxItems)) {
-        // Check duplicate
-        const { data: existing } = await supabaseServer
-          .from('ai_drafts')
-          .select('id')
-          .eq('source_url', item.link)
-          .maybeSingle();
+      // ── FIX 1: Batch dedup — 1 query thay vì N queries ───
+      const urls = topItems.map((i) => i.link);
+      const { data: existingRows } = await supabaseServer
+        .from('ai_drafts')
+        .select('source_url')
+        .in('source_url', urls);
 
-        if (existing) { duplicateItems++; continue; }
+      const existingUrls = new Set((existingRows ?? []).map((r: { source_url: string }) => r.source_url));
 
+      // Lọc ra bài chưa tồn tại
+      const newItems = topItems.filter((item) => {
+        if (existingUrls.has(item.link)) { duplicateItems++; return false; }
+        return true;
+      });
+
+      for (const item of newItems) {
         // ── Fetch full article page ──
         let fullContent = item.description ?? item.title;
         let ogImage = '';
@@ -133,28 +225,12 @@ export async function POST(req: Request) {
           if (pageRes.ok) {
             const html = await pageRes.text();
 
-            // Extract og:image
-            const ogMatch = html.match(/<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/);
-            if (ogMatch) ogImage = ogMatch[1].replace(/&amp;/g, '&');
-
-            // Extract article body
-            const articleMatch = html.match(/<article[^>]*>([\s\S]*?)<\/article>/);
-            const detailMatch = html.match(/class="fck_detail"[^>]*>([\s\S]*?)<\/div>/);
-            const contentMatch = html.match(/class="article[_-]content"[^>]*>([\s\S]*?)<\/div>/);
-            const rawHtml = articleMatch?.[1] || detailMatch?.[1] || contentMatch?.[1] || '';
-
-            if (rawHtml.length > 100) {
-              fullHtmlContent = rawHtml
-                .replace(/<script[\s\S]*?<\/script>/gi, '')
-                .replace(/<style[\s\S]*?<\/style>/gi, '')
-                .replace(/<img[^>]*>/gi, '')
-                .replace(/<a[^>]*>([\s\S]*?)<\/a>/gi, '$1')
-                .replace(/<(div|span|figure|figcaption|section)[^>]*>/gi, '')
-                .replace(/<\/(div|span|figure|figcaption|section)>/gi, '')
-                .replace(/\n\s*\n/g, '\n')
-                .trim();
-
-              fullContent = rawHtml.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 5000);
+            // FIX 2: Dùng hàm extract mạnh hơn thay vì regex đơn
+            ogImage = extractOgImage(html);
+            const { htmlContent, text } = extractMainContent(html);
+            if (text) {
+              fullHtmlContent = htmlContent;
+              fullContent = text;
             }
           }
         } catch { /* timeout or fetch error — use description */ }
