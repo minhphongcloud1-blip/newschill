@@ -11,7 +11,6 @@ import Sidebar from '@/components/layout/Sidebar';
 import RightPanel from '@/components/layout/RightPanel';
 import MobileNav from '@/components/layout/MobileNav';
 import ArticleCard from '@/components/feed/ArticleCard';
-import { mockArticles } from '@/data/articles';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { formatDate } from '@/lib/utils';
@@ -235,6 +234,22 @@ export default function ProfilePage() {
   const [editingAvatar, setEditingAvatar] = useState(false);
   const [saved, setSaved] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  // Articles fetched from Supabase for liked/shared tabs
+  const [supabaseArticles, setSupabaseArticles] = useState<Record<string, any>>({});
+
+  // Fetch liked + shared articles from Supabase when IDs are available
+  useEffect(() => {
+    const ids = [...new Set([...likes, ...shares])];
+    if (ids.length === 0) return;
+    fetch(`/api/articles/by-ids?ids=${ids.join(',')}`)
+      .then((r) => r.json())
+      .then((json) => {
+        const map: Record<string, any> = {};
+        for (const a of (json.data ?? [])) map[a.id] = a;
+        setSupabaseArticles(map);
+      })
+      .catch(() => {});
+  }, [likes, shares]);
 
   useEffect(() => {
     if (!isAuthenticated || !currentUser) {
@@ -244,8 +259,13 @@ export default function ProfilePage() {
 
   if (!isAuthenticated || !currentUser) return null;
 
-  const likedArticles = mockArticles.filter((a) => likes.includes(a.id));
-  const sharedArticles = mockArticles.filter((a) => shares.includes(a.id));
+  // Resolve liked/shared from Supabase data (fall back to mock for legacy IDs)
+  const likedArticles = likes
+    .map((id) => supabaseArticles[id])
+    .filter(Boolean);
+  const sharedArticles = shares
+    .map((id) => supabaseArticles[id])
+    .filter(Boolean);
   const myWrittenArticles = myArticles.filter((a) => a.author.id === currentUser.id);
   const displayedArticles =
     activeTab === 'myarticles' ? myWrittenArticles :

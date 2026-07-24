@@ -6,7 +6,7 @@ import { TrendingUp } from 'lucide-react';
 import { useArticles } from '@/hooks/useArticles';
 import { formatNumber } from '@/lib/utils';
 import { useState, useEffect, useMemo } from 'react';
-import { getActiveAds, Advertisement } from '@/data/ads';
+import { Advertisement } from '@/data/ads';
 import RightPanelSearch from '@/components/layout/RightPanelSearch';
 
 export default function RightPanel() {
@@ -14,7 +14,14 @@ export default function RightPanel() {
   const { articles } = useArticles();
 
   useEffect(() => {
-    setAds(getActiveAds());
+    // Fetch sidebar ads từ Supabase qua API (không dùng localStorage)
+    fetch('/api/ads')
+      .then((r) => r.json())
+      .then((json) => {
+        const all: Advertisement[] = json.data ?? [];
+        setAds(all.filter((ad) => ad.isActive && ad.type === 'sidebar'));
+      })
+      .catch(() => setAds([]));
   }, []);
 
   const trending = useMemo(() =>

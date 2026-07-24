@@ -1,9 +1,23 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Trash2, Edit3, ExternalLink, Eye, EyeOff, Image, Link, Save, X } from 'lucide-react';
-import { getAds, saveAds, Advertisement } from '@/data/ads';
+import { Plus, Trash2, Edit3, ExternalLink, Eye, EyeOff, Image, Link, Save, X, Loader2, CheckCircle2 } from 'lucide-react';
+import { Advertisement } from '@/data/ads';
+
+async function fetchAdsFromServer(): Promise<Advertisement[]> {
+  const res = await fetch('/api/ads', { cache: 'no-store' });
+  const json = await res.json();
+  return json.data ?? [];
+}
+
+async function saveAdsToServer(ads: Advertisement[]): Promise<void> {
+  await fetch('/api/ads', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ ads }),
+  });
+}
 
 function generateId() {
   return 'ad-' + Date.now().toString(36);
@@ -16,12 +30,33 @@ export default function AdminAdsPage() {
   const [editing, setEditing] = useState<Advertisement | null>(null);
   const [isNew, setIsNew] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [savedOk, setSavedOk] = useState(false);
 
-  useEffect(() => {
-    setAds(getAds());
+  const loadAds = useCallback(async () => {
+    setLoading(true);
+    const data = await fetchAdsFromServer();
+    setAds(data);
+    setLoading(false);
   }, []);
 
-  const handleSave = () => {
+  useEffect(() => { loadAds(); }, [loadAds]);
+
+  const persistAds = async (updated: Advertisement[]) => {
+    setAds(updated);
+    setSaving(true);
+    setSavedOk(false);
+    try {
+      await saveAdsToServer(updated);
+      setSavedOk(true);
+      setTimeout(() => setSavedOk(false), 2500);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleSave = async () => {
     if (!editing) return;
     let updated: Advertisement[];
     if (isNew) {
@@ -29,23 +64,20 @@ export default function AdminAdsPage() {
     } else {
       updated = ads.map((a) => (a.id === editing.id ? editing : a));
     }
-    setAds(updated);
-    saveAds(updated);
+    await persistAds(updated);
     setEditing(null);
     setIsNew(false);
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     const updated = ads.filter((a) => a.id !== id);
-    setAds(updated);
-    saveAds(updated);
+    await persistAds(updated);
     setDeleteConfirm(null);
   };
 
-  const handleToggle = (id: string) => {
+  const handleToggle = async (id: string) => {
     const updated = ads.map((a) => (a.id === id ? { ...a, isActive: !a.isActive } : a));
-    setAds(updated);
-    saveAds(updated);
+    await persistAds(updated);
   };
 
   const handleNew = () => {

@@ -3,8 +3,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { User, UserRole, UserStatus, Topic, Article, Comment } from '@/types';
 import { mockUsers } from '@/data/users';
-import { mockArticles } from '@/data/articles';
-import { mockComments } from '@/data/comments';
 import { store } from '@/lib/store';
 import { generateId } from '@/lib/utils';
 
@@ -64,24 +62,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-/** Build initial stats from mockArticles */
-function buildInitialStats(): Record<string, ArticleStat> {
-  const stats: Record<string, ArticleStat> = {};
-  for (const a of mockArticles) {
-    stats[a.id] = { likes: a.likesCount, shares: a.sharesCount, comments: a.commentsCount, views: 0 };
-  }
-  return stats;
-}
 
-/** Build initial comments map from mockComments */
-function buildInitialComments(): Record<string, Comment[]> {
-  const map: Record<string, Comment[]> = {};
-  for (const c of mockComments) {
-    if (!map[c.articleId]) map[c.articleId] = [];
-    map[c.articleId].push(c);
-  }
-  return map;
-}
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -112,8 +93,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const savedLikes = store.get<string[]>('likes', []);
     const savedShares = store.get<string[]>('shares', []);
     const savedMyArticles = store.get<Article[]>('myArticles', []);
-    const savedStats = store.get<Record<string, ArticleStat>>('articleStats', buildInitialStats());
-    const savedComments = store.get<Record<string, Comment[]>>('allComments', buildInitialComments());
+    const savedStats = store.get<Record<string, ArticleStat>>('articleStats', {});
+    const savedComments = store.get<Record<string, Comment[]>>('allComments', {});
     const savedArticleEdits = store.get<Record<string, Partial<Article>>>('articleEdits', {});
 
     setCurrentUser(savedUser);
@@ -121,15 +102,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setLikes(savedLikes);
     setShares(savedShares);
     setMyArticles(savedMyArticles);
-    const merged = { ...buildInitialStats(), ...savedStats };
-    setArticleStats(merged);
-    const mergedComments = { ...buildInitialComments() };
-    for (const [aid, cmts] of Object.entries(savedComments)) {
-      const existing = mergedComments[aid] ?? [];
-      const existingIds = new Set(existing.map((c) => c.id));
-      mergedComments[aid] = [...existing, ...cmts.filter((c) => !existingIds.has(c.id))];
-    }
-    setAllComments(mergedComments);
+    setArticleStats(savedStats);
+    setAllComments(savedComments);
     setArticleEdits(savedArticleEdits);
     setIsHydrated(true);
 
@@ -419,15 +393,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setArticleEdits((prev) => ({ ...prev, [id]: { ...(prev[id] ?? {}), ...updates } }));
   }, []);
 
-  /** Get a single article merging mockArticles + myArticles + admin edits */
+  /** Get a single article from myArticles + admin edits (Supabase articles fetched separately) */
   const getArticle = useCallback((id: string): Article | undefined => {
-    // Check myArticles first (user-created)
     const mine = myArticles.find((a) => a.id === id);
-    const mock = mockArticles.find((a) => a.id === id);
-    const base = mine ?? mock;
-    if (!base) return undefined;
+    if (!mine) return undefined;
     const edits = articleEdits[id];
-    return edits ? { ...base, ...edits } : base;
+    return edits ? { ...mine, ...edits } : mine;
   }, [myArticles, articleEdits]);
 
   if (!isHydrated) return null;

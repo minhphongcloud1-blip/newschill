@@ -1,6 +1,5 @@
 import { MetadataRoute } from 'next';
 import { supabaseServer } from '@/lib/supabase';
-import { mockTopics } from '@/data/topics';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://newschill.online';
 
@@ -35,12 +34,23 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   } catch { /* fall through with empty */ }
 
-  const topicPages: MetadataRoute.Sitemap = mockTopics.map((topic) => ({
-    url: `${SITE_URL}/topic/${topic.slug}`,
-    lastModified: new Date(),
-    changeFrequency: 'daily' as const,
-    priority: 0.7,
-  }));
+  // Fetch real topics from Supabase
+  let topicPages: MetadataRoute.Sitemap = [];
+  try {
+    const { data: topicsData } = await supabaseServer
+      .from('topics')
+      .select('slug, updated_at')
+      .order('name');
+
+    if (topicsData && topicsData.length > 0) {
+      topicPages = topicsData.map((topic) => ({
+        url: `${SITE_URL}/topic/${topic.slug}`,
+        lastModified: topic.updated_at ? new Date(topic.updated_at) : new Date(),
+        changeFrequency: 'daily' as const,
+        priority: 0.7,
+      }));
+    }
+  } catch { /* fall through with empty */ }
 
   return [...staticPages, ...articlePages, ...topicPages];
 }

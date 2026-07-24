@@ -251,12 +251,11 @@ export default function RssSourcesPage() {
     if (!feed) return;
     setSyncing(feedId);
     try {
-      const aiConfigRaw = typeof window !== 'undefined' ? localStorage.getItem('newsx_ai_config') : null;
-      const aiConfig = aiConfigRaw ? JSON.parse(aiConfigRaw) : null;
+      // AI config được load từ Supabase server-side bởi API, không cần gửi từ client
       const res = await fetch('/api/rss/fetch', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ feedId, aiConfig }),
+        body: JSON.stringify({ feedId }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -276,12 +275,11 @@ export default function RssSourcesPage() {
   const handleSyncAll = async () => {
     setSyncing('all');
     try {
-      const aiConfigRaw = typeof window !== 'undefined' ? localStorage.getItem('newsx_ai_config') : null;
-      const aiConfig = aiConfigRaw ? JSON.parse(aiConfigRaw) : null;
+      // AI config được load từ Supabase server-side bởi API
       const res = await fetch('/api/rss/fetch', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ aiConfig }),
+        body: JSON.stringify({}),
       });
       const data = await res.json();
       if (!res.ok) {

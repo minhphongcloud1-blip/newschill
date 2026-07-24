@@ -3,15 +3,25 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { getActiveBanners, Advertisement } from '@/data/ads';
+import { Advertisement } from '@/data/ads';
 
 export default function HomeBanner() {
   const [banners, setBanners] = useState<Advertisement[]>([]);
   const [current, setCurrent] = useState(0);
   const [direction, setDirection] = useState(1);
 
+  // Fetch banners từ API (Supabase) thay vì localStorage
   useEffect(() => {
-    setBanners(getActiveBanners());
+    fetch('/api/ads')
+      .then((r) => r.json())
+      .then((json) => {
+        const all: Advertisement[] = json.data ?? [];
+        setBanners(all.filter((ad) => ad.isActive && ad.type === 'banner'));
+      })
+      .catch(() => {
+        // Nếu API lỗi → không hiển thị banner (tránh crash)
+        setBanners([]);
+      });
   }, []);
 
   const next = useCallback(() => {
@@ -48,7 +58,7 @@ export default function HomeBanner() {
 
   return (
     <div className="w-full border-b" style={{ borderColor: 'var(--border-primary)' }}>
-      {/* 16:9 aspect ratio container */}
+      {/* 2:1 aspect ratio container */}
       <div className="relative w-full overflow-hidden" style={{ aspectRatio: '2/1' }}>
         <AnimatePresence initial={false} custom={direction} mode="popLayout">
           <motion.a
@@ -68,13 +78,12 @@ export default function HomeBanner() {
               src={banner.imageUrl}
               alt={banner.title}
               className="w-full h-full object-cover"
+              loading="eager"
             />
             {/* Gradient overlay */}
             <div
               className="absolute inset-0"
-              style={{
-                background: 'linear-gradient(to top, rgba(0,0,0,0.5) 0%, transparent 50%)',
-              }}
+              style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.5) 0%, transparent 50%)' }}
             />
             {/* Title */}
             {banner.title && (
