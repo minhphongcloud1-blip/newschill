@@ -3,10 +3,35 @@ import { supabaseServer } from '@/lib/supabase';
 
 const SETTINGS_KEY = 'ads_config';
 
+// ── Default ads hiển thị khi chưa cấu hình Supabase ───────
+const DEFAULT_ADS = [
+  {
+    id: 'banner-1',
+    imageUrl: 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=1280&q=80',
+    linkUrl: 'https://newschill.online',
+    title: 'Chào mừng đến Newschill — Tin tức thế hệ mới',
+    isActive: true,
+    type: 'banner',
+  },
+  {
+    id: 'banner-2',
+    imageUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=1280&q=80',
+    linkUrl: 'https://newschill.online/trending',
+    title: 'Khám phá xu hướng công nghệ mới nhất',
+    isActive: true,
+    type: 'banner',
+  },
+];
+
 /**
  * GET /api/ads
- * Trả về mảng Advertisement[] từ Supabase app_settings
- * Nếu bảng chưa tồn tại → trả 200 với data rỗng (client sẽ đọc localStorage)
+ * Priority:
+ *  1. Supabase app_settings (nếu table đã tạo + có data)
+ *  2. DEFAULT_ADS (fallback cho mọi user kể cả ẩn danh)
+ *
+ * Source field:
+ *  'supabase' — data từ DB
+ *  'default'  — fallback hardcode
  */
 export async function GET() {
   try {
@@ -16,22 +41,34 @@ export async function GET() {
       .eq('key', SETTINGS_KEY)
       .single();
 
-    // Table not found / no row yet → return empty so client uses localStorage
-    if (error) {
-      return NextResponse.json({ data: null, source: 'fallback' });
+    // Table missing, row missing, or any error → return defaults
+    if (error || !data) {
+      return NextResponse.json(
+        { data: DEFAULT_ADS, source: 'default' },
+        { headers: { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300' } }
+      );
     }
 
     const ads = JSON.parse(data.value as string);
+
+    // Empty config saved → return defaults
+    if (!Array.isArray(ads) || ads.length === 0) {
+      return NextResponse.json(
+        { data: DEFAULT_ADS, source: 'default' },
+        { headers: { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300' } }
+      );
+    }
+
     return NextResponse.json(
       { data: ads, source: 'supabase' },
-      {
-        headers: {
-          'Cache-Control': 'no-store', // Không cache — admin cần thấy update ngay
-        },
-      }
+      { headers: { 'Cache-Control': 'no-store' } } // No cache — admin cần thấy update ngay
     );
   } catch {
-    return NextResponse.json({ data: null, source: 'fallback' });
+    // Any exception → always return defaults, never return empty
+    return NextResponse.json(
+      { data: DEFAULT_ADS, source: 'default' },
+      { headers: { 'Cache-Control': 'public, s-maxage=30, stale-while-revalidate=60' } }
+    );
   }
 }
 
@@ -58,7 +95,6 @@ export async function POST(req: Request) {
 
     if (error) {
       console.error('[API/ads] Supabase upsert error:', error.message);
-      // Trả về lỗi rõ ràng để client biết và dùng localStorage
       return NextResponse.json(
         { error: error.message, code: error.code },
         { status: 500 }
