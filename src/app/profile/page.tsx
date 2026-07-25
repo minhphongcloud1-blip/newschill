@@ -94,9 +94,13 @@ function SettingsSheet({
   router: ReturnType<typeof useRouter>;
 }) {
   const handleLogout = () => {
-    logout();
-    router.push('/login');
+    // Đóng sheet TRƯỚC → đợi animation xong (~300ms) → mới navigate + logout
+    // Tránh xung đột DOM unmount vs Framer Motion trên mobile WebKit
     onClose();
+    setTimeout(() => {
+      logout();
+      router.push('/login');
+    }, 320);
   };
 
   const handleAdmin = () => {
