@@ -16,6 +16,7 @@ export interface ArticleStat {
 interface AuthContextType {
   currentUser: User | null;
   isAuthenticated: boolean;
+  isHydrated: boolean;
   users: User[];
   login: (email: string, password: string) => { success: boolean; message: string };
   logout: () => void;
@@ -401,13 +402,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return edits ? { ...mine, ...edits } : mine;
   }, [myArticles, articleEdits]);
 
-  if (!isHydrated) return null;
-
   return (
     <AuthContext.Provider
       value={{
         currentUser,
         isAuthenticated: !!currentUser,
+        isHydrated,
         users,
         login,
         logout,

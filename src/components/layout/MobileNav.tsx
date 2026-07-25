@@ -139,7 +139,10 @@ export default function MobileNav() {
               </Link>
 
               {/* Cá nhân */}
-              <Link href="/profile" className="flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg">
+              <Link 
+                href={currentUser ? "/profile" : "/login?from=/profile"} 
+                className="flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg"
+              >
                 <User
                   className="w-6 h-6"
                   style={{ color: pathname.startsWith('/profile') ? '#F97316' : 'var(--text-secondary)' }}

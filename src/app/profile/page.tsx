@@ -229,7 +229,7 @@ function SettingsSheet({
 // ── Main Profile Page ──────────────────────────────────────
 export default function ProfilePage() {
   const router = useRouter();
-  const { currentUser, isAuthenticated, likes, shares, myArticles, updateProfile, logout } = useAuth();
+  const { currentUser, isAuthenticated, isHydrated, likes, shares, myArticles, updateProfile, logout } = useAuth();
   const { toggleTheme, isDark } = useTheme();
   const [activeTab, setActiveTab] = useState<'myarticles' | 'shared' | 'liked'>(
     currentUser?.role === 'editor' || currentUser?.role === 'admin' ? 'myarticles' : 'shared'
@@ -256,10 +256,21 @@ export default function ProfilePage() {
   }, [likes, shares]);
 
   useEffect(() => {
+    // Chờ hydrate xong mới redirect – tránh false redirect lúc app đang đọc localStorage
+    if (!isHydrated) return;
     if (!isAuthenticated || !currentUser) {
       router.replace('/login?from=/profile');
     }
-  }, [isAuthenticated, currentUser, router]);
+  }, [isAuthenticated, currentUser, isHydrated, router]);
+
+  // Chưa hydrate → hiển thị skeleton thay vì redirect nhầm
+  if (!isHydrated) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--bg-primary)' }}>
+        <div className="w-8 h-8 rounded-full border-2 border-t-transparent animate-spin" style={{ borderColor: '#F97316', borderTopColor: 'transparent' }} />
+      </div>
+    );
+  }
 
   if (!isAuthenticated || !currentUser) return null;
 
