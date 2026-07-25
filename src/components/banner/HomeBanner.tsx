@@ -27,24 +27,27 @@ export default function HomeBanner() {
     const localBanners = localAds.filter((ad) => ad.isActive && ad.type === 'banner');
     if (localBanners.length > 0) setBanners(localBanners);
 
-    // 2. Fetch từ Supabase qua API — override nếu có data thật
+    // 2. Fetch từ Supabase qua API
     fetch('/api/ads')
       .then((r) => r.json())
       .then((json) => {
-        if (json.data && Array.isArray(json.data)) {
-          // API trả về Supabase data
+        if (json.source === 'supabase' && Array.isArray(json.data)) {
+          // Dữ liệu thật từ Supabase → dùng và sync localStorage
           const apiBanners = (json.data as Advertisement[]).filter(
             (ad) => ad.isActive && ad.type === 'banner'
           );
           setBanners(apiBanners);
-          // Sync localStorage để lần sau load nhanh hơn
           localStorage.setItem(LS_KEY, JSON.stringify(json.data));
+        } else if (json.source === 'default' && localBanners.length === 0) {
+          // Không có localStorage config → dùng default từ API
+          const defBanners = (json.data as Advertisement[]).filter(
+            (ad) => ad.isActive && ad.type === 'banner'
+          );
+          setBanners(defBanners);
         }
-        // json.data === null → dùng localStorage đã load ở bước 1
+        // source === 'default' nhưng có localStorage → giữ nguyên localStorage
       })
-      .catch(() => {
-        // API lỗi → giữ localStorage data
-      });
+      .catch(() => {});
   }, []);
 
   const next = useCallback(() => {

@@ -24,20 +24,29 @@ export default function RightPanel() {
   const { articles } = useArticles();
 
   useEffect(() => {
-    // 1. Load instantly from localStorage
-    setAds(getLocalSidebarAds());
+    // 1. Load instantly from localStorage (admin's saved config)
+    const local = getLocalSidebarAds();
+    setAds(local);
 
-    // 2. Fetch from Supabase via API and update
+    // 2. Fetch from Supabase via API
     fetch('/api/ads')
       .then((r) => r.json())
       .then((json) => {
-        if (json.data && Array.isArray(json.data)) {
+        if (json.source === 'supabase' && Array.isArray(json.data)) {
+          // Dữ liệu thật từ Supabase → dùng và sync localStorage
           const sidebar = (json.data as Advertisement[]).filter(
             (ad) => ad.isActive && ad.type === 'sidebar'
           );
           setAds(sidebar);
           localStorage.setItem(LS_KEY, JSON.stringify(json.data));
+        } else if (json.source === 'default' && local.length === 0) {
+          // Không có localStorage config → dùng default từ API
+          const sidebar = (json.data as Advertisement[]).filter(
+            (ad) => ad.isActive && ad.type === 'sidebar'
+          );
+          setAds(sidebar);
         }
+        // source === 'default' nhưng có localStorage → giữ nguyên
       })
       .catch(() => {});
   }, []);

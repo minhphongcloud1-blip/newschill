@@ -21,13 +21,20 @@ async function fetchAdsFromServer(): Promise<Advertisement[]> {
   try {
     const res = await fetch('/api/ads', { cache: 'no-store' });
     const json = await res.json();
-    if (json.data && Array.isArray(json.data)) {
-      // Supabase has data → sync to localStorage and return
+
+    if (json.source === 'supabase' && Array.isArray(json.data)) {
+      // Dữ liệu thật từ Supabase → sync về localStorage và dùng
       setLocalAds(json.data);
       return json.data;
     }
-    // Supabase not ready yet → use localStorage
-    return getLocalAds();
+
+    // source === 'default': Supabase table chưa có / chưa migrate
+    // → ƯU TIÊN localStorage (config admin đã lưu trước đó)
+    const local = getLocalAds();
+    if (local.length > 0) return local;
+
+    // Chưa có gì cả → dùng default từ API
+    return json.data ?? [];
   } catch {
     return getLocalAds();
   }
