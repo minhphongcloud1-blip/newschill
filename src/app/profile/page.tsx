@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -255,6 +255,16 @@ export default function ProfilePage() {
       .catch(() => {});
   }, [likes, shares]);
 
+  // Build a merged article lookup: Supabase articles + local myArticles
+  const allArticlesMap = useMemo(() => {
+    const map: Record<string, any> = { ...supabaseArticles };
+    // Add local articles (user-created) as fallback
+    for (const a of myArticles) {
+      if (!map[a.id]) map[a.id] = a;
+    }
+    return map;
+  }, [supabaseArticles, myArticles]);
+
   useEffect(() => {
     if (!isAuthenticated || !currentUser) {
       router.replace('/login?from=/profile');
@@ -263,12 +273,12 @@ export default function ProfilePage() {
 
   if (!isAuthenticated || !currentUser) return null;
 
-  // Resolve liked/shared from Supabase data (fall back to mock for legacy IDs)
+  // Resolve liked/shared using merged local + Supabase map
   const likedArticles = likes
-    .map((id) => supabaseArticles[id])
+    .map((id) => allArticlesMap[id])
     .filter(Boolean);
   const sharedArticles = shares
-    .map((id) => supabaseArticles[id])
+    .map((id) => allArticlesMap[id])
     .filter(Boolean);
   const myWrittenArticles = myArticles.filter((a) => a.author.id === currentUser.id);
   const displayedArticles =
