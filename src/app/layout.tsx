@@ -70,7 +70,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="vi" data-theme="light" suppressHydrationWarning>
-      <body className={`${inter.variable} font-sans antialiased`}>
+      <body className={`${inter.variable} font-sans antialiased`} suppressHydrationWarning>
         <ThemeProvider>
           <AuthProvider>
             <RssProvider>
