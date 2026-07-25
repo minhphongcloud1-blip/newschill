@@ -70,7 +70,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="vi" data-theme="light" suppressHydrationWarning>
-      <body className={`${inter.variable} font-sans antialiased`} suppressHydrationWarning>
+      <body className={`${inter.variable} font-sans antialiased`} style={{ overscrollBehaviorX: 'contain', overscrollBehaviorY: 'contain' }} suppressHydrationWarning>
         <ThemeProvider>
           <AuthProvider>
             <RssProvider>
