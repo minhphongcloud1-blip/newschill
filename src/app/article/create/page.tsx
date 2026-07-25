@@ -150,7 +150,7 @@ export default function ArticleCreatePage() {
                   placeholder="https://images.unsplash.com/..."
                   className="w-full px-4 py-2.5 rounded-xl border text-sm focus:outline-none"
                   style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border-primary)', color: 'var(--text-primary)' }}
-                  onFocus={(e) => (e.target.style.borderColor = '#F97316')}
+                  onFocus={(e) => (e.target.style.borderColor = '#1686FF')}
                   onBlur={(e) => (e.target.style.borderColor = '#2F3336')}
                 />
                 {coverUrl && (
@@ -202,7 +202,7 @@ export default function ArticleCreatePage() {
                   rows={2}
                   className="w-full px-4 py-2.5 rounded-xl border text-sm resize-none focus:outline-none"
                   style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border-primary)', color: 'var(--text-primary)' }}
-                  onFocus={(e) => (e.target.style.borderColor = '#F97316')}
+                  onFocus={(e) => (e.target.style.borderColor = '#1686FF')}
                   onBlur={(e) => (e.target.style.borderColor = '#2F3336')}
                 />
               </div>
@@ -219,7 +219,7 @@ export default function ArticleCreatePage() {
                   rows={15}
                   className="w-full px-4 py-3 rounded-xl border text-sm resize-none focus:outline-none font-mono"
                   style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border-primary)', color: 'var(--text-primary)', lineHeight: '1.8' }}
-                  onFocus={(e) => (e.target.style.borderColor = '#F97316')}
+                  onFocus={(e) => (e.target.style.borderColor = '#1686FF')}
                   onBlur={(e) => (e.target.style.borderColor = 'var(--border-primary)')}
                 />
               </div>

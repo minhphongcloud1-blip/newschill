@@ -65,7 +65,7 @@ export async function GET(req: Request) {
             slug: topic.slug ?? '',
             name: topic.name ?? 'Tin tức',
             icon: topic.icon ?? '📰',
-            color: topic.color ?? '#F97316',
+            color: topic.color ?? '#1686FF',
             description: '',
             articleCount: 0,
           }
@@ -73,7 +73,7 @@ export async function GET(req: Request) {
             slug: 'general',
             name: 'Tin tức',
             icon: '📰',
-            color: '#F97316',
+            color: '#1686FF',
             description: '',
             articleCount: 0,
           },

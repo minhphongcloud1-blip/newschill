@@ -60,8 +60,8 @@
 }
 
 @theme {
-  --color-accent: #F97316;
-  --color-accent-hover: #EA580C;
+  --color-accent: #1686FF;
+  --color-accent-hover: #1270D6;
   --color-accent-light: rgba(249, 115, 22, 0.1);
 
   --color-like: #F91880;

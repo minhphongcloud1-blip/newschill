@@ -44,7 +44,7 @@ export default function RightPanelSearch({ placeholder = 'Tìm kiếm tin tức.
           color: 'var(--text-primary)',
         }}
         onFocus={(e) => {
-          e.target.style.borderColor = '#F97316';
+          e.target.style.borderColor = '#1686FF';
           e.target.style.boxShadow = '0 0 0 3px rgba(249,115,22,0.1)';
         }}
         onBlur={(e) => {

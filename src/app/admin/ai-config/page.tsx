@@ -604,7 +604,7 @@ export default function AiConfigPage() {
                       ({config.temperature <= 0.3 ? 'Chính xác' : config.temperature <= 0.7 ? 'Cân bằng' : 'Sáng tạo'})
                     </span>
                   </label>
-                  <span className="text-sm font-bold tabular-nums" style={{ color: '#F97316' }}>{config.temperature.toFixed(1)}</span>
+                  <span className="text-sm font-bold tabular-nums" style={{ color: '#1686FF' }}>{config.temperature.toFixed(1)}</span>
                 </div>
                 <input type="range" min={0} max={2} step={0.1} value={config.temperature}
                   onChange={(e) => setConfig((p) => ({ ...p, temperature: +e.target.value }))}

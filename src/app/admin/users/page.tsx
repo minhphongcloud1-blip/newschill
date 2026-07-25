@@ -53,7 +53,7 @@ function ChangePasswordModal({
           <div className="flex items-center justify-between mb-5">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: 'rgba(249,115,22,0.1)' }}>
-                <KeyRound className="w-5 h-5" style={{ color: '#F97316' }} />
+                <KeyRound className="w-5 h-5" style={{ color: '#1686FF' }} />
               </div>
               <div>
                 <h3 className="font-bold text-sm" style={{ color: 'var(--text-primary)' }}>Đổi mật khẩu</h3>
@@ -105,7 +105,7 @@ function ChangePasswordModal({
                 autoFocus
                 className="w-full pl-9 pr-10 py-2.5 rounded-xl border text-sm focus:outline-none"
                 style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border-primary)', color: 'var(--text-primary)' }}
-                onFocus={(e) => (e.target.style.borderColor = '#F97316')}
+                onFocus={(e) => (e.target.style.borderColor = '#1686FF')}
                 onBlur={(e) => (e.target.style.borderColor = 'var(--border-primary)')}
               />
               <button
@@ -135,7 +135,7 @@ function ChangePasswordModal({
                 borderColor: mismatch ? '#EF4444' : 'var(--border-primary)',
                 color: 'var(--text-primary)',
               }}
-              onFocus={(e) => { if (!mismatch) e.target.style.borderColor = '#F97316'; }}
+              onFocus={(e) => { if (!mismatch) e.target.style.borderColor = '#1686FF'; }}
               onBlur={(e) => { e.target.style.borderColor = mismatch ? '#EF4444' : 'var(--border-primary)'; }}
             />
             {mismatch && (
@@ -157,7 +157,7 @@ function ChangePasswordModal({
               onClick={() => { if (canSave) { onSave(userId, newPw); onClose(); } }}
               disabled={!canSave}
               className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-white disabled:opacity-40 flex items-center justify-center gap-2"
-              style={{ background: '#F97316' }}
+              style={{ background: '#1686FF' }}
             >
               <Check className="w-4 h-4" />
               Lưu mật khẩu
@@ -256,7 +256,7 @@ export default function AdminUsersPage() {
     const isPro = plan === 'pro' || role === 'editor';
     if (isPro) return (
       <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold"
-        style={{ background: 'linear-gradient(135deg,rgba(249,115,22,0.15),rgba(234,88,12,0.1))', color: '#F97316', border: '1px solid rgba(249,115,22,0.3)' }}>
+        style={{ background: 'linear-gradient(135deg,rgba(249,115,22,0.15),rgba(234,88,12,0.1))', color: '#1686FF', border: '1px solid rgba(249,115,22,0.3)' }}>
         <Crown className="w-3 h-3" /> Pro
       </span>
     );
@@ -317,10 +317,10 @@ export default function AdminUsersPage() {
         >
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-xl" style={{ background: 'rgba(249,115,22,0.1)' }}>
-              <Crown className="w-5 h-5" style={{ color: '#F97316' }} />
+              <Crown className="w-5 h-5" style={{ color: '#1686FF' }} />
             </div>
             <div>
-              <p className="text-sm font-medium" style={{ color: '#F97316' }}>
+              <p className="text-sm font-medium" style={{ color: '#1686FF' }}>
                 {users.filter((u) => u.plan === 'pending_pro').length} user đăng ký nâng cấp Pro
               </p>
               <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>Duyệt để kích hoạt gói Pro cho user</p>
@@ -332,7 +332,7 @@ export default function AdminUsersPage() {
               className="px-3 py-1.5 rounded-lg text-sm font-medium"
               style={{
                 background: planFilter === 'pending_pro' ? 'rgba(249,115,22,0.2)' : 'rgba(249,115,22,0.08)',
-                color: '#F97316',
+                color: '#1686FF',
                 border: planFilter === 'pending_pro' ? '1px solid rgba(249,115,22,0.4)' : '1px solid transparent',
               }}
             >
@@ -418,7 +418,7 @@ export default function AdminUsersPage() {
                         onClick={() => setChangePasswordTarget({ id: user.id, name: user.name, password: user.password || '' })}
                         className="p-1.5 rounded-lg transition-colors hover:bg-orange-500/10"
                         title="Đổi mật khẩu"
-                        style={{ color: '#F97316' }}
+                        style={{ color: '#1686FF' }}
                       >
                         <KeyRound className="w-4 h-4" />
                       </button>
@@ -469,7 +469,7 @@ export default function AdminUsersPage() {
                                     key={role}
                                     onClick={() => { updateUserRole(user.id, role); setShowRoleDialog(null); }}
                                     className="w-full text-left px-3 py-2 rounded-lg text-sm transition-colors hover:bg-white/5 flex items-center gap-2"
-                                    style={{ color: user.role === role ? '#F97316' : 'var(--text-primary)' }}
+                                    style={{ color: user.role === role ? '#1686FF' : 'var(--text-primary)' }}
                                   >
                                     {role === 'admin' && '🛡️'}
                                     {role === 'editor' && '✍️'}

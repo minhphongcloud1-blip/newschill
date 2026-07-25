@@ -247,7 +247,7 @@ export default function ArticleDetailClient({ articleId }: Props) {
               </div>
 
               {showShareConfirm && (
-                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="fixed bottom-20 left-1/2 -translate-x-1/2 px-4 py-2 rounded-full text-sm font-medium z-50" style={{ background: '#F97316', color: '#fff' }}>
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="fixed bottom-20 left-1/2 -translate-x-1/2 px-4 py-2 rounded-full text-sm font-medium z-50" style={{ background: '#1686FF', color: '#fff' }}>
                   {shared ? '✅ Đã chia sẻ lên trang cá nhân' : '❌ Đã bỏ chia sẻ'}
                 </motion.div>
               )}
@@ -268,18 +268,18 @@ export default function ArticleDetailClient({ articleId }: Props) {
                     <textarea value={newComment} onChange={(e) => setNewComment(e.target.value)} placeholder="Viết bình luận..." rows={2}
                       className="w-full px-3 py-2 rounded-xl border text-sm resize-none focus:outline-none"
                       style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border-primary)', color: 'var(--text-primary)' }}
-                      onFocus={(e) => (e.target.style.borderColor = '#F97316')} onBlur={(e) => (e.target.style.borderColor = 'var(--border-primary)')}
+                      onFocus={(e) => (e.target.style.borderColor = '#1686FF')} onBlur={(e) => (e.target.style.borderColor = 'var(--border-primary)')}
                     />
                     <div className="flex justify-end mt-2">
                       <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={handleComment} disabled={!newComment.trim()}
-                        className="px-4 py-1.5 rounded-full text-sm font-semibold text-white disabled:opacity-40" style={{ background: '#F97316' }}>Gửi</motion.button>
+                        className="px-4 py-1.5 rounded-full text-sm font-semibold text-white disabled:opacity-40" style={{ background: '#1686FF' }}>Gửi</motion.button>
                     </div>
                   </div>
                 </div>
               ) : (
                 <div className="px-4 py-6 border-b text-center" style={{ borderColor: 'var(--border-primary)' }}>
                   <p className="text-sm mb-3" style={{ color: 'var(--text-secondary)' }}>Bạn cần đăng nhập để bình luận bài viết này.</p>
-                  <button onClick={() => router.push('/login')} className="px-6 py-2 rounded-full font-semibold text-white text-sm" style={{ background: '#F97316' }}>Đăng nhập ngay</button>
+                  <button onClick={() => router.push('/login')} className="px-6 py-2 rounded-full font-semibold text-white text-sm" style={{ background: '#1686FF' }}>Đăng nhập ngay</button>
                 </div>
               )}
             </div>
@@ -324,7 +324,7 @@ export default function ArticleDetailClient({ articleId }: Props) {
                             />
                             <div className="flex justify-end gap-2 mt-1">
                               <button onClick={() => setReplyTo(null)} className="text-xs px-3 py-1 rounded-full" style={{ color: 'var(--text-secondary)' }}>Hủy</button>
-                              <button onClick={() => handleReply(comment.id)} disabled={!replyText.trim()} className="text-xs px-3 py-1 rounded-full text-white disabled:opacity-40" style={{ background: '#F97316' }}>Trả lời</button>
+                              <button onClick={() => handleReply(comment.id)} disabled={!replyText.trim()} className="text-xs px-3 py-1 rounded-full text-white disabled:opacity-40" style={{ background: '#1686FF' }}>Trả lời</button>
                             </div>
                           </div>
                         </div>

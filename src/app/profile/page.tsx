@@ -15,7 +15,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { formatDate } from '@/lib/utils';
 
-const DEFAULT_COVER = 'linear-gradient(135deg, #F97316 0%, #EA580C 50%, #DC2626 100%)';
+const DEFAULT_COVER = 'linear-gradient(135deg, #1686FF 0%, #1270D6 50%, #DC2626 100%)';
 
 // ── Edit Image Modal ───────────────────────────────────────
 function EditImageModal({
@@ -60,7 +60,7 @@ function EditImageModal({
             placeholder="https://images.unsplash.com/..."
             className="w-full px-3 py-2.5 rounded-xl border text-sm focus:outline-none mb-4"
             style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border-primary)', color: 'var(--text-primary)' }}
-            onFocus={(e) => (e.target.style.borderColor = '#F97316')}
+            onFocus={(e) => (e.target.style.borderColor = '#1686FF')}
             onBlur={(e) => (e.target.style.borderColor = 'var(--border-primary)')}
             autoFocus
           />
@@ -71,7 +71,7 @@ function EditImageModal({
               onClick={() => { onSave(url.trim()); onClose(); }}
               disabled={!url.trim()}
               className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-white disabled:opacity-40 flex items-center justify-center gap-2"
-              style={{ background: '#F97316' }}
+              style={{ background: '#1686FF' }}
             >
               <Check className="w-4 h-4" />Lưu
             </motion.button>
@@ -138,7 +138,7 @@ function SettingsSheet({
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-3">
           <div className="flex items-center gap-3">
-            <Settings className="w-5 h-5" style={{ color: '#F97316' }} />
+            <Settings className="w-5 h-5" style={{ color: '#1686FF' }} />
             <span className="text-base font-bold" style={{ color: 'var(--text-primary)' }}>Cài đặt</span>
           </div>
           <button onClick={onClose} className="p-1.5 rounded-full hover:bg-[var(--bg-hover-md)]">
@@ -316,7 +316,7 @@ export default function ProfilePage() {
             {/* ── Page header: title + settings icon (mobile) ── */}
             <header className="flex items-center justify-between px-4 py-4">
               <div className="flex items-center gap-2">
-                <User className="w-5 h-5" style={{ color: '#F97316' }} />
+                <User className="w-5 h-5" style={{ color: '#1686FF' }} />
                 <h1 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>Trang cá nhân</h1>
               </div>
 
@@ -331,7 +331,7 @@ export default function ProfilePage() {
               >
                 <Settings className="w-5 h-5" style={{ color: 'var(--text-primary)' }} />
                 {/* Dot indicator */}
-                <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full" style={{ background: '#F97316' }} />
+                <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full" style={{ background: '#1686FF' }} />
               </motion.button>
             </header>
 
@@ -403,7 +403,7 @@ export default function ProfilePage() {
                     <Icon className="w-4 h-4" />
                     {tab.label} ({tab.count})
                     {activeTab === tab.key && (
-                      <motion.div layoutId="profile-tab" className="absolute bottom-0 left-1/2 -translate-x-1/2 w-20 h-1 rounded-full" style={{ background: '#F97316' }} />
+                      <motion.div layoutId="profile-tab" className="absolute bottom-0 left-1/2 -translate-x-1/2 w-20 h-1 rounded-full" style={{ background: '#1686FF' }} />
                     )}
                   </button>
                 );

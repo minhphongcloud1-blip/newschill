@@ -32,7 +32,7 @@ export default function SearchInput({
           boxShadow: 'var(--shadow-glass)',
           color: 'var(--text-primary)',
         }}
-        onFocus={(e) => (e.target.style.borderColor = '#F97316')}
+        onFocus={(e) => (e.target.style.borderColor = '#1686FF')}
         onBlur={(e) => (e.target.style.borderColor = 'var(--border-glass)')}
       />
       {value && (

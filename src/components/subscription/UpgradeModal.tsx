@@ -71,7 +71,7 @@ export default function UpgradeModal({ onClose }: Props) {
                 </button>
                 <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.15, type: 'spring' }}
                   className="w-16 h-16 rounded-2xl mx-auto mb-3 flex items-center justify-center"
-                  style={{ background: 'linear-gradient(135deg, #F97316, #EA580C)' }}>
+                  style={{ background: 'linear-gradient(135deg, #1686FF, #1270D6)' }}>
                   <Crown className="w-8 h-8 text-white" />
                 </motion.div>
                 <h2 className="text-xl font-bold mb-1" style={{ color: 'var(--text-primary)' }}>Nâng cấp lên Pro</h2>
@@ -102,7 +102,7 @@ export default function UpgradeModal({ onClose }: Props) {
                 <motion.div
                   whileHover={{ scale: 1.02 }}
                   className="rounded-2xl p-4 relative overflow-hidden cursor-pointer"
-                  style={{ background: 'linear-gradient(135deg, #F97316 0%, #EA580C 60%, #DC2626 100%)' }}
+                  style={{ background: 'linear-gradient(135deg, #1686FF 0%, #1270D6 60%, #DC2626 100%)' }}
                 >
                   {/* Glow */}
                   <div className="absolute inset-0 opacity-20" style={{ background: 'radial-gradient(circle at 70% 20%, #fff, transparent 60%)' }} />
@@ -133,7 +133,7 @@ export default function UpgradeModal({ onClose }: Props) {
                   whileTap={{ scale: 0.98 }}
                   onClick={handlePay}
                   className="w-full py-3.5 rounded-2xl font-bold text-white flex items-center justify-center gap-2"
-                  style={{ background: 'linear-gradient(135deg, #F97316, #EA580C)' }}
+                  style={{ background: 'linear-gradient(135deg, #1686FF, #1270D6)' }}
                 >
                   <Sparkles className="w-4 h-4" />
                   Nâng cấp Pro — 99.000₫/tháng
@@ -168,7 +168,7 @@ export default function UpgradeModal({ onClose }: Props) {
                 </div>
                 <div className="pt-2 border-t flex justify-between font-bold" style={{ borderColor: 'var(--border-primary)' }}>
                   <span style={{ color: 'var(--text-primary)' }}>Tổng cộng</span>
-                  <span style={{ color: '#F97316' }}>99.000₫</span>
+                  <span style={{ color: '#1686FF' }}>99.000₫</span>
                 </div>
               </div>
 
@@ -203,7 +203,7 @@ export default function UpgradeModal({ onClose }: Props) {
                 onClick={handleConfirmPayment}
                 disabled={processing}
                 className="w-full py-3.5 rounded-2xl font-bold text-white flex items-center justify-center gap-2"
-                style={{ background: processing ? '#999' : 'linear-gradient(135deg, #F97316, #EA580C)' }}
+                style={{ background: processing ? '#999' : 'linear-gradient(135deg, #1686FF, #1270D6)' }}
               >
                 {processing ? (
                   <>

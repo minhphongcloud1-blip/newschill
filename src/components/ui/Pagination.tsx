@@ -103,7 +103,7 @@ export default function Pagination({
                 className={btnBase}
                 style={
                   p === page
-                    ? { background: '#F97316', color: '#fff', boxShadow: '0 2px 8px rgba(249,115,22,0.35)' }
+                    ? { background: '#1686FF', color: '#fff', boxShadow: '0 2px 8px rgba(249,115,22,0.35)' }
                     : { background: 'transparent', color: 'var(--text-primary)' }
                 }
               >

@@ -78,10 +78,10 @@ export default function MobileNav() {
           <Link href="/" className="flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg">
             <Home
               className="w-6 h-6"
-              style={{ color: isHomeActive ? '#F97316' : 'var(--text-secondary)' }}
+              style={{ color: isHomeActive ? '#1686FF' : 'var(--text-secondary)' }}
               strokeWidth={isHomeActive ? 2.5 : 2}
             />
-            <span className="text-[10px]" style={{ color: isHomeActive ? '#F97316' : 'var(--text-secondary)' }}>
+            <span className="text-[10px]" style={{ color: isHomeActive ? '#1686FF' : 'var(--text-secondary)' }}>
               Trang chủ
             </span>
           </Link>
@@ -90,10 +90,10 @@ export default function MobileNav() {
           <Link href="/topics" className="flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg">
             <Hash
               className="w-6 h-6"
-              style={{ color: pathname.startsWith('/topic') ? '#F97316' : 'var(--text-secondary)' }}
+              style={{ color: pathname.startsWith('/topic') ? '#1686FF' : 'var(--text-secondary)' }}
               strokeWidth={pathname.startsWith('/topic') ? 2.5 : 2}
             />
-            <span className="text-[10px]" style={{ color: pathname.startsWith('/topic') ? '#F97316' : 'var(--text-secondary)' }}>
+            <span className="text-[10px]" style={{ color: pathname.startsWith('/topic') ? '#1686FF' : 'var(--text-secondary)' }}>
               Chủ đề
             </span>
           </Link>
@@ -110,13 +110,13 @@ export default function MobileNav() {
                 style={{
                   background: isWriteActive
                     ? 'linear-gradient(135deg,#3B82F6,#2563EB)'
-                    : 'linear-gradient(135deg,#F97316,#EA580C)',
+                    : 'linear-gradient(135deg,#1686FF,#1270D6)',
                 }}
               >
                 <PenSquare className="w-5 h-5 text-white" strokeWidth={2} />
               </div>
               {isReader && (
-                <span className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full text-white flex items-center justify-center text-[7px] font-bold" style={{ background: '#F97316' }}>
+                <span className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full text-white flex items-center justify-center text-[7px] font-bold" style={{ background: '#1686FF' }}>
                   🔒
                 </span>
               )}
@@ -127,10 +127,10 @@ export default function MobileNav() {
           <Link href="/trending" className="flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg">
             <TrendingUp
               className="w-6 h-6"
-              style={{ color: pathname.startsWith('/trending') ? '#F97316' : 'var(--text-secondary)' }}
+              style={{ color: pathname.startsWith('/trending') ? '#1686FF' : 'var(--text-secondary)' }}
               strokeWidth={pathname.startsWith('/trending') ? 2.5 : 2}
             />
-            <span className="text-[10px]" style={{ color: pathname.startsWith('/trending') ? '#F97316' : 'var(--text-secondary)' }}>
+            <span className="text-[10px]" style={{ color: pathname.startsWith('/trending') ? '#1686FF' : 'var(--text-secondary)' }}>
               Xu hướng
             </span>
           </Link>
@@ -142,10 +142,10 @@ export default function MobileNav() {
           >
             <User
               className="w-6 h-6"
-              style={{ color: pathname.startsWith('/profile') ? '#F97316' : 'var(--text-secondary)' }}
+              style={{ color: pathname.startsWith('/profile') ? '#1686FF' : 'var(--text-secondary)' }}
               strokeWidth={pathname.startsWith('/profile') ? 2.5 : 2}
             />
-            <span className="text-[10px]" style={{ color: pathname.startsWith('/profile') ? '#F97316' : 'var(--text-secondary)' }}>
+            <span className="text-[10px]" style={{ color: pathname.startsWith('/profile') ? '#1686FF' : 'var(--text-secondary)' }}>
               Cá nhân
             </span>
           </Link>

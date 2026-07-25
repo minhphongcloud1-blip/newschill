@@ -55,7 +55,7 @@ export const mockTopics: Topic[] = [
     icon: '🌍',
     description: 'Tin tức quốc tế, chính trị, xã hội và sự kiện toàn cầu',
     articleCount: 38,
-    color: '#F97316',
+    color: '#1686FF',
   },
   {
     slug: 'giao-duc',

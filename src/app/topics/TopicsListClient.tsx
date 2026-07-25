@@ -19,7 +19,7 @@ export default function TopicsListClient() {
         <main className="flex-1 min-h-screen max-w-[760px]">
           {/* Page title */}
           <div className="flex items-center gap-2 px-4 py-4">
-            <Hash className="w-5 h-5" style={{ color: '#F97316' }} />
+            <Hash className="w-5 h-5" style={{ color: '#1686FF' }} />
             <h1 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>Chủ đề</h1>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 px-4 pb-4">
