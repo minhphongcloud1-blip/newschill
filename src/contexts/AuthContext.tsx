@@ -144,12 +144,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (!user) return { success: false, message: 'Email hoặc mật khẩu không đúng' };
     if (user.status === 'blocked') return { success: false, message: 'Tài khoản đã bị khóa' };
     setCurrentUser(user);
+
+    // Option A: Supabase là nguồn gốc — load interactions từ Supabase sau khi login
+    fetch(`/api/user/interactions?email=${encodeURIComponent(email)}`)
+      .then((r) => r.json())
+      .then((data) => {
+        if (Array.isArray(data.likes))  setLikes(data.likes);
+        if (Array.isArray(data.shares)) setShares(data.shares);
+      })
+      .catch(() => { /* fallback: giữ localStorage */ });
+
     return { success: true, message: 'Đăng nhập thành công' };
   }, [users]);
 
   const logout = useCallback(() => {
     setCurrentUser(null);
+    // Clear interactions khỏi local state khi logout
+    setLikes([]);
+    setShares([]);
     store.remove('currentUser');
+    store.remove('likes');
+    store.remove('shares');
   }, []);
 
   const register = useCallback((name: string, email: string, password: string) => {
@@ -234,6 +249,46 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
   }, []);
 
+  // Ref to current user email for use in async callbacks
+  const currentUserEmailRef = React.useRef<string | null>(null);
+  React.useEffect(() => {
+    currentUserEmailRef.current = currentUser?.email ?? null;
+  }, [currentUser?.email]);
+
+  const syncLikeToSupabase = useCallback((articleId: string, isAdding: boolean) => {
+    const email = currentUserEmailRef.current;
+    if (!email) return;
+    if (isAdding) {
+      fetch('/api/user/interactions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, type: 'like', articleId }),
+      }).catch(() => {});
+    } else {
+      fetch('/api/user/interactions', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, articleId }),
+      }).catch(() => {});
+    }
+  }, []);
+
+  const toggleLikeWithSync = useCallback((articleId: string) => {
+    setLikes((prev) => {
+      const alreadyLiked = prev.includes(articleId);
+      setArticleStats((stats) => ({
+        ...stats,
+        [articleId]: {
+          ...(stats[articleId] ?? { likes: 0, shares: 0, comments: 0 }),
+          likes: Math.max(0, (stats[articleId]?.likes ?? 0) + (alreadyLiked ? -1 : 1)),
+        },
+      }));
+      // Fire-and-forget sync to Supabase
+      syncLikeToSupabase(articleId, !alreadyLiked);
+      return alreadyLiked ? prev.filter((id) => id !== articleId) : [...prev, articleId];
+    });
+  }, [syncLikeToSupabase]);
+
   const recordShare = useCallback((articleId: string) => {
     // One-way: cannot "unshare". Works for guests too.
     // Use sessionStorage to avoid double-counting within the same tab session.
@@ -243,6 +298,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     // Track in user's shares list if logged in (for UI indicator)
     setShares((prev) => prev.includes(articleId) ? prev : [...prev, articleId]);
+
+    // Sync to Supabase (fire-and-forget)
+    const email = currentUserEmailRef.current;
+    if (email) {
+      fetch('/api/user/interactions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, type: 'share', articleId }),
+      }).catch(() => {});
+    }
 
     // Always increment the stat
     setArticleStats((stats) => ({
@@ -427,7 +492,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         rejectPlan,
         likes,
         shares,
-        toggleLike,
+        toggleLike: toggleLikeWithSync,
         recordShare,
         recordView,
         isLiked,
