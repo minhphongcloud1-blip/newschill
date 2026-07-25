@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { supabaseServer } from '@/lib/supabase';
 import { revalidateTag, revalidatePath } from 'next/cache';
+import { generateSlug } from '@/lib/utils';
 
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -41,7 +42,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
       comments_count: 0,
       shares_count: 0,
       // SEO fields — carried over from AI-generated draft
-      slug: draft.slug || null,
+      slug: draft.slug || generateSlug(draft.title),
       title_seo: draft.title_seo || null,
       meta_description: draft.meta_description || null,
       keywords: draft.keywords || null,

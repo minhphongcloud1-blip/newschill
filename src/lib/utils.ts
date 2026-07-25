@@ -38,8 +38,17 @@ export function generateId(): string {
 export function slugify(text: string): string {
   return text
     .toLowerCase()
+    .replace(/đ/g, 'd')                   // Vietnamese đ → d (before NFD strips diacritics)
     .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/(^-|-$)/g, '');
+    .replace(/[\u0300-\u036f]/g, '')       // Remove diacritics
+    .replace(/[^a-z0-9]+/g, '-')           // Non-alphanumeric → hyphen
+    .replace(/(^-|-$)/g, '')               // Trim leading/trailing hyphens
+    .slice(0, 80);                         // Cap length for clean URLs
+}
+
+/** Generate a unique SEO slug from a title: slugified-title-abc12 */
+export function generateSlug(title: string): string {
+  const base = slugify(title);
+  const suffix = Math.random().toString(36).substring(2, 7); // 5-char random
+  return base ? `${base}-${suffix}` : suffix;
 }

@@ -7,7 +7,7 @@ import { ArrowLeft, Image as ImageIcon, Send, Eye, EyeOff } from 'lucide-react';
 import Sidebar from '@/components/layout/Sidebar';
 import MobileNav from '@/components/layout/MobileNav';
 import { useAuth } from '@/contexts/AuthContext';
-import { generateId } from '@/lib/utils';
+import { generateId, generateSlug } from '@/lib/utils';
 import { AdminButton } from '@/components/admin/AdminUI';
 
 export default function ArticleCreatePage() {
@@ -32,6 +32,7 @@ export default function ArticleCreatePage() {
     if (!topic) return;
     addArticle({
       id: generateId(),
+      slug: generateSlug(title.trim()),
       title: title.trim(),
       excerpt: excerpt.trim() || title.trim(),
       content: content.trim(),

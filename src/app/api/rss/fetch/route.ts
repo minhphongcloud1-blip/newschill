@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { supabaseServer } from '@/lib/supabase';
 import { loadAiConfig, callAi, TOPIC_SLUGS } from '@/lib/ai';
+import { generateSlug } from '@/lib/utils';
 
 // ── Types ────────────────────────────────────────────────
 interface RssItem {
@@ -280,7 +281,7 @@ export async function POST(req: Request) {
           topic_slug: resolvedTopicSlug,
           status: 'pending',
           // SEO fields from AI
-          slug: aiResult?.slug || null,
+          slug: aiResult?.slug || generateSlug(aiResult?.title || item.title),
           title_seo: aiResult?.title_seo || null,
           meta_description: aiResult?.meta_description || null,
           keywords: aiResult?.keywords || null,
