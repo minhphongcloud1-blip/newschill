@@ -4,8 +4,9 @@ import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { Flame, Eye, EyeOff, ArrowRight, Mail, Lock, BookOpen, Check } from 'lucide-react';
+import { Eye, EyeOff, ArrowRight, Mail, Lock, BookOpen, Check } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTheme } from '@/contexts/ThemeContext';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -15,6 +16,7 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
+  const { isDark } = useTheme();
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -80,14 +82,13 @@ export default function LoginPage() {
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ delay: 0.1, duration: 0.4 }}
-          className="flex items-center justify-center gap-2 mb-8"
+          className="flex items-center justify-center mb-8"
         >
-          <div className="w-12 h-12 rounded-2xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #F97316, #EA580C)' }}>
-            <Flame className="w-7 h-7 text-white" />
-          </div>
-          <span className="text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>
-            News<span style={{ color: '#F97316' }}>chill</span>
-          </span>
+          <img
+            src={isDark ? '/Logo_Newschill_White.png' : '/Lgogo_Newschill_Black.png'}
+            alt="Newschill"
+            className="h-10 w-auto"
+          />
         </motion.div>
 
         {/* Card */}

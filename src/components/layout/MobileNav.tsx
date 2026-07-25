@@ -4,8 +4,9 @@ import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { Flame, Hash, PenSquare, TrendingUp, User } from 'lucide-react';
+import { Hash, Home, PenSquare, TrendingUp, User } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTheme } from '@/contexts/ThemeContext';
 import UpgradeModal from '@/components/subscription/UpgradeModal';
 
 export default function MobileNav() {
@@ -13,6 +14,7 @@ export default function MobileNav() {
   const router = useRouter();
   const { currentUser } = useAuth();
   const [showUpgrade, setShowUpgrade] = useState(false);
+  const { isDark } = useTheme();
   const [visible, setVisible] = useState(true);
   const lastScrollY = useRef(0);
   const ticking = useRef(false);
@@ -74,16 +76,14 @@ export default function MobileNav() {
         <div className="flex items-center justify-around py-1.5">
           {/* Logo → Trang chủ */}
           <Link href="/" className="flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg">
-            <div
-              className="w-7 h-7 rounded-lg flex items-center justify-center"
-              style={{ background: isHomeActive ? 'linear-gradient(135deg,#F97316,#EA580C)' : 'transparent' }}
-            >
-              <Flame
-                className="w-5 h-5"
-                style={{ color: isHomeActive ? '#fff' : 'var(--text-secondary)' }}
-                strokeWidth={isHomeActive ? 2.5 : 2}
-              />
-            </div>
+            <Home
+              className="w-6 h-6"
+              style={{ color: isHomeActive ? '#F97316' : 'var(--text-secondary)' }}
+              strokeWidth={isHomeActive ? 2.5 : 2}
+            />
+            <span className="text-[10px]" style={{ color: isHomeActive ? '#F97316' : 'var(--text-secondary)' }}>
+              Trang chủ
+            </span>
           </Link>
 
           {/* Chủ đề */}

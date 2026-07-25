@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import {
-  Flame, Home, Hash, User,
+  Home, Hash, User,
   PenSquare, Shield, LogOut, Sun, Moon, Crown, Lock,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
@@ -74,13 +74,12 @@ export default function Sidebar() {
         style={{ background: 'var(--bg-primary)' }}
       >
         {/* TOP: Logo */}
-        <Link href="/" className="flex items-center gap-2.5 px-3 py-3 shrink-0">
-          <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: 'linear-gradient(135deg, #F97316, #EA580C)' }}>
-            <Flame className="w-5 h-5 text-white" />
-          </div>
-          <span className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>
-            News<span style={{ color: '#F97316' }}>X</span>
-          </span>
+        <Link href="/" className="flex items-center gap-2 px-3 py-3 shrink-0">
+          <img
+            src={isDark ? '/Logo_Newschill_White.png' : '/Lgogo_Newschill_Black.png'}
+            alt="Newschill"
+            className="h-8 w-auto"
+          />
         </Link>
 
         {/* MIDDLE: Nav — vertically centered */}

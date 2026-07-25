@@ -37,15 +37,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       >
         <div className="mb-6">
           <Link href="/" className="flex items-center gap-2 px-3 py-2 mb-2">
-            <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #8B5CF6, #7C3AED)' }}>
-              <Shield className="w-5 h-5 text-white" />
-            </div>
-            <div>
-              <span className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>
-                News<span style={{ color: '#F97316' }}>X</span>
-              </span>
-              <p className="text-[10px] font-medium" style={{ color: '#8B5CF6' }}>ADMIN PANEL</p>
-            </div>
+            <img
+              src={isDark ? '/Logo_Newschill_White.png' : '/Lgogo_Newschill_Black.png'}
+              alt="Newschill"
+              className="h-8 w-auto"
+            />
+            <p className="text-[10px] font-medium" style={{ color: '#8B5CF6' }}>ADMIN PANEL</p>
           </Link>
         </div>
 

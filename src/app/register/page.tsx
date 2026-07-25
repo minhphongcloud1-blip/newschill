@@ -4,12 +4,14 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { Flame, Eye, EyeOff, ArrowRight, Mail, Lock, User } from 'lucide-react';
+import { Eye, EyeOff, ArrowRight, Mail, Lock, User } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTheme } from '@/contexts/ThemeContext';
 
 export default function RegisterPage() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const { isDark } = useTheme();
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
@@ -58,14 +60,13 @@ export default function RegisterPage() {
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ delay: 0.1 }}
-          className="flex items-center justify-center gap-2 mb-8"
+          className="flex items-center justify-center mb-8"
         >
-          <div className="w-12 h-12 rounded-2xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #F97316, #EA580C)' }}>
-            <Flame className="w-7 h-7 text-white" />
-          </div>
-          <span className="text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>
-            News<span style={{ color: '#F97316' }}>X</span>
-          </span>
+          <img
+            src={isDark ? '/Logo_Newschill_White.png' : '/Lgogo_Newschill_Black.png'}
+            alt="Newschill"
+            className="h-10 w-auto"
+          />
         </motion.div>
 
         <motion.div
