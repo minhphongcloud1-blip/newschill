@@ -9,7 +9,7 @@ import { slugify } from '@/lib/utils';
 
 const PRESET_COLORS = [
   '#3B82F6', '#8B5CF6', '#10B981', '#F59E0B',
-  '#EF4444', '#06B6D4', '#1686FF', '#EC4899',
+  '#EF4444', '#06B6D4', 'var(--brand)', '#EC4899',
   '#14B8A6', '#A855F7', '#6366F1', '#84CC16',
 ];
 

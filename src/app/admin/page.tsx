@@ -152,7 +152,7 @@ export default function AdminDashboard() {
       label: 'Tổng bản nháp AI',
       value: stats?.totalDrafts ?? 0,
       icon: Flame,
-      color: '#1686FF',
+      color: 'var(--brand)',
       bg: 'rgba(249,115,22,0.1)',
       href: '/admin/ai-drafts',
     },
@@ -331,10 +331,10 @@ export default function AdminDashboard() {
         >
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
-              <Flame className="w-5 h-5" style={{ color: '#1686FF' }} />
+              <Flame className="w-5 h-5" style={{ color: 'var(--brand)' }} />
               <h2 className="text-base font-bold" style={{ color: 'var(--text-primary)' }}>Bản nháp AI gần đây</h2>
             </div>
-            <Link href="/admin/ai-drafts" className="text-xs font-medium" style={{ color: '#1686FF' }}>Quản lý</Link>
+            <Link href="/admin/ai-drafts" className="text-xs font-medium" style={{ color: 'var(--brand)' }}>Quản lý</Link>
           </div>
 
           {loading ? (
@@ -399,7 +399,7 @@ export default function AdminDashboard() {
             style={{ background: 'var(--bg-glass-strong)', backdropFilter: 'var(--glass-blur)', borderColor: 'var(--border-glass)' }}
           >
             <div className="flex items-center gap-2 mb-4">
-              <TrendingUp className="w-5 h-5" style={{ color: '#1686FF' }} />
+              <TrendingUp className="w-5 h-5" style={{ color: 'var(--brand)' }} />
               <h2 className="text-base font-bold" style={{ color: 'var(--text-primary)' }}>Bài viết nổi bật (thực tế)</h2>
             </div>
             <div className="overflow-x-auto">

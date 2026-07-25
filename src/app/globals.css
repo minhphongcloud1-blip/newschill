@@ -7,6 +7,12 @@
 /* Dark Glass (default) */
 :root,
 [data-theme="dark"] {
+  /* Brand colors — đổi ở đây để thay toàn bộ app */
+  --brand: #1686FF;
+  --brand-dark: #1270D6;
+  --brand-light: rgba(22, 134, 255, 0.15);
+  --brand-gradient: linear-gradient(135deg, #1686FF, #1270D6);
+
   --bg-primary: #0a0a0f;
   --bg-secondary: rgba(255, 255, 255, 0.04);
   --bg-tertiary: rgba(255, 255, 255, 0.06);
@@ -28,12 +34,18 @@
   --glass-blur-heavy: blur(12px);
   --shadow-glass: 0 8px 32px rgba(0, 0, 0, 0.3);
   --gradient-mesh: radial-gradient(ellipse 80% 60% at 20% 20%, rgba(139,92,246,0.12) 0%, transparent 50%),
-                   radial-gradient(ellipse 60% 80% at 80% 80%, rgba(249,115,22,0.08) 0%, transparent 50%),
+                   radial-gradient(ellipse 60% 80% at 80% 80%, rgba(22,134,255,0.08) 0%, transparent 50%),
                    radial-gradient(ellipse 50% 50% at 50% 0%, rgba(59,130,246,0.06) 0%, transparent 50%);
 }
 
 /* Light Glass */
 [data-theme="light"] {
+  /* Brand colors — same as dark, override here if needed */
+  --brand: #1686FF;
+  --brand-dark: #1270D6;
+  --brand-light: rgba(22, 134, 255, 0.1);
+  --brand-gradient: linear-gradient(135deg, #1686FF, #1270D6);
+
   --bg-primary: #ffffff;
   --bg-secondary: #f7f7f7;
   --bg-tertiary: #f0f0f0;
@@ -55,7 +67,7 @@
   --glass-blur-heavy: blur(12px);
   --shadow-glass: 0 8px 32px rgba(0, 0, 0, 0.06);
   --gradient-mesh: radial-gradient(ellipse 80% 60% at 20% 20%, rgba(139,92,246,0.06) 0%, transparent 50%),
-                   radial-gradient(ellipse 60% 80% at 80% 80%, rgba(249,115,22,0.04) 0%, transparent 50%),
+                   radial-gradient(ellipse 60% 80% at 80% 80%, rgba(22,134,255,0.04) 0%, transparent 50%),
                    radial-gradient(ellipse 50% 50% at 50% 0%, rgba(59,130,246,0.03) 0%, transparent 50%);
 }
 

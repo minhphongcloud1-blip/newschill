@@ -69,10 +69,10 @@ export default function RightPanel() {
         >
           <div className="px-4 py-3 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <TrendingUp className="w-5 h-5" style={{ color: '#1686FF' }} />
+              <TrendingUp className="w-5 h-5" style={{ color: 'var(--brand)' }} />
               <h2 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>Xu hướng</h2>
             </div>
-            <Link href="/trending" className="text-xs font-medium" style={{ color: '#1686FF' }}>Xem thêm</Link>
+            <Link href="/trending" className="text-xs font-medium" style={{ color: 'var(--brand)' }}>Xem thêm</Link>
           </div>
           {trending.map((article, i) => (
             <Link key={article.id} href={article.slug ? `/tin-tuc/${article.slug}` : `/article/${article.id}`}>

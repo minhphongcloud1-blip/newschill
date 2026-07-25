@@ -97,7 +97,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <Shield className="w-5 h-5" style={{ color: '#8B5CF6' }} />
             <span className="font-bold" style={{ color: 'var(--text-primary)' }}>Admin</span>
           </div>
-          <Link href="/" className="text-sm" style={{ color: '#1686FF' }}>← Quay lại</Link>
+          <Link href="/" className="text-sm" style={{ color: 'var(--brand)' }}>← Quay lại</Link>
         </div>
         <div className="max-w-7xl mx-auto">
           {children}

@@ -63,7 +63,7 @@ export default function LoginPage() {
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div
           className="absolute -top-1/2 -left-1/2 w-full h-full rounded-full blur-[120px] opacity-20"
-          style={{ background: 'radial-gradient(circle, #1686FF 0%, transparent 70%)' }}
+          style={{ background: 'radial-gradient(circle, var(--brand) 0%, transparent 70%)' }}
         />
         <div
           className="absolute -bottom-1/2 -right-1/2 w-full h-full rounded-full blur-[120px] opacity-10"
@@ -136,7 +136,7 @@ export default function LoginPage() {
                     borderColor: 'var(--border-primary)',
                     color: 'var(--text-primary)',
                   }}
-                  onFocus={(e) => (e.target.style.borderColor = '#1686FF')}
+                  onFocus={(e) => (e.target.style.borderColor = 'var(--brand)')}
                   onBlur={(e) => (e.target.style.borderColor = 'var(--border-primary)')}
                 />
               </div>
@@ -160,7 +160,7 @@ export default function LoginPage() {
                     borderColor: 'var(--border-primary)',
                     color: 'var(--text-primary)',
                   }}
-                  onFocus={(e) => (e.target.style.borderColor = '#1686FF')}
+                  onFocus={(e) => (e.target.style.borderColor = 'var(--brand)')}
                   onBlur={(e) => (e.target.style.borderColor = 'var(--border-primary)')}
                 />
                 <button
@@ -182,8 +182,8 @@ export default function LoginPage() {
                 onClick={() => setRememberMe(!rememberMe)}
                 className="w-5 h-5 rounded flex items-center justify-center border transition-all flex-shrink-0"
                 style={{
-                  background: rememberMe ? '#1686FF' : 'transparent',
-                  borderColor: rememberMe ? '#1686FF' : 'var(--border-primary)',
+                  background: rememberMe ? 'var(--brand)' : 'transparent',
+                  borderColor: rememberMe ? 'var(--brand)' : 'var(--border-primary)',
                 }}
               >
                 {rememberMe && <Check className="w-3 h-3 text-white" strokeWidth={3} />}
@@ -204,7 +204,7 @@ export default function LoginPage() {
               whileHover={{ scale: 1.01 }}
               whileTap={{ scale: 0.99 }}
               className="w-full py-3 rounded-xl font-semibold text-white flex items-center justify-center gap-2 transition-all disabled:opacity-50"
-              style={{ background: 'linear-gradient(135deg, #1686FF, #1270D6)' }}
+              style={{ background: 'var(--brand-gradient)' }}
             >
               {isLoading ? (
                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -251,7 +251,7 @@ export default function LoginPage() {
           style={{ color: 'var(--text-secondary)' }}
         >
           Chưa có tài khoản?{' '}
-          <Link href="/register" className="font-semibold transition-colors" style={{ color: '#1686FF' }}>
+          <Link href="/register" className="font-semibold transition-colors" style={{ color: 'var(--brand)' }}>
             Đăng ký ngay
           </Link>
         </motion.p>

@@ -89,7 +89,7 @@ export default function ArticleFeed({
             onClick={onRefresh}
             className="fixed top-16 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold text-white shadow-lg cursor-pointer"
             style={{
-              background: 'linear-gradient(135deg, #1686FF, #1270D6)',
+              background: 'var(--brand-gradient)',
               boxShadow: '0 4px 20px rgba(249, 115, 22, 0.5)',
             }}
             whileHover={{ scale: 1.05 }}

@@ -51,13 +51,13 @@ export default function Sidebar() {
           whileTap={{ scale: 0.98 }}
           className="flex items-center gap-3 px-3 py-2.5 rounded-xl relative"
           style={{
-            color: isActive ? '#1686FF' : 'var(--text-primary)',
+            color: isActive ? 'var(--brand)' : 'var(--text-primary)',
           }}
         >
           {isActive && (
             <motion.div layoutId="sidebar-active"
               className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-7 rounded-r-full"
-              style={{ background: '#1686FF' }}
+              style={{ background: 'var(--brand)' }}
             />
           )}
           <Icon className="w-5 h-5 shrink-0" />
@@ -117,7 +117,7 @@ export default function Sidebar() {
             )}
             {isReader && (
               <span className="flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-full font-semibold"
-                style={{ background: 'rgba(249,115,22,0.12)', color: '#1686FF' }}>
+                style={{ background: 'rgba(249,115,22,0.12)', color: 'var(--brand)' }}>
                 <Lock className="w-2.5 h-2.5" />Pro
               </span>
             )}
@@ -156,7 +156,7 @@ export default function Sidebar() {
               <div className="relative shrink-0">
                 <img src={currentUser.avatar} alt={currentUser.name} className="w-8 h-8 rounded-full" />
                 {(isPro || isWriter) && currentUser.role !== 'admin' && (
-                  <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full flex items-center justify-center" style={{ background: '#1686FF' }}>
+                  <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full flex items-center justify-center" style={{ background: 'var(--brand)' }}>
                     <Crown className="w-2.5 h-2.5 text-white" />
                   </div>
                 )}
@@ -182,7 +182,7 @@ export default function Sidebar() {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 className="flex items-center gap-3 px-3 py-2.5 rounded-xl"
-                style={{ background: '#1686FF', color: '#fff' }}
+                style={{ background: 'var(--brand)', color: '#fff' }}
               >
                 <User className="w-5 h-5" />
                 <span className="text-[15px] font-semibold">Đăng nhập</span>

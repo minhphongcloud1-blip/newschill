@@ -149,7 +149,7 @@ export default function AdminAdsPage() {
           whileTap={{ scale: 0.98 }}
           onClick={handleNew}
           className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-white"
-          style={{ background: 'linear-gradient(135deg, #1686FF, #1270D6)' }}
+          style={{ background: 'var(--brand-gradient)' }}
         >
           <Plus className="w-4 h-4" />
           Thêm quảng cáo
@@ -199,10 +199,10 @@ export default function AdminAdsPage() {
                               ? (t === 'banner' ? 'rgba(249,115,22,0.15)' : 'rgba(139,92,246,0.15)')
                               : 'transparent',
                             borderColor: editing?.type === t
-                              ? (t === 'banner' ? '#1686FF' : '#8B5CF6')
+                              ? (t === 'banner' ? 'var(--brand)' : '#8B5CF6')
                               : 'var(--border-primary)',
                             color: editing?.type === t
-                              ? (t === 'banner' ? '#1686FF' : '#8B5CF6')
+                              ? (t === 'banner' ? 'var(--brand)' : '#8B5CF6')
                               : 'var(--text-secondary)',
                           }}
                         >
@@ -222,7 +222,7 @@ export default function AdminAdsPage() {
                       placeholder="VD: Banner tháng 7"
                       className="w-full px-4 py-2.5 rounded-xl border text-sm focus:outline-none transition-colors"
                       style={{ background: 'var(--bg-primary)', borderColor: 'var(--border-primary)', color: 'var(--text-primary)' }}
-                      onFocus={(e) => (e.target.style.borderColor = '#1686FF')}
+                      onFocus={(e) => (e.target.style.borderColor = 'var(--brand)')}
                       onBlur={(e) => (e.target.style.borderColor = 'var(--border-primary)')}
                     />
                   </div>
@@ -239,7 +239,7 @@ export default function AdminAdsPage() {
                       placeholder="https://example.com/banner.jpg"
                       className="w-full px-4 py-2.5 rounded-xl border text-sm focus:outline-none transition-colors"
                       style={{ background: 'var(--bg-primary)', borderColor: 'var(--border-primary)', color: 'var(--text-primary)' }}
-                      onFocus={(e) => (e.target.style.borderColor = '#1686FF')}
+                      onFocus={(e) => (e.target.style.borderColor = 'var(--brand)')}
                       onBlur={(e) => (e.target.style.borderColor = 'var(--border-primary)')}
                     />
                   </div>
@@ -256,7 +256,7 @@ export default function AdminAdsPage() {
                       placeholder="https://example.com"
                       className="w-full px-4 py-2.5 rounded-xl border text-sm focus:outline-none transition-colors"
                       style={{ background: 'var(--bg-primary)', borderColor: 'var(--border-primary)', color: 'var(--text-primary)' }}
-                      onFocus={(e) => (e.target.style.borderColor = '#1686FF')}
+                      onFocus={(e) => (e.target.style.borderColor = 'var(--brand)')}
                       onBlur={(e) => (e.target.style.borderColor = 'var(--border-primary)')}
                     />
                   </div>
@@ -296,7 +296,7 @@ export default function AdminAdsPage() {
                   onClick={handleSave}
                   disabled={!editing.title || !editing.imageUrl || !editing.linkUrl}
                   className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-white disabled:opacity-40"
-                  style={{ background: '#1686FF' }}
+                  style={{ background: 'var(--brand)' }}
                 >
                   <Save className="w-4 h-4" />
                   {isNew ? 'Thêm' : 'Cập nhật'}
@@ -359,7 +359,7 @@ export default function AdminAdsPage() {
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-xs flex items-center gap-1 hover:underline max-w-[260px] truncate"
-                        style={{ color: '#1686FF' }}
+                        style={{ color: 'var(--brand)' }}
                       >
                         <ExternalLink className="w-3 h-3 shrink-0" />
                         <span className="truncate">{ad.linkUrl || '—'}</span>
@@ -372,7 +372,7 @@ export default function AdminAdsPage() {
                         className="text-xs px-2.5 py-1 rounded-full font-medium"
                         style={{
                           background: ad.type === 'banner' ? 'rgba(249,115,22,0.1)' : 'rgba(139,92,246,0.1)',
-                          color: ad.type === 'banner' ? '#1686FF' : '#8B5CF6',
+                          color: ad.type === 'banner' ? 'var(--brand)' : '#8B5CF6',
                         }}
                       >
                         {ad.type === 'banner' ? '🖼️ Banner' : '📰 Right Panel'}

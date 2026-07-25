@@ -123,7 +123,7 @@ export default function HomeBanner() {
           <div className="absolute bottom-3 right-5 z-10 flex items-center gap-1.5">
             {banners.map((_, i) => (
               <button key={i} onClick={(e) => { e.preventDefault(); goTo(i); }} className="rounded-full transition-all duration-300"
-                style={{ width: i === current ? 20 : 8, height: 8, background: i === current ? '#1686FF' : 'rgba(255,255,255,0.6)' }}
+                style={{ width: i === current ? 20 : 8, height: 8, background: i === current ? 'var(--brand)' : 'rgba(255,255,255,0.6)' }}
                 aria-label={`Slide ${i + 1}`} />
             ))}
           </div>

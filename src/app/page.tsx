@@ -104,7 +104,7 @@ export default function HomePage() {
             {/* Inline page title */}
             {!searchQuery && (
               <header className="flex items-center gap-2 px-4 py-4">
-                <Flame className="w-5 h-5" style={{ color: '#1686FF' }} />
+                <Flame className="w-5 h-5" style={{ color: 'var(--brand)' }} />
                 <h1 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>Trang chủ</h1>
               </header>
             )}
@@ -117,7 +117,7 @@ export default function HomePage() {
                 <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
                   Kết quả tìm kiếm cho: <span style={{ color: 'var(--text-primary)' }}>&quot;{searchQuery}&quot;</span>
                 </p>
-                <button onClick={() => router.push('/')} className="text-sm px-3 py-1 rounded-full" style={{ color: '#1686FF', background: 'rgba(249,115,22,0.1)' }}>
+                <button onClick={() => router.push('/')} className="text-sm px-3 py-1 rounded-full" style={{ color: 'var(--brand)', background: 'rgba(249,115,22,0.1)' }}>
                   Xóa
                 </button>
               </div>

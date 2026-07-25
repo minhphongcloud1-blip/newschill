@@ -74,7 +74,7 @@ export default function EditArticlePage() {
       <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--bg-primary)' }}>
         <div className="text-center">
           <p className="text-lg mb-4" style={{ color: 'var(--text-primary)' }}>Không tìm thấy bài viết</p>
-          <button onClick={() => router.back()} className="px-4 py-2 rounded-full text-white text-sm" style={{ background: '#1686FF' }}>Quay lại</button>
+          <button onClick={() => router.back()} className="px-4 py-2 rounded-full text-white text-sm" style={{ background: 'var(--brand)' }}>Quay lại</button>
         </div>
       </div>
     );
@@ -88,7 +88,7 @@ export default function EditArticlePage() {
       <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--bg-primary)' }}>
         <div className="text-center">
           <p className="text-lg mb-4" style={{ color: 'var(--text-primary)' }}>Bạn không có quyền sửa bài viết này</p>
-          <button onClick={() => router.back()} className="px-4 py-2 rounded-full text-white text-sm" style={{ background: '#1686FF' }}>Quay lại</button>
+          <button onClick={() => router.back()} className="px-4 py-2 rounded-full text-white text-sm" style={{ background: 'var(--brand)' }}>Quay lại</button>
         </div>
       </div>
     );
@@ -219,7 +219,7 @@ export default function EditArticlePage() {
                     placeholder="https://images.unsplash.com/..."
                     className="w-full px-4 py-2.5 rounded-xl border text-sm focus:outline-none"
                     style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border-primary)', color: 'var(--text-primary)' }}
-                    onFocus={(e) => (e.target.style.borderColor = '#1686FF')}
+                    onFocus={(e) => (e.target.style.borderColor = 'var(--brand)')}
                     onBlur={(e) => (e.target.style.borderColor = 'var(--border-primary)')}
                   />
                   {coverUrl && (
@@ -271,7 +271,7 @@ export default function EditArticlePage() {
                     rows={2}
                     className="w-full px-4 py-2.5 rounded-xl border text-sm resize-none focus:outline-none"
                     style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border-primary)', color: 'var(--text-primary)' }}
-                    onFocus={(e) => (e.target.style.borderColor = '#1686FF')}
+                    onFocus={(e) => (e.target.style.borderColor = 'var(--brand)')}
                     onBlur={(e) => (e.target.style.borderColor = 'var(--border-primary)')}
                   />
                 </div>
@@ -288,7 +288,7 @@ export default function EditArticlePage() {
                     rows={18}
                     className="w-full px-4 py-3 rounded-xl border text-sm resize-none focus:outline-none font-mono"
                     style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border-primary)', color: 'var(--text-primary)', lineHeight: '1.8' }}
-                    onFocus={(e) => (e.target.style.borderColor = '#1686FF')}
+                    onFocus={(e) => (e.target.style.borderColor = 'var(--brand)')}
                     onBlur={(e) => (e.target.style.borderColor = 'var(--border-primary)')}
                   />
                 </div>
