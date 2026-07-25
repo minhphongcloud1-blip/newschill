@@ -111,13 +111,13 @@ function SettingsSheet({
   const isAdmin = currentUser.role === 'admin';
 
   return (
-    <AnimatePresence>
+    <>
       {/* Backdrop */}
       <motion.div
         key="settings-backdrop"
         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
         className="fixed inset-0 z-40"
-        style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(3px)' }}
+        style={{ background: 'rgba(0,0,0,0.5)' }}
         onClick={onClose}
       />
 
@@ -222,14 +222,14 @@ function SettingsSheet({
           </div>
         </motion.button>
       </motion.div>
-    </AnimatePresence>
+    </>
   );
 }
 
 // ── Main Profile Page ──────────────────────────────────────
 export default function ProfilePage() {
   const router = useRouter();
-  const { currentUser, isAuthenticated, isHydrated, likes, shares, myArticles, updateProfile, logout } = useAuth();
+  const { currentUser, isAuthenticated, likes, shares, myArticles, updateProfile, logout } = useAuth();
   const { toggleTheme, isDark } = useTheme();
   const [activeTab, setActiveTab] = useState<'myarticles' | 'shared' | 'liked'>(
     currentUser?.role === 'editor' || currentUser?.role === 'admin' ? 'myarticles' : 'shared'
@@ -256,21 +256,10 @@ export default function ProfilePage() {
   }, [likes, shares]);
 
   useEffect(() => {
-    // Chờ hydrate xong mới redirect – tránh false redirect lúc app đang đọc localStorage
-    if (!isHydrated) return;
     if (!isAuthenticated || !currentUser) {
       router.replace('/login?from=/profile');
     }
-  }, [isAuthenticated, currentUser, isHydrated, router]);
-
-  // Chưa hydrate → hiển thị skeleton thay vì redirect nhầm
-  if (!isHydrated) {
-    return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--bg-primary)' }}>
-        <div className="w-8 h-8 rounded-full border-2 border-t-transparent animate-spin" style={{ borderColor: '#F97316', borderTopColor: 'transparent' }} />
-      </div>
-    );
-  }
+  }, [isAuthenticated, currentUser, router]);
 
   if (!isAuthenticated || !currentUser) return null;
 
@@ -470,16 +459,18 @@ export default function ProfilePage() {
       </AnimatePresence>
 
       {/* ── Settings Bottom Sheet (mobile) ── */}
-      {showSettings && (
-        <SettingsSheet
-          onClose={() => setShowSettings(false)}
-          currentUser={currentUser}
-          isDark={isDark}
-          toggleTheme={toggleTheme}
-          logout={logout}
-          router={router}
-        />
-      )}
+      <AnimatePresence>
+        {showSettings && (
+          <SettingsSheet
+            onClose={() => setShowSettings(false)}
+            currentUser={currentUser}
+            isDark={isDark}
+            toggleTheme={toggleTheme}
+            logout={logout}
+            router={router}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

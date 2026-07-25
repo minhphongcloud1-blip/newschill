@@ -25,7 +25,7 @@
   --skeleton-from: rgba(255,255,255,0.04);
   --skeleton-via: rgba(255,255,255,0.08);
   --glass-blur: blur(20px);
-  --glass-blur-heavy: blur(40px);
+  --glass-blur-heavy: blur(12px);
   --shadow-glass: 0 8px 32px rgba(0, 0, 0, 0.3);
   --gradient-mesh: radial-gradient(ellipse 80% 60% at 20% 20%, rgba(139,92,246,0.12) 0%, transparent 50%),
                    radial-gradient(ellipse 60% 80% at 80% 80%, rgba(249,115,22,0.08) 0%, transparent 50%),
@@ -52,7 +52,7 @@
   --skeleton-from: rgba(0,0,0,0.04);
   --skeleton-via: rgba(0,0,0,0.08);
   --glass-blur: blur(20px);
-  --glass-blur-heavy: blur(40px);
+  --glass-blur-heavy: blur(12px);
   --shadow-glass: 0 8px 32px rgba(0, 0, 0, 0.06);
   --gradient-mesh: radial-gradient(ellipse 80% 60% at 20% 20%, rgba(139,92,246,0.06) 0%, transparent 50%),
                    radial-gradient(ellipse 60% 80% at 80% 80%, rgba(249,115,22,0.04) 0%, transparent 50%),

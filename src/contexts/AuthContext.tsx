@@ -402,6 +402,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return edits ? { ...mine, ...edits } : mine;
   }, [myArticles, articleEdits]);
 
+  if (!isHydrated) {
+    return null;
+  }
+
   return (
     <AuthContext.Provider
       value={{
