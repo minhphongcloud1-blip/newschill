@@ -231,6 +231,14 @@ export default function ProfilePage() {
   const router = useRouter();
   const { currentUser, isAuthenticated, likes, shares, myArticles, updateProfile, logout } = useAuth();
   const { toggleTheme, isDark } = useTheme();
+
+  // ── Early redirect for unauthenticated users ──
+  useEffect(() => {
+    if (!isAuthenticated || !currentUser) {
+      router.replace('/login?from=/profile');
+    }
+  }, [isAuthenticated, currentUser, router]);
+
   const [activeTab, setActiveTab] = useState<'myarticles' | 'shared' | 'liked'>(
     currentUser?.role === 'editor' || currentUser?.role === 'admin' ? 'myarticles' : 'shared'
   );
@@ -243,6 +251,7 @@ export default function ProfilePage() {
 
   // Fetch liked + shared articles from Supabase when IDs are available
   useEffect(() => {
+    if (!isAuthenticated || !currentUser) return; // Skip fetch when not logged in
     const ids = [...new Set([...likes, ...shares])];
     if (ids.length === 0) return;
     fetch(`/api/articles/by-ids?ids=${ids.join(',')}`)
@@ -253,7 +262,7 @@ export default function ProfilePage() {
         setSupabaseArticles(map);
       })
       .catch(() => {});
-  }, [likes, shares]);
+  }, [likes, shares, isAuthenticated, currentUser]);
 
   // Build a merged article lookup: Supabase articles + local myArticles
   const allArticlesMap = useMemo(() => {
@@ -264,12 +273,6 @@ export default function ProfilePage() {
     }
     return map;
   }, [supabaseArticles, myArticles]);
-
-  useEffect(() => {
-    if (!isAuthenticated || !currentUser) {
-      router.replace('/login?from=/profile');
-    }
-  }, [isAuthenticated, currentUser, router]);
 
   if (!isAuthenticated || !currentUser) return null;
 

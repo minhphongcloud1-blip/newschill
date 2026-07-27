@@ -130,7 +130,7 @@ export default function HomePage() {
               onRefresh={handleRefresh}
             />
           </main>
-          <RightPanel />
+          <RightPanel articles={articles} />
         </div>
         <MobileNav />
       </div>

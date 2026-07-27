@@ -74,7 +74,7 @@ export function useArticles(opts: UseArticlesOptions = {}) {
       if (opts.topic) params.set('topic', opts.topic);
       if (opts.search) params.set('search', opts.search);
       if (opts.seed) params.set('seed', opts.seed);
-      params.set('pageSize', String(opts.pageSize ?? 200));
+      params.set('pageSize', String(opts.pageSize ?? 30));
       const res = await fetch(`/api/articles?${params}`, {
         // Cache response in browser for 60s, serve stale while refreshing
         next: { revalidate: 60 },

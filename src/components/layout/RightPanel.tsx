@@ -4,52 +4,21 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { TrendingUp } from 'lucide-react';
 import { useArticles } from '@/hooks/useArticles';
+import { useAds } from '@/hooks/useAds';
 import { formatNumber } from '@/lib/utils';
-import { useState, useEffect, useMemo } from 'react';
-import { Advertisement } from '@/data/ads';
+import { useMemo } from 'react';
+import { Article } from '@/types';
 import RightPanelSearch from '@/components/layout/RightPanelSearch';
 
-const LS_KEY = 'newsx_ads';
-
-function getLocalSidebarAds(): Advertisement[] {
-  if (typeof window === 'undefined') return [];
-  try {
-    const all: Advertisement[] = JSON.parse(localStorage.getItem(LS_KEY) ?? '[]');
-    return all.filter((ad) => ad.isActive && ad.type === 'sidebar');
-  } catch { return []; }
+interface RightPanelProps {
+  articles?: Article[];
 }
 
-export default function RightPanel() {
-  const [ads, setAds] = useState<Advertisement[]>([]);
-  const { articles } = useArticles();
-
-  useEffect(() => {
-    // 1. Load instantly from localStorage (admin's saved config)
-    const local = getLocalSidebarAds();
-    setAds(local);
-
-    // 2. Fetch from Supabase via API
-    fetch('/api/ads')
-      .then((r) => r.json())
-      .then((json) => {
-        if (json.source === 'supabase' && Array.isArray(json.data)) {
-          // Dữ liệu thật từ Supabase → dùng và sync localStorage
-          const sidebar = (json.data as Advertisement[]).filter(
-            (ad) => ad.isActive && ad.type === 'sidebar'
-          );
-          setAds(sidebar);
-          localStorage.setItem(LS_KEY, JSON.stringify(json.data));
-        } else if (json.source === 'default' && local.length === 0) {
-          // Không có localStorage config → dùng default từ API
-          const sidebar = (json.data as Advertisement[]).filter(
-            (ad) => ad.isActive && ad.type === 'sidebar'
-          );
-          setAds(sidebar);
-        }
-        // source === 'default' nhưng có localStorage → giữ nguyên
-      })
-      .catch(() => {});
-  }, []);
+export default function RightPanel({ articles: externalArticles }: RightPanelProps = {}) {
+  const ads = useAds('sidebar');
+  // Only fetch internally when no articles passed from parent
+  const { articles: internalArticles } = useArticles(externalArticles ? { pageSize: 0 } : {});
+  const articles = externalArticles ?? internalArticles;
 
   const trending = useMemo(() =>
     [...articles]

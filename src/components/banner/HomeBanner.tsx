@@ -3,52 +3,12 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { Advertisement } from '@/data/ads';
-
-const LS_KEY = 'newsx_ads';
-
-function getLocalAds(): Advertisement[] {
-  if (typeof window === 'undefined') return [];
-  try {
-    const raw = localStorage.getItem(LS_KEY);
-    if (!raw) return [];
-    return JSON.parse(raw) as Advertisement[];
-  } catch { return []; }
-}
+import { useAds } from '@/hooks/useAds';
 
 export default function HomeBanner() {
-  const [banners, setBanners] = useState<Advertisement[]>([]);
+  const banners = useAds('banner');
   const [current, setCurrent] = useState(0);
   const [direction, setDirection] = useState(1);
-
-  useEffect(() => {
-    // 1. Load tức thì từ localStorage (tránh flash trống)
-    const localAds = getLocalAds();
-    const localBanners = localAds.filter((ad) => ad.isActive && ad.type === 'banner');
-    if (localBanners.length > 0) setBanners(localBanners);
-
-    // 2. Fetch từ Supabase qua API
-    fetch('/api/ads')
-      .then((r) => r.json())
-      .then((json) => {
-        if (json.source === 'supabase' && Array.isArray(json.data)) {
-          // Dữ liệu thật từ Supabase → dùng và sync localStorage
-          const apiBanners = (json.data as Advertisement[]).filter(
-            (ad) => ad.isActive && ad.type === 'banner'
-          );
-          setBanners(apiBanners);
-          localStorage.setItem(LS_KEY, JSON.stringify(json.data));
-        } else if (json.source === 'default' && localBanners.length === 0) {
-          // Không có localStorage config → dùng default từ API
-          const defBanners = (json.data as Advertisement[]).filter(
-            (ad) => ad.isActive && ad.type === 'banner'
-          );
-          setBanners(defBanners);
-        }
-        // source === 'default' nhưng có localStorage → giữ nguyên localStorage
-      })
-      .catch(() => {});
-  }, []);
 
   const next = useCallback(() => {
     setDirection(1);

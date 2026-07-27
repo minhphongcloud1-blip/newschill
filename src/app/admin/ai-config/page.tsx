@@ -34,8 +34,8 @@ const PROVIDERS: ProviderConfig[] = [
     models: [
       { id: 'gemini-2.0-flash-lite', label: 'Gemini 2.0 Flash Lite', description: 'Nhanh & rẻ nhất', badge: 'Khuyến nghị' },
       { id: 'gemini-2.0-flash', label: 'Gemini 2.0 Flash', description: 'Cân bằng tốc độ / chất lượng' },
-      { id: 'gemini-1.5-flash-latest', label: 'Gemini 1.5 Flash', description: 'Ổn định, phù hợp free tier' },
-      { id: 'gemini-1.5-pro-latest', label: 'Gemini 1.5 Pro', description: 'Context window lớn (2M token)' },
+      { id: 'gemini-1.5-flash', label: 'Gemini 1.5 Flash', description: 'Ổn định, phù hợp free tier' },
+      { id: 'gemini-1.5-pro', label: 'Gemini 1.5 Pro', description: 'Context window lớn (2M token)' },
     ],
   },
   {
@@ -114,7 +114,7 @@ export default function AiConfigPage() {
       fetch('/api/admin/openrouter/sync')
         .then(res => res.json())
         .then(res => setOrModels(res.data || []))
-        .catch(() => {});
+        .catch(() => { });
     }
   }, [config.activeProvider, orModels.length]);
 
@@ -196,6 +196,8 @@ export default function AiConfigPage() {
     setTestStatus((s) => ({ ...s, [providerKey]: 'testing' }));
     try {
       let status = 0;
+      let response: Response | null = null;
+      
       if (providerKey === 'gemini') {
         const res = await fetch(
           `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
@@ -206,6 +208,7 @@ export default function AiConfigPage() {
           }
         );
         status = res.status;
+        response = res;
       } else if (providerKey === 'openai') {
         const res = await fetch('https://api.openai.com/v1/chat/completions', {
           method: 'POST',
@@ -213,11 +216,12 @@ export default function AiConfigPage() {
           body: JSON.stringify({ model, messages: [{ role: 'user', content: 'Hi' }], max_tokens: 5 }),
         });
         status = res.status;
+        response = res;
       } else {
         const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
           method: 'POST',
-          headers: { 
-            'Content-Type': 'application/json', 
+          headers: {
+            'Content-Type': 'application/json',
             Authorization: `Bearer ${apiKey}`,
             'HTTP-Referer': 'https://newschill.online',
             'X-Title': 'NewsChill',
@@ -225,14 +229,29 @@ export default function AiConfigPage() {
           body: JSON.stringify({ model, messages: [{ role: 'user', content: 'Hi' }], max_tokens: 5 }),
         });
         status = res.status;
+        response = res;
       }
 
       if (status === 200) {
         setTestStatus((s) => ({ ...s, [providerKey]: 'ok' }));
       } else if (status === 429) {
         setTestStatus((s) => ({ ...s, [providerKey]: 'quota' }));
+        if (response) {
+          try {
+            const errData = await response.json();
+            alert(`API Quota Error (429):\n${JSON.stringify(errData, null, 2)}`);
+          } catch(e) {}
+        }
       } else {
         setTestStatus((s) => ({ ...s, [providerKey]: 'fail' }));
+        if (response) {
+          try {
+            const errData = await response.json();
+            alert(`API Error ${status}:\n${JSON.stringify(errData, null, 2)}`);
+          } catch(e) {
+            alert(`API Error: HTTP ${status}`);
+          }
+        }
       }
     } catch (e) {
       setTestStatus((s) => ({ ...s, [providerKey]: 'fail' }));
@@ -409,8 +428,8 @@ export default function AiConfigPage() {
                       {provider.key === 'openrouter' ? (
                         <div className="space-y-3">
                           <div className="flex items-center gap-3">
-                            <button 
-                              type="button" onClick={handleSyncOpenRouter} disabled={isSyncing} 
+                            <button
+                              type="button" onClick={handleSyncOpenRouter} disabled={isSyncing}
                               className="px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all disabled:opacity-50"
                               style={{ background: provider.color, color: '#fff' }}
                             >
@@ -421,13 +440,13 @@ export default function AiConfigPage() {
                               Kéo 100+ models mới nhất từ OpenRouter
                             </span>
                           </div>
-                          
+
                           <div className="relative">
-                            <div 
+                            <div
                               className="w-full p-3 rounded-xl border-2 flex justify-between items-center cursor-pointer transition-all"
-                              style={{ 
-                                borderColor: orDropdownOpen ? provider.color : 'var(--border-primary)', 
-                                background: orDropdownOpen ? `${provider.color}08` : 'var(--bg-secondary)' 
+                              style={{
+                                borderColor: orDropdownOpen ? provider.color : 'var(--border-primary)',
+                                background: orDropdownOpen ? `${provider.color}08` : 'var(--bg-secondary)'
                               }}
                               onClick={() => setOrDropdownOpen(!orDropdownOpen)}
                             >
@@ -441,17 +460,17 @@ export default function AiConfigPage() {
                               </div>
                               <ChevronDown className={`w-4 h-4 transition-transform ${orDropdownOpen ? 'rotate-180' : ''}`} style={{ color: 'var(--text-secondary)' }} />
                             </div>
-                            
+
                             <AnimatePresence>
                               {orDropdownOpen && (
-                                <motion.div 
+                                <motion.div
                                   initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }}
-                                  className="absolute top-full left-0 right-0 mt-2 rounded-xl shadow-xl border-2 z-50 flex flex-col" 
+                                  className="absolute top-full left-0 right-0 mt-2 rounded-xl shadow-xl border-2 z-50 flex flex-col"
                                   style={{ borderColor: 'var(--border-primary)', background: 'var(--bg-primary)', maxHeight: '350px' }}
                                 >
                                   <div className="p-2 border-b" style={{ borderColor: 'var(--border-primary)' }}>
-                                    <input 
-                                      type="text" placeholder="Tìm model (VD: claude, gemini, free...)" 
+                                    <input
+                                      type="text" placeholder="Tìm model (VD: claude, gemini, free...)"
                                       value={orSearch} onChange={e => setOrSearch(e.target.value)}
                                       className="w-full p-2.5 rounded-lg text-sm outline-none transition-all"
                                       style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-primary)', color: 'var(--text-primary)' }}
@@ -463,7 +482,7 @@ export default function AiConfigPage() {
                                     {orModels.filter(m => m.name.toLowerCase().includes(orSearch.toLowerCase()) || m.model_id.toLowerCase().includes(orSearch.toLowerCase())).map(m => {
                                       const isSelected = config.openrouter.model === m.model_id;
                                       return (
-                                        <button 
+                                        <button
                                           key={m.model_id} type="button"
                                           onClick={() => { updateProvider('openrouter', 'model', m.model_id); setOrDropdownOpen(false); }}
                                           className="w-full text-left p-2.5 rounded-lg flex justify-between items-center transition-all"
