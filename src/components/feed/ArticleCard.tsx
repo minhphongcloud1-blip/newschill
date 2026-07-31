@@ -108,13 +108,13 @@ export default function ArticleCard({ article, index = 0 }: ArticleCardProps) {
             style={{ borderColor: 'var(--border-primary)' }}
           >
             <h2
-              className="text-4xl font-extrabold leading-snug mb-2 group-hover:text-orange-500 transition-colors"
+              className="text-2xl md:text-4xl font-extrabold leading-snug mb-2 group-hover:text-orange-500 transition-colors"
               style={{ color: 'var(--text-primary)' }}
             >
               {article.title}
             </h2>
             {article.excerpt && (
-              <p className="text-lg leading-relaxed line-clamp-2" style={{ color: 'var(--text-secondary)' }}>
+              <p className="text-sm md:text-lg leading-relaxed line-clamp-2" style={{ color: 'var(--text-secondary)' }}>
                 {article.excerpt}
               </p>
             )}
