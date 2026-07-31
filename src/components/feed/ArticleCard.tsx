@@ -77,100 +77,96 @@ export default function ArticleCard({ article, index = 0 }: ArticleCardProps) {
           style={{ borderColor: 'var(--border-primary)' }}
         >
           {/* Author info */}
-          <div className="flex items-center gap-3 mb-3">
+          <div className="flex items-center gap-2 mb-4">
             <img
               src={article.author.avatar}
               alt={article.author.name}
-              className="w-10 h-10 rounded-full shrink-0 object-cover"
-              width={40} height={40}
+              className="w-9 h-9 rounded-full shrink-0 object-cover"
+              width={36} height={36}
               loading="lazy"
               decoding="async"
               style={{ background: 'var(--border-primary)' }}
             />
-            <div className="min-w-0 flex-1 flex items-center gap-2 flex-wrap">
-              <span className="text-[15px] font-bold truncate" style={{ color: 'var(--text-primary)' }}>
-                {article.author.name}
-              </span>
-              <span style={{ color: 'var(--text-tertiary)', fontSize: 13 }}>·</span>
-              <span
-                className="text-xs px-2 py-0.5 rounded-full shrink-0"
-                style={{
-                  background: `${article.topic.color}20`,
-                  color: article.topic.color,
-                }}
-              >
-                {article.topic.icon} {article.topic.name}
-              </span>
-            </div>
+            <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
+              {article.author.name}
+            </span>
+            <span style={{ color: 'var(--text-tertiary)', fontSize: 13 }}>·</span>
+            <span
+              className="text-xs px-2.5 py-0.5 rounded-full font-medium shrink-0"
+              style={{
+                background: `${article.topic.color}18`,
+                color: article.topic.color,
+              }}
+            >
+              {article.topic.icon} {article.topic.name}
+            </span>
           </div>
 
-          {/* Content */}
-          <div>
-            <h2 className="text-[15px] font-bold leading-snug mb-1.5 group-hover:text-orange-500 transition-colors" style={{ color: 'var(--text-primary)' }}>
+          {/* Title + Excerpt — centered, bordered box */}
+          <div
+            className="text-center mb-3 p-8 rounded-2xl border"
+            style={{ borderColor: 'var(--border-primary)' }}
+          >
+            <h2
+              className="text-4xl font-extrabold leading-snug mb-2 group-hover:text-orange-500 transition-colors"
+              style={{ color: 'var(--text-primary)' }}
+            >
               {article.title}
             </h2>
-            <p className="text-sm leading-relaxed mb-3 line-clamp-2" style={{ color: 'var(--text-secondary)' }}>
-              {article.excerpt}
-            </p>
-
-            {/* Cover image */}
-            {article.coverImage && (
-              <div className="rounded-2xl overflow-hidden mb-3 border aspect-video" style={{ borderColor: 'var(--border-primary)' }}>
-                <img
-                  src={article.coverImage}
-                  alt={article.title}
-                  className="w-full h-full object-cover"
-                  width={700}
-                  height={394}
-                  loading="lazy"
-                  decoding="async"
-                />
-              </div>
+            {article.excerpt && (
+              <p className="text-lg leading-relaxed line-clamp-2" style={{ color: 'var(--text-secondary)' }}>
+                {article.excerpt}
+              </p>
             )}
+          </div>
 
-            {/* Actions */}
-            <div className="flex items-center gap-6">
-              <button onClick={handleCommentClick} className="flex items-center gap-2 group/comment" style={{ color: 'var(--text-secondary)' }}>
-                <div className="p-2 rounded-full group-hover/comment:bg-blue-500/10">
-                  <MessageCircle className="w-[18px] h-[18px] group-hover/comment:text-blue-400" />
-                </div>
-                <span className="text-sm group-hover/comment:text-blue-400">{formatNumber(article.commentsCount)}</span>
-              </button>
-
-              <button
-                onClick={handleLike}
-                className="flex items-center gap-2 group/like"
-                style={{ color: liked ? '#F91880' : 'var(--text-secondary)' }}
-              >
-                <motion.div
-                  whileTap={{ scale: 1.3 }}
-                  className="p-2 rounded-full"
-                  style={{ background: liked ? 'rgba(249,24,128,0.1)' : 'transparent' }}
-                >
-                  <Heart className="w-[18px] h-[18px]" fill={liked ? '#F91880' : 'none'} style={{ color: liked ? '#F91880' : undefined }} />
-                </motion.div>
-                <span className="text-sm">{formatNumber(article.likesCount + (liked ? 1 : 0))}</span>
-              </button>
-
-              <button
-                onClick={handleShareClick}
-                className="flex items-center gap-2 group/share"
-                style={{ color: shared ? '#00BA7C' : 'var(--text-secondary)' }}
-              >
-                <motion.div
-                  whileTap={{ scale: 1.3 }}
-                  className="p-2 rounded-full"
-                  style={{ background: shared ? 'rgba(0,186,124,0.1)' : 'transparent' }}
-                >
-                  {shared ? (
-                    <Check className="w-[18px] h-[18px]" style={{ color: '#00BA7C' }} />
-                  ) : (
-                    <Share2 className="w-[18px] h-[18px] group-hover/share:text-green-400" />
-                  )}
-                </motion.div>
-                <span className="text-sm">{formatNumber(article.sharesCount + (shared ? 1 : 0))}</span>
-              </button>
+          {/* Cover image */}
+          {article.coverImage && (
+            <div className="rounded-2xl overflow-hidden mb-3 aspect-video border" style={{ borderColor: 'var(--border-primary)' }}>
+              <img
+                src={article.coverImage}
+                alt={article.title}
+                className="w-full h-full object-cover"
+                width={700}
+                height={394}
+                loading="lazy"
+                decoding="async"
+              />
             </div>
+          )}
+
+          {/* Actions — compact icon + count */}
+          <div className="flex items-center gap-5 pt-1">
+            <button onClick={handleCommentClick} className="flex items-center gap-1.5 transition-colors hover:text-blue-400" style={{ color: 'var(--text-secondary)' }}>
+              <MessageCircle className="w-5 h-5" />
+              <span className="text-sm">{formatNumber(article.commentsCount)}</span>
+            </button>
+
+            <button
+              onClick={handleLike}
+              className="flex items-center gap-1.5 transition-colors"
+              style={{ color: liked ? '#F91880' : 'var(--text-secondary)' }}
+            >
+              <motion.div whileTap={{ scale: 1.3 }}>
+                <Heart className="w-5 h-5" fill={liked ? '#F91880' : 'none'} />
+              </motion.div>
+              <span className="text-sm">{formatNumber(article.likesCount + (liked ? 1 : 0))}</span>
+            </button>
+
+            <button
+              onClick={handleShareClick}
+              className="flex items-center gap-1.5 transition-colors"
+              style={{ color: shared ? '#00BA7C' : 'var(--text-secondary)' }}
+            >
+              <motion.div whileTap={{ scale: 1.3 }}>
+                {shared ? (
+                  <Check className="w-5 h-5" style={{ color: '#00BA7C' }} />
+                ) : (
+                  <Share2 className="w-5 h-5" />
+                )}
+              </motion.div>
+              <span className="text-sm">{formatNumber(article.sharesCount + (shared ? 1 : 0))}</span>
+            </button>
           </div>
         </motion.article>
       </Link>
