@@ -198,18 +198,34 @@ export async function POST(req: Request) {
       const items = await fetchAndParseRss(feed.feed_url);
       const topItems = items.slice(0, maxItems);
 
-      // ── FIX 1: Batch dedup — 1 query thay vì N queries ───
-      const urls = topItems.map((i) => i.link);
-      const { data: existingRows } = await supabaseServer
+      // ── Batch dedup — check cả ai_drafts VÀ articles, theo URL + tiêu đề ───
+      const urls   = topItems.map((i) => i.link);
+      const titles = topItems.map((i) => i.title.trim());
+
+      // 1. Check trong bảng bản nháp (ai_drafts)
+      const { data: existingDraftRows } = await supabaseServer
         .from('ai_drafts')
-        .select('source_url')
-        .in('source_url', urls);
+        .select('source_url, title')
+        .or(`source_url.in.(${urls.map((u) => `"${u}"`).join(',')}),title.in.(${titles.map((t) => `"${t}"`).join(',')})`);
 
-      const existingUrls = new Set((existingRows ?? []).map((r: { source_url: string }) => r.source_url));
+      // 2. Check trong bảng bài đã xuất bản (articles)
+      const { data: existingArticleRows } = await supabaseServer
+        .from('articles')
+        .select('source_url, title')
+        .or(`source_url.in.(${urls.map((u) => `"${u}"`).join(',')}),title.in.(${titles.map((t) => `"${t}"`).join(',')})`);
 
-      // Lọc ra bài chưa tồn tại
+      // Gộp tất cả URL & tiêu đề đã tồn tại vào Set để check O(1)
+      const existingUrls   = new Set<string>();
+      const existingTitles = new Set<string>();
+      for (const r of [...(existingDraftRows ?? []), ...(existingArticleRows ?? [])]) {
+        if (r.source_url) existingUrls.add(r.source_url);
+        if (r.title)      existingTitles.add(r.title.trim());
+      }
+
+      // Lọc ra bài thực sự chưa tồn tại (theo cả URL lẫn tiêu đề)
       const newItems = topItems.filter((item) => {
-        if (existingUrls.has(item.link)) { duplicateItems++; return false; }
+        const isDuplicate = existingUrls.has(item.link) || existingTitles.has(item.title.trim());
+        if (isDuplicate) { duplicateItems++; return false; }
         return true;
       });
 
